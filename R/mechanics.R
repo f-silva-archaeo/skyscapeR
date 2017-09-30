@@ -73,7 +73,7 @@ obliquity = function(year = cur.year) {
 #' @param year Year for which to calculate the declination.
 #' Defaults to present year as given by Sys.Date()
 #' @export
-#' @seealso \code{\link{obliquity}}, \code{\link{jS}}
+#' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}}, \code{\link{zenith}}, \code{\link{antizenith}}
 #' @examples
 #' # December Solstice declination for year 3999 BC:
 #' dS(-4000)
@@ -91,7 +91,7 @@ dS = function(year = cur.year) {
 #' @param year Year for which to calculate the declination.
 #' Defaults to present year as given by Sys.Date()
 #' @export
-#' @seealso \code{\link{obliquity}}, \code{\link{dS}}
+#' @seealso \code{\link{obliquity}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}, \code{\link{antizenith}}
 #' @examples
 #' # June Solstice declination for year 3999 BC:
 #' jS(-4000)
@@ -171,6 +171,75 @@ sMjLX = function(year = cur.year) {
   aux <- obliquity(year) + 5.145
   return(-aux)
 }
+
+#' Declination of sun at the equinoxes
+#'
+#' This function always returns a value of zero, which is the
+#' declination of the sun on the day of the (astronomical)
+#' equinoxes.
+#' @export
+#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{zenith}}, \code{\link{antizenith}}
+#' @examples
+#' eq()
+eq = function() {
+  return(0)
+}
+
+#' Declination of the zenith sun for a given location
+#'
+#' This function returns the declination of the sun
+#' when it is at the zenith for a given location. If
+#'  this phenomena does not occur or given location
+#'  (i.e. if location is outside the tropical band)
+#'  the function returns a NULL value.
+#' @param loc This can be either the latitude of the l
+#' ocation, or a skyscapeR.horizon object
+#' @export
+#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{antizenith}}
+#' @examples
+#' # Zenith sun declination for Mexico City:
+#' zenith(19.419)
+#'
+#' # There is no zenith sun phenomena in London:
+#' zenith(51.507)
+zenith = function(loc) {
+  if (class(loc)=='skyscapeR.horizon') {
+    lat <- loc$georef[1]
+  } else { lat <- loc }
+
+  if (lat > jS() | lat < dS()) {
+    return(NULL)
+  } else { return(lat) }
+}
+
+#' Declination of the anti-zenith sun for a given location
+#'
+#' This function returns the declination of the sun
+#' when it is at the anti-zenith, or nadir, for a given
+#' location. If this phenomena does not occur or given
+#' location (i.e. if location is outside the tropical
+#' band) the function returns a NULL value.
+#' @param loc This can be either the latitude of the l
+#' ocation, or a skyscapeR.horizon object
+#' @export
+#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}
+#' @examples
+#' # Anti-zenith sun declination for Mexico City:
+#' antizenith(19.419)
+#'
+#' # There is no anti-zenith sun phenomena in London:
+#' antizenith(51.507)
+antizenith = function(loc) {
+  if (class(loc)=='skyscapeR.horizon') {
+    lat <- loc$georef[1]
+  } else { lat <- loc }
+
+  if (lat > jS() | lat < dS()) {
+    return(NULL)
+  } else { return(-lat) }
+}
+
+
 
 
 #' Time shift object of class 'skyscapeR.star'
