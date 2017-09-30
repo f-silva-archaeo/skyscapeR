@@ -20,5 +20,5 @@ obliquity estimation.
 dS(-4000)
 }
 \seealso{
-\code{\link{obliquity}}, \code{\link{jS}}
+\code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}}, \code{\link{zenith}}, \code{\link{antizenith}}
 }
