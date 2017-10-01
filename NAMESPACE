@@ -2,6 +2,7 @@
 
 S3method(plot,skyscapeR.curv)
 S3method(plot,skyscapeR.horizon)
+S3method(plot,skyscapeR.orbit)
 export(antizenith)
 export(az2dec)
 export(createHor)

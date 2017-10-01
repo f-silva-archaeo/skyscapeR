@@ -110,3 +110,55 @@ plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, ...
   # axis(2, at = seq(0,yl[2],by=10))
   box()
 }
+
+
+#' Plot visible path of celestial object on horizon
+#'
+#' This function adds the visible path of a celestial object to a horizon plot.
+#' @param orbit Object of \emph{skyscapeR.orbit} format.
+#' @param col String with colour to plot path in. Defaults to red.
+#' @export
+#' @seealso \code{\link{plot.skyscapeR.horizon}}, \code{\link{orbit}}
+#' @examples
+#' hor <- download.HWT('HIFVTBGK')
+#' plot(hor)
+#'
+#' path <- orbit(dS(-2500),hor)
+#' plot(path, col='blue')
+plot.skyscapeR.orbit <- function(orbit, col, ...) {
+  if (missing(col)) { col <- "red" }
+
+  # TO DO: if no horizon displayed assume flat horizon
+  options(warn=2)
+  test <- try (par(new=T), silent=T)
+  options(warn=0)
+  if (class(test)=='try-error') {
+    hor <- createHor(c(0,180,360), c(0,0,0), orbit$georef[1], orbit$georef[2], 'Flatland')
+    plot(hor)
+  }
+
+  ind.break <- which(abs(diff(orbit$az)) > 1)
+  if (NROW(ind.break) > 0) {
+    for (i in 1:(NROW(ind.break)+1)) {
+      orb1 <- c()
+      xx <- c()
+      if (i==1) { xx <- seq(1,ind.break[i],1) }
+      if (i>1 & i<=NROW(ind.break)) {
+        xx <- seq(ind.break[i-1]+1, ind.break[i], 1)
+      }
+      if (i>NROW(ind.break)) {
+        xx <- seq(ind.break[i-1]+1, NROW(orbit$az), 1)
+      }
+      orb1$az <- orbit$az[xx]
+      orb1$alt <- orbit$alt[xx]
+      lines(orb1$az, orb1$alt, col=col)
+      lines(orb1$az - 360, orb1$alt, col=col)
+      lines(orb1$az + 360, orb1$alt, col=col)
+    }
+  } else {
+    lines(orbit$az, orbit$alt, col=col)
+    lines(orbit$az - 360, orbit$alt, col=col)
+    lines(orbit$az + 360, orbit$alt, col=col)
+  }
+}
+

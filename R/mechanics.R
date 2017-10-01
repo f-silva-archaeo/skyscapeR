@@ -15,10 +15,10 @@ cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 #' This function is a wrapper for function \code{\link[astrolibR]{hor2eq}}
 #' of package 'astrolibR'.
 #' @param az Azimuth(s) for which to calculate declination(s). See examples below.
-#' @param hor A skyscapeR.horizon object. Optional.
+#' @param loc Location, can be either a skyscapeR.horizon object or, alternatively,
+#' a latitude.
 #' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
 #' is provided then this is will automaticallty retrieved from the horizon data.
-#' @param lat Latitude. Optional, only necessary if hor is not provided.
 #' @param ... Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.
 #' @export
 #' @seealso \code{\link[astrolibR]{hor2eq}}
@@ -30,9 +30,9 @@ cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 #'
 #' # Can also be used for an array of azimuths:
 #' decs <- az2dec( c(87,92,110), hor )
-az2dec = function(az, hor, alt, lat, ...){
-  if (missing(hor)) { hor <- c(); hor$georef <- c(lat, 0) }
-  if (missing(alt) & !missing(hor)) {
+az2dec = function(az, loc, alt, ...){
+  if (class(loc) != 'skyscapeR.horizon') { hor <- c(); hor$georef <- c(loc, 0) } else { hor <- loc }
+  if (missing(alt) & class(loc) == 'skyscapeR.horizon') {
     hh <- splinefun(hor$az, hor$alt)
     alt <- hh(az)
   }
@@ -295,17 +295,26 @@ palaeo.star = function(star, year = cur.year) {
 #' object from any location on earth. It outputs a 'skyscapeR.orbit'
 #' object, which includes AZ and ALT information.
 #' @param dec Declination of object.
-#' @param lat Latitude of location
-#' @param lon Longitude of location
+#' @param loc Locations, either a skyscapeR.object or a vector
+#' containing the latitude and longitude of location, in this order.
 #' @export
 #' @examples
 #' # Visible path of sun on June Solstice on year 3999 BC from London:
 #' sun.dec <- jS(-4000)
 #' london.lat <- 51.5074 #N
 #' london.lon <- -0.1278 #W
-#' path <- orbit(sun.dec, london.lat, london.lon)
+#' loc <- c( london.lat, london.lon )
+#' path <- orbit(sun.dec, loc)
 #' plot(path$az, path$alt, ylim=c(0,90), type='l', xlab='AZ', ylab='ALT', col='red', lwd=2)
-orbit = function(dec, lat, lon) {
+orbit = function(dec, loc) {
+  if (class(loc)=='skyscapeR.horizon') {
+    lat <- loc$georef[1]
+    lon <- loc$georef[2]
+  } else {
+    lat <- loc[1]
+    lon <- loc[2]
+  }
+
   ra <- seq(0,360, by=0.1)
   aux <- array(NA,c(NROW(ra),2))
 

@@ -4,14 +4,13 @@
 \alias{orbit}
 \title{Calculate visible path of celestial object at given location}
 \usage{
-orbit(dec, lat, lon)
+orbit(dec, loc)
 }
 \arguments{
 \item{dec}{Declination of object.}
 
-\item{lat}{Latitude of location}
-
-\item{lon}{Longitude of location}
+\item{loc}{Locations, either a skyscapeR.object or a vector
+containing the latitude and longitude of location, in this order.}
 }
 \description{
 This function calculates the visibile path of a celestial
@@ -23,6 +22,7 @@ object, which includes AZ and ALT information.
 sun.dec <- jS(-4000)
 london.lat <- 51.5074 #N
 london.lon <- -0.1278 #W
-path <- orbit(sun.dec, london.lat, london.lon)
+loc <- c( london.lat, london.lon )
+path <- orbit(sun.dec, loc)
 plot(path$az, path$alt, ylim=c(0,90), type='l', xlab='AZ', ylab='ALT', col='red', lwd=2)
 }

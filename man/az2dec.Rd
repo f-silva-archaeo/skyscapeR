@@ -4,17 +4,16 @@
 \alias{az2dec}
 \title{Calculates declination from azimuth and altitude measurements}
 \usage{
-az2dec(az, hor, alt, lat, ...)
+az2dec(az, loc, alt, ...)
 }
 \arguments{
 \item{az}{Azimuth(s) for which to calculate declination(s). See examples below.}
 
-\item{hor}{A skyscapeR.horizon object. Optional.}
+\item{loc}{Location, can be either a skyscapeR.horizon object or, alternatively,
+a latitude.}
 
 \item{alt}{Altitude of orientation. Optional, if left empty and a skyscapeR.object
 is provided then this is will automaticallty retrieved from the horizon data.}
-
-\item{lat}{Latitude. Optional, only necessary if hor is not provided.}
 
 \item{...}{Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.}
 }
