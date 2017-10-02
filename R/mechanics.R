@@ -306,7 +306,7 @@ palaeo.star = function(star, year = cur.year) {
 #' loc <- c( london.lat, london.lon )
 #' path <- orbit(sun.dec, loc)
 #' plot(path$az, path$alt, ylim=c(0,90), type='l', xlab='AZ', ylab='ALT', col='red', lwd=2)
-orbit = function(dec, loc) {
+orbit = function(dec, loc, ...) {
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$georef[1]
     lon <- loc$georef[2]
@@ -319,7 +319,7 @@ orbit = function(dec, loc) {
   aux <- array(NA,c(NROW(ra),2))
 
   for (i in 1:NROW(ra)) {
-    trash <- capture.output(tmp <- astrolibR::eq2hor(ra[i],dec,jd,lat,lon),file=NULL)
+    tmp <- eq2horFS(ra[i],dec,jd,lat,lon, precess_=F, ...)
     aux[i,] <- c(tmp$az,tmp$alt)
   }
 
@@ -331,4 +331,61 @@ orbit = function(dec, loc) {
   orbit$georef <- c(lat,lon)
   class(orbit) <- "skyscapeR.orbit"
   return(orbit)
+}
+
+
+#' Fixed eq2hor function from astrolibR package
+eq2horFS = function (ra, dec, jd, lat = 43.0783, lon = -89.865, ws = F,
+                     obsname, b1950, precess_ = TRUE, nutate_ = TRUE, refract_ = TRUE,
+                     aberration_ = TRUE, altitude = 0, ...)
+{
+  d2r = pi/180
+  h2r = pi/12
+  h2e = 15
+  if (!missing(b1950))
+    s_now = "   (j1950)"
+  else s_now = "   (j2000)"
+  j_now = (jd - 2451545)/365.25 + 2000
+  if (precess_) {
+    if (!missing(b1950)) {
+      for (i in 1:length(jd)) {
+        tmp = precess(ra[i], dec[i], 1950, j_now[i],
+                      fk4 = TRUE)
+        ra[i] = tmp$ra
+        dec[i] = tmp$dec
+      }
+    }
+    else {
+      for (i in 1:length(jd)) {
+        tmp = precess(ra[i], dec[i], 2000, j_now[i])
+        ra[i] = tmp$ra
+        dec[i] = tmp$dec
+      }
+    }
+  }
+  tmp = co_nutate(jd, ra, dec)
+  dra1 = tmp$d_ra
+  ddec1 = tmp$d_dec
+  eps = tmp$eps
+  d_psi = tmp$d_psi
+  tmp = co_aberration(jd, ra, dec, eps)
+  dra2 = tmp$d_ra
+  ddec2 = tmp$d_dec
+  eps = tmp$eps
+  ra = ra + (dra1 * nutate_ + dra2 * aberration_)/3600
+  dec = dec + (ddec1 * nutate_ + ddec2 * aberration_)/3600
+  lmst = ct2lst(lon, 0, jd)
+  lmst = lmst * h2e
+  last = lmst + d_psi * cos(eps)/3600
+  ha = last - ra
+  w = (ha < 0)
+  ha[w] = ha[w] + 360
+  ha = ha%%360
+  tmp = hadec2altaz(ha, dec, lat, ws = ws)
+  alt = tmp$alt
+  az = tmp$az
+  if (refract_)
+    alt = co_refract(alt, altitude = altitude, ..., to_observed = TRUE)
+
+  return(list(alt = alt, az = az, ha = ha))
 }

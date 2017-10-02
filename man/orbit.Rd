@@ -4,7 +4,7 @@
 \alias{orbit}
 \title{Calculate visible path of celestial object at given location}
 \usage{
-orbit(dec, loc)
+orbit(dec, loc, ...)
 }
 \arguments{
 \item{dec}{Declination of object.}
