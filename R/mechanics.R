@@ -5,43 +5,6 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 
 
-
-#' Calculates declination from azimuth and altitude measurements
-#'
-#' This function calculates the declination corresponding to an
-#' orientation , i.e. an azimuth. The altitude can either be given
-#'  or, alternatively, if a skyscapeR.horizon object is provided,
-#'  the corresponding horizon altitude will be automatically retrieved.
-#' This function is a wrapper for function \code{\link[astrolibR]{hor2eq}}
-#' of package 'astrolibR'.
-#' @param az Azimuth(s) for which to calculate declination(s). See examples below.
-#' @param loc Location, can be either a skyscapeR.horizon object or, alternatively,
-#' a latitude.
-#' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
-#' is provided then this is will automaticallty retrieved from the horizon data.
-#' @param ... Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.
-#' @export
-#' @seealso \code{\link[astrolibR]{hor2eq}}
-#' @examples
-#' hor <- download.HWT('HIFVTBGK')
-#'
-#' dec <- az2dec(92, hor)
-#' dec <- az2dec(92, hor, alt=4)
-#'
-#' # Can also be used for an array of azimuths:
-#' decs <- az2dec( c(87,92,110), hor )
-az2dec = function(az, loc, alt, ...){
-  if (class(loc) != 'skyscapeR.horizon') { hor <- c(); hor$georef <- c(loc, 0) } else { hor <- loc }
-  if (missing(alt) & class(loc) == 'skyscapeR.horizon') {
-    hh <- splinefun(hor$az, hor$alt)
-    alt <- hh(az)
-  }
-  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$georef[1], hor$georef[2], precess_ = F, ...)$dec, 2); names <- ''
-  return(dec)
-}
-
-
-
 #' Computes obliquity based on Laskar (2004) tables
 #'
 #' This function calculates the obliquity for a given year,
@@ -316,8 +279,8 @@ orbit = function(dec, loc, ...) {
     lon <- loc[2]
   }
 
-  ra <- seq(0,360, by=0.1)
-  aux <- array(NA,c(NROW(ra),2))
+  ra <- seq(0, 360, by=0.1)
+  aux <- array(NA, c(NROW(ra),2))
 
   for (i in 1:NROW(ra)) {
     tmp <- eq2horFS(ra[i], dec, jd, lat, lon, precess_=F, ...)
@@ -351,7 +314,7 @@ eq2horFS = function (ra, dec, jd, lat = 43.0783, lon = -89.865, ws = F,
   if (precess_) {
     if (!missing(b1950)) {
       for (i in 1:length(jd)) {
-        tmp = precess(ra[i], dec[i], 1950, j_now[i],
+        tmp = astrolibR::precess(ra[i], dec[i], 1950, j_now[i],
                       fk4 = TRUE)
         ra[i] = tmp$ra
         dec[i] = tmp$dec
@@ -359,35 +322,35 @@ eq2horFS = function (ra, dec, jd, lat = 43.0783, lon = -89.865, ws = F,
     }
     else {
       for (i in 1:length(jd)) {
-        tmp = precess(ra[i], dec[i], 2000, j_now[i])
+        tmp = astrolibR::precess(ra[i], dec[i], 2000, j_now[i])
         ra[i] = tmp$ra
         dec[i] = tmp$dec
       }
     }
   }
-  tmp = co_nutate(jd, ra, dec)
+  tmp = astrolibR::co_nutate(jd, ra, dec)
   dra1 = tmp$d_ra
   ddec1 = tmp$d_dec
   eps = tmp$eps
   d_psi = tmp$d_psi
-  tmp = co_aberration(jd, ra, dec, eps)
+  tmp = astrolibR::co_aberration(jd, ra, dec, eps)
   dra2 = tmp$d_ra
   ddec2 = tmp$d_dec
   eps = tmp$eps
   ra = ra + (dra1 * nutate_ + dra2 * aberration_)/3600
   dec = dec + (ddec1 * nutate_ + ddec2 * aberration_)/3600
-  lmst = ct2lst(lon, 0, jd)
+  lmst = astrolibR::ct2lst(lon, 0, jd)
   lmst = lmst * h2e
   last = lmst + d_psi * cos(eps)/3600
   ha = last - ra
   w = (ha < 0)
   ha[w] = ha[w] + 360
   ha = ha%%360
-  tmp = hadec2altaz(ha, dec, lat, ws = ws)
+  tmp = astrolibR::hadec2altaz(ha, dec, lat, ws = ws)
   alt = tmp$alt
   az = tmp$az
   if (refract_)
-    alt = co_refract(alt, altitude = altitude, ..., to_observed = TRUE)
+    alt = astrolibR::co_refract(alt, altitude = altitude, ..., to_observed = TRUE)
 
   return(list(alt = alt, az = az, ha = ha))
 }

@@ -96,6 +96,7 @@ plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, ...
     at <- seq(-360,720,by=90)
   }
 
+  par(mar=c(2,1,1,1))
   plot.default(hor$az, hor$alt, type='l', xlab = xx, ylab = "", yaxs='i', xaxs='i', ylim = yl, xlim = xl, axes=F, lwd=5, ...)
   x <- c(hor$az, rev(hor$az))
   y <- c(hor$alt, rep(-20,NROW(hor$az)))
