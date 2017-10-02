@@ -128,7 +128,6 @@ plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, ...
 plot.skyscapeR.orbit <- function(orbit, col, ...) {
   if (missing(col)) { col <- "red" }
 
-  # TO DO: if no horizon displayed assume flat horizon
   options(warn=2)
   test <- try (par(new=T), silent=T)
   options(warn=0)

@@ -320,7 +320,7 @@ orbit = function(dec, loc, ...) {
   aux <- array(NA,c(NROW(ra),2))
 
   for (i in 1:NROW(ra)) {
-    tmp <- eq2horFS(ra[i],dec,jd,lat,lon, precess_=F, ...)
+    tmp <- eq2horFS(ra[i], dec, jd, lat, lon, precess_=F, ...)
     aux[i,] <- c(tmp$az,tmp$alt)
   }
 
@@ -336,6 +336,7 @@ orbit = function(dec, loc, ...) {
 
 
 #' Fixed eq2hor function from astrolibR package
+#' @noRd
 eq2horFS = function (ra, dec, jd, lat = 43.0783, lon = -89.865, ws = F,
                      obsname, b1950, precess_ = TRUE, nutate_ = TRUE, refract_ = TRUE,
                      aberration_ = TRUE, altitude = 0, ...)
