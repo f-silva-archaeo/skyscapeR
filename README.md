@@ -1,8 +1,8 @@
 # skyscapeR
-_skyscapeR_ is a open source R package for data analysis in skyscape archaeology, archaeoastronomy and cultural astronomy, currently in alpha. It is intended to become a fully-fledged, transparent package offering robustness of quantitative methods yet simplicity of use.
+_skyscapeR_ is a open source R package for data analysis in skyscape archaeology, archaeoastronomy and cultural astronomy. It is intended to become a fully-fledged, transparent package offering robustness of quantitative methods yet simplicity of use.
 
 
-Currently it includes functions to transform horizontal to equatorial coordinates, create or download horizon profiles, plot them and overlay them with visible paths of common celestial objects/events for most prehistoric and all historic epochs. It also includs the ability to easily construct azimuth polar plots and curvigrams of declinations. Future versions will add further data analysis, significance testing and model selection facilities, as well as an easy-to-use Graphical User Interface.
+Currently it includes functions to transform horizontal to equatorial coordinates, create or download horizon profiles, plot them and overlay them with visible paths of common celestial objects/events for most prehistoric and all historic epochs. It also includes the ability to easily construct azimuth polar plots and declination curvigrams. Future versions will add further data analysis, significance testing and model selection facilities, as well as an easy-to-use Graphical User Interface.
 
 
 ## how to install
