@@ -297,6 +297,7 @@ palaeo.star = function(star, year = cur.year) {
 #' @param dec Declination of object.
 #' @param loc Locations, either a skyscapeR.object or a vector
 #' containing the latitude and longitude of location, in this order.
+#' @param ...  Any other parameters to be passed unto  \code{\link[astrolibR]{eq2hor}}.
 #' @export
 #' @examples
 #' # Visible path of sun on June Solstice on year 3999 BC from London:
