@@ -4,7 +4,7 @@
 \alias{orbit}
 \title{Calculate visible path of celestial object at given location}
 \usage{
-orbit(dec, loc, ...)
+orbit(dec, loc, res = 0.5, ...)
 }
 \arguments{
 \item{dec}{Declination of object.}
@@ -12,7 +12,9 @@ orbit(dec, loc, ...)
 \item{loc}{Locations, either a skyscapeR.object or a vector
 containing the latitude and longitude of location, in this order.}
 
-\item{...}{Any other parameters to be passed unto  \code{\link[astrolibR]{eq2hor}}.}
+\item{res}{The resolution (in degrees of RA) with which to calculate the path.}
+
+\item{...}{Any other parameters to be passed unto \code{\link[astrolibR]{eq2hor}}.}
 }
 \description{
 This function calculates the visibile path of a celestial

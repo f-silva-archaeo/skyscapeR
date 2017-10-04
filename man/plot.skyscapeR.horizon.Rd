@@ -5,7 +5,7 @@
 \title{Plot horizon data}
 \usage{
 \method{plot}{skyscapeR.horizon}(hor, show.az = F, max.alt, az0 = 0,
-  zoom = F, ...)
+  zoom = F, objects, ...)
 }
 \arguments{
 \item{hor}{Object of \emph{skyscapeR.horizon} format.}
@@ -20,15 +20,23 @@ Defaults to FALSE.}
 \item{zoom}{Boolean that controls whether to provide a zoomed-in view of 100 degrees in
 azimuth and 5 degrees of altitude above the horizonline. Defaults to FALSE.}
 
+\item{objects}{(Optional) A skyscapeR.object object created with \code{\link{object}}
+for displaying the paths of clestial objects.}
+
 \item{...}{Any other parameters to be passed unto \code{\link{plot.default}}.}
 }
 \description{
 This function creates a plot of horizon data.
 }
 \examples{
+# Plot a horizon retrieved from HeyWhatsThat:
 hor <- download.HWT('HIFVTBGK')
 plot(hor)
+
+# Add the paths of the ssolstice sun in the year 1999 BC:
+tt <- object(c('jS','dS'), -2000, 'blue')
+plot(hor, objects=tt)
 }
 \seealso{
-\code{\link{download.HWT}}
+\code{\link{download.HWT}}, \code{\link{object}}
 }

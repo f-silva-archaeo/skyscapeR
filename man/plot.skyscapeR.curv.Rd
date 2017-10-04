@@ -4,10 +4,16 @@
 \alias{plot.skyscapeR.curv}
 \title{Plot a curvigram}
 \usage{
-\method{plot}{skyscapeR.curv}(curv, xlim = NULL, ...)
+\method{plot}{skyscapeR.curv}(curv, objects, objects.label = T, xlim = NULL,
+  ...)
 }
 \arguments{
 \item{curv}{Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.}
+
+\item{objects}{(Optional) A skyscapeR.object object created with \code{\link{object}}
+for displaying the dclination of clestial objects.}
+
+\item{xlim}{Array of two values restricting the horizontal range of the plot.,}
 
 \item{...}{Any other parameters to be passed unto \code{\link{plot.default}}.}
 }
@@ -15,11 +21,15 @@
 This function creates a plot of a curvigram
 }
 \examples{
-# Plot some azimuth data:
-decs <- data(RugglesRSC)
-curv <- curvigram(decs, sd)
-plot(curv)
+# Plot the curvigram of Recumbent Stone Circles:
+data(RugglesRSC)
+curv <- curvigram(RugglesRSC$Dec, sd=2)
+plot(curv, xlim=c(-40,0))
+
+# Redo the plot to include lunar extreme declinations:
+LEx <- objects(c('smnLX','sMjLX'), -2000, col='red', lty=2)
+plot(curv, LEx, xlim=c(-40,0))
 }
 \seealso{
-\code{\link{curvigram}}
+\code{\link{curvigram}}, \code{\link{object}}
 }

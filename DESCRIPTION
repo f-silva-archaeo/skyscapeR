@@ -1,7 +1,8 @@
 Package: skyscapeR
 Type: Package
 Title: Skyscape Archaeology Data Analysis
-Version: 0.1.4
+Version: 0.1.6
+Date: 2017-10-03
 Author: Fabio Silva
 Maintainer: Fabio Silva <f.silva@uwtsd.ac.uk>
 Description: An R package for data analysis in skyscape archaeology, archaeoastronomy and cultural astronomy.

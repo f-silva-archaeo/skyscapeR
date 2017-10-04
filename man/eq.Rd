@@ -4,7 +4,7 @@
 \alias{eq}
 \title{Declination of sun at the equinoxes}
 \usage{
-eq()
+eq(bh = NULL)
 }
 \description{
 This function always returns a value of zero, which is the
