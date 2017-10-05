@@ -6,6 +6,9 @@
 \usage{
 eq(bh = NULL)
 }
+\arguments{
+\item{bh}{\emph{NULL} parameter. Can be left empty.}
+}
 \description{
 This function always returns a value of zero, which is the
 declination of the sun on the day of the (astronomical)

@@ -1,11 +1,9 @@
-devtools::use_package("plotrix")
-
 #' Polar plot of orientations (azimuths)
 #'
 #' This function creates a polar plot of azimuthal data. It is a wrapper for
 #' \code{\link[plotrix]{polar.plot}}
 #' @param az Array of azimuths. Values outside the [0, 360] range will be ignored.
-#' @param objects (Optional) A skyscapeR.object object created with \code{\link{object}}
+#' @param objects (Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
 #' for displaying the azimuths of clestial objects. Beware that this assumes a single
 #' location (given by parameter loc) and a flat horizon of zero degrees.
 #' @param loc (Optional) This can be either the latitude of the
@@ -13,6 +11,7 @@ devtools::use_package("plotrix")
 #' celestial targets.
 #' @param ... Any other parameters to be passed unto \code{\link[plotrix]{polar.plot}}
 #' @export
+#' @import utils stats graphics
 #' @seealso \code{\link[plotrix]{polar.plot}}, \code{\link{object}}
 #' @examples
 #' # Plot some azimuth data:
@@ -60,22 +59,25 @@ plotAz = function(az, objects, loc, ...) {
 #'
 #' This function creates a plot of a curvigram
 #' @param curv Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.
-#' @param objects (Optional) A skyscapeR.object object created with \code{\link{object}}
+#' @param objects (Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
 #' for displaying the dclination of clestial objects.
+#' @param objects.label (Optional) Boolean to control whether to label the celestial objects in
+#' the curvigram. Defaults to \emph{TRUE}.
 #' @param xlim Array of two values restricting the horizontal range of the plot.,
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @export
+#' @import utils stats graphics
 #' @seealso \code{\link{curvigram}}, \code{\link{object}}
 #' @examples
 #' # Plot the curvigram of Recumbent Stone Circles:
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, sd=2)
-#' plot(curv, xlim=c(-40,0))
+#' plotCurv(curv, xlim=c(-40,0))
 #'
 #' # Redo the plot to include lunar extreme declinations:
-#' LEx <- objects(c('smnLX','sMjLX'), -2000, col='red', lty=2)
-#' plot(curv, LEx, xlim=c(-40,0))
-plot.skyscapeR.curv = function(curv, objects, objects.label=T, xlim=NULL, ...) {
+#' LEx <- object('moon', -2000, col='red', lty=2)
+#' plotCurv(curv, LEx, xlim=c(-40,0))
+plotCurv = function(curv, objects, objects.label=T, xlim=NULL, ...) {
   par(mar=c(4, 4, 2, 2) + 0.1)
   if (is.null(xlim)) { xlim <- c(min(curv$dec),max(curv$dec)) }
   plot.default(-100,-100, xlab='Declination', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
@@ -101,25 +103,26 @@ plot.skyscapeR.curv = function(curv, objects, objects.label=T, xlim=NULL, ...) {
 #' This function creates a plot of horizon data.
 #' @param hor Object of \emph{skyscapeR.horizon} format.
 #' @param show.az Boolean that controls whether to display azimuth values on horizontal axis.
-#'  Defaults to FALSE.
+#'  Defaults to \emph{FALSE}.
 #' @param max.alt Maximum altitude to display. Defaults to 45 degrees.
 #' @param az0 Leftmost azimuth of plot. Defaults to 0 degrees, i.e. North at the left.
 #' @param zoom Boolean that controls whether to provide a zoomed-in view of 100 degrees in
-#' azimuth and 5 degrees of altitude above the horizonline. Defaults to FALSE.
-#' @param objects (Optional) A skyscapeR.object object created with \code{\link{object}}
-#' for displaying the paths of clestial objects.
+#' azimuth and 5 degrees of altitude above the horizonline. Defaults to \emph{FALSE}.
+#' @param objects (Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
+#' for displaying the paths of celestial objects.
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @export
+#' @import utils stats graphics grDevices
 #' @seealso \code{\link{download.HWT}}, \code{\link{object}}
 #' @examples
 #' # Plot a horizon retrieved from HeyWhatsThat:
 #' hor <- download.HWT('HIFVTBGK')
-#' plot(hor)
+#' plotHor(hor)
 #'
-#' # Add the paths of the ssolstice sun in the year 1999 BC:
-#' tt <- object(c('jS','dS'), -2000, 'blue')
-#' plot(hor, objects=tt)
-plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, objects, ...) {
+#' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
+#' tt <- object('sun', -2000, 'blue')
+#' plotHor(hor, objects=tt)
+plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, objects, ...) {
   # rejiggle so plot starts at given start point
   if (az0 < -360) { az0 <- az0 + 360 }
   ind <- which(hor$az < az0)
@@ -165,7 +168,7 @@ plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj
   if (!missing(objects)) {
     for (i in 1:objects$n) {
       orb <- orbit(objects$dec[i], hor, res=0.5)
-      plot(orb, objects$col[i])
+      plotOrb(orb, objects$col[i])
     }
   }
 
@@ -184,14 +187,9 @@ plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj
 #' @param orbit Object of \emph{skyscapeR.orbit} format.
 #' @param col String with colour to plot path in. Defaults to red.
 #' @seealso \code{\link{plot.skyscapeR.horizon}}, \code{\link{orbit}}
-#' @examples
-#' hor <- download.HWT('HIFVTBGK')
-#' plot(hor)
-#'
-#' path <- orbit(dS(-2500),hor)
-#' plot(path, col='blue')
+#' @import utils stats graphics
 #' @noRd
-plot.skyscapeR.orbit <- function(orbit, col) {
+plotOrb<- function(orbit, col) {
 
   ind.break <- which(abs(diff(orbit$az)) > 1)
   if (NROW(ind.break) > 0) {

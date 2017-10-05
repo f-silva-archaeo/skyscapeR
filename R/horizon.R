@@ -1,23 +1,20 @@
-devtools::use_package("png")
-
-
-#' Create skyscapeR.horizon object from Az/Alt data
+#' Create .\emph{skyscapeR.horizon} object from Az/Alt data
 #'
-#' This function creates a skyscapR.horizon object from measurements of
+#' This function creates a \emph{skyscapR.horizon} object from measurements of
 #' azimuth and altitude.
 #' @param az Array of azimuth values
-#' @param alt Array of altitude values
-#' @param lat Latitude of site
-#' @param lon Longitude of site
-#' @param name Name of site
-#' @seealso \code{\link{plot.skyscapeR.horizon}}
+#' @param alt Array of altitude values.
+#' @param lat Latitude of site.
+#' @param lon Longitude of site.
+#' @param name Name of site.
+#' @seealso \code{\link{plotHor}}
 #' @export
 #' @examples
 #' # Create a skyscapeR.horizon from 5 measurements:
 #' az <- c(0,90,180,270,360)
 #' alt <- c(0,5,5,0,0)
 #' hor <- createHor(az, alt, 40.1, -8, 'Test')
-#' plot(hor)
+#' plotHor(hor)
 createHor = function(az, alt, lat, lon, name) {
   # return result
   hor <- c()
@@ -31,19 +28,21 @@ createHor = function(az, alt, lat, lon, name) {
 
 
 
-#' Exports a skyscapeR.horizon object into Stellarium format
+#' Exports a \emph{skyscapeR.horizon} object into \emph{Stellarium} format
 #'
-#' This function exports any skyscapR.horizon object into the landscape
-#' format of Stellarium, ready to be imported.
-#' @param hor Horizon data in skyscapeR.horizon format.
-#' @param name Horizon name to be displayed in Stellarium, if different from one in skyscapeR.horizon object.
-#' @param author Author, to be included in landscape.ini file. Optional.
-#' @param description Description, to be included in landscape.ini file. Optional.
-#' @param ground_col Colour of ground. Defaults to Stellarium's default.
-#' @param hor_col Colour of horizon line. Defaults to Stellarium's default.
-#' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscapeR.horizon}}
+#' This function exports any \emph{skyscapR.horizon} object into the landscape
+#' format of \emph{Stellarium}, ready to be imported.
+#' @param hor Horizon data in \emph{skyscapeR.horizon} format.
+#' @param name Horizon name to be displayed in \emph{Stellarium}, if different
+#' from one in \emph{skyscapeR.horizon} object.
+#' @param author (Optional) Author, to be included in \emph{landscape.ini} file.
+#' @param description (Optional) Description, to be included in \emph{landscape.ini} file.
+#' @param ground_col Colour of ground. Defaults to \emph{Stellarium}'s default.
+#' @param hor_col Colour of horizon line. Defaults to \emph{Stellarium}'s default.
+#' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plotHor}}
 #' @references \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
 #' @export
+#' @import utils
 #' @examples
 #' # Downloads horizon data from HeyWhatsThat and exports it into Stellarium:
 #' hor <- download.HWT('HIFVTBGK')
@@ -77,13 +76,14 @@ exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor
 
 
 
-#' Download horizon data from HeyWhatsThat
+#' Download horizon data from \emph{HeyWhatsThat}
 #'
-#' This function downloads horizon data from HeyWhasThat,
-#' given its ID, and saves it as a skyscapeR.horizon object.
+#' This function downloads horizon data from \emph{HeyWhasThat},
+#' given its ID, and saves it as a \emph{skyscapeR.horizon} object.
 #' @param HWTID This is the 8 character ID attributed by
-#' HeyWhatsThat.com
+#' \emph{HeyWhatsThat.com}
 #' @export
+#' @import utils
 #' @references \href{http://heywhatsthat.com/}{HeyWhatsThat.com}
 #' @examples
 #' # Retrieve horizon data for \href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:
@@ -122,7 +122,6 @@ download.HWT = function(HWTID) {
   hor$Name <- result
 
   ## Horizon data
-  # hor.ex <- unique(substr(list.files(file.path("data","hor")),1,8)) # check if already downloaded
   hor.ex <- unique(substr(list.files(tempdir()),1,8)) # check if already downloaded
 
 

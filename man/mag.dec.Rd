@@ -8,7 +8,7 @@ north) based on IGRF 12th gen model}
 mag.dec(loc, date)
 }
 \arguments{
-\item{loc}{Location, can be either a skyscapeR.horizon object or, alternatively,
+\item{loc}{Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 a latitude.}
 
 \item{date}{Date for which to calculate magnetic declination, given as an array
@@ -19,9 +19,9 @@ for the 1st of January.}
 }
 \description{
 This function estimates the magnetic declination at a given location
-and moment in time, using the 12th generation International
-Geomagnetic Reference Field (IGRF) model. This function is a wrapper
-for function \code{\link[oce]{magneticField}} of package 'oce'.
+and moment in time, using the \emph{12th generation International
+Geomagnetic Reference Field (IGRF)} model. This function is a wrapper
+for function \code{\link[oce]{magneticField}} of package \emph{oce}.
 }
 \examples{
 # Magnetic Declination for London on April 1st 2016:

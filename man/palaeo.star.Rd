@@ -2,15 +2,15 @@
 % Please edit documentation in R/mechanics.R
 \name{palaeo.star}
 \alias{palaeo.star}
-\title{Time shift object of class 'skyscapeR.star'}
+\title{Time shift object of class \emph{skyscapeR.star}}
 \usage{
 palaeo.star(star, year = cur.year)
 }
 \arguments{
-\item{star}{Object created using \code{\link{star}}}
+\item{star}{Object created using \code{\link{star}}.}
 
 \item{year}{Year for which to calculate the coordinates.
-Defaults to present year as given by Sys.Date()}
+Defaults to present year as given by \emph{Sys.Date()}.}
 }
 \description{
 This function calculates the coordinates (RA and DEC)

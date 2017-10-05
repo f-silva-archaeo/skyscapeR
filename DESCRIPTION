@@ -1,14 +1,20 @@
 Package: skyscapeR
 Type: Package
-Title: Skyscape Archaeology Data Analysis
-Version: 0.1.6
+Title: Skyscape Archaeology Data Reduction, Visualization and Analysis
+Version: 0.1.7
 Date: 2017-10-03
 Author: Fabio Silva
 Maintainer: Fabio Silva <f.silva@uwtsd.ac.uk>
-Description: An R package for data analysis in skyscape archaeology, archaeoastronomy and cultural astronomy.
-Imports: astrolibR, palinsol, pracma, png, plotrix,
-    oce
+Description: An R package for data reduction, visualiation and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy.
+Depends: R (>= 2.10), palinsol
+Imports: astrolibR, pracma, png, plotrix,
+    oce,
+    utils,
+    stats,
+    graphics,
+    grDevices
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
+Suggests: testthat

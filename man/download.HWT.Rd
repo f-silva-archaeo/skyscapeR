@@ -2,17 +2,17 @@
 % Please edit documentation in R/horizon.R
 \name{download.HWT}
 \alias{download.HWT}
-\title{Download horizon data from HeyWhatsThat}
+\title{Download horizon data from \emph{HeyWhatsThat}}
 \usage{
 download.HWT(HWTID)
 }
 \arguments{
 \item{HWTID}{This is the 8 character ID attributed by
-HeyWhatsThat.com}
+\emph{HeyWhatsThat.com}}
 }
 \description{
-This function downloads horizon data from HeyWhasThat,
-given its ID, and saves it as a skyscapeR.horizon object.
+This function downloads horizon data from \emph{HeyWhasThat},
+given its ID, and saves it as a \emph{skyscapeR.horizon} object.
 }
 \examples{
 # Retrieve horizon data for \\href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:

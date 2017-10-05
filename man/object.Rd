@@ -2,11 +2,17 @@
 % Please edit documentation in R/mechanics.R
 \name{object}
 \alias{object}
-\title{Creates a _skyscapeR.object_ for plotting of celestial objects at given epoch}
+\title{Creates a \emph{skyscapeR.object} for plotting of celestial objects at given epoch}
 \usage{
 object(names, epoch, col = "red", lty = 1, lwd = 1)
 }
 \arguments{
+\item{names}{The name(s) of the celestial object(s) or event(s) of interest.
+These can be one of the following soli-lunar events: \emph{jS}, \emph{dS}, \emph{eq}, \emph{nmnLX}, \emph{nMjLX},
+\emph{smnLX}, \emph{sMjLX}, or the name of any star in the database. As shorthand, the names
+\emph{sun} and \emph{moon} can be used to represent all the above solar and lunar events,
+respectively. Alternatively, custom declination values can also be used.}
+
 \item{epoch}{The year or year range (as an array) one is interested in.}
 
 \item{col}{(Optional) The colour for plotting, and differentiating these objects.
@@ -17,16 +23,10 @@ Only activated for single year epochs.}
 
 \item{lwd}{(Optional) Line width (see \code{\link{par}}) used for differentiation.
 Only activated for single year epochs.}
-
-\item{name}{The name(s) of the celestial object(s) or event(s) of interest.
-These can be one of the following soli-lunar events: _jS_, _dS_, _eq_, _nmnLX_, _nMjLX_,
-_smnLX_, _sMjLX_, or the name of any star in the database. As shorthand, the names
-_sun_ and _moon_ can be used to represent all the above solar and lunar events,
-respectively. Alternatively, a custom declination value can be used.}
 }
 \description{
 This function creates an object containing all the necessary information to
-plot celestial objects/events unto the many plotting functions of _skyscapeR_
+plot celestial objects/events unto the many plotting functions of \emph{skyscapeR}
 package.
 }
 \examples{

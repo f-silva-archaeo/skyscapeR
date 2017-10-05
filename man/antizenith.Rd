@@ -8,14 +8,14 @@ antizenith(loc)
 }
 \arguments{
 \item{loc}{This can be either the latitude of the l
-ocation, or a skyscapeR.horizon object}
+ocation, or a \emph{skyscapeR.horizon} object.}
 }
 \description{
 This function returns the declination of the sun
 when it is at the anti-zenith, or nadir, for a given
 location. If this phenomena does not occur at given
 location (i.e. if location is outside the tropical
-band) the function returns a NULL value.
+band) the function returns a \emph{NULL} value.
 }
 \examples{
 # Anti-zenith sun declination for Mexico City:

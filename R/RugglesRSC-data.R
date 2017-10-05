@@ -10,9 +10,9 @@
 #'    \item{ID}{Site ID}
 #'    }
 #' @keywords datasets
-#' @references Ruggles, C.L.N. (1999). Astronomy in Prehistoric Britain and Ireland. Yale University Press.
+#' @references Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}. Yale University Press.
 #' @examples
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, 2)
-#' plot(curv)
+#' plotCurv(curv)
 "RugglesRSC"

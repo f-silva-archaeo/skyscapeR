@@ -13,7 +13,7 @@ curvigram(dec, sd = 2, norm = T)
 or a single value to be applied to all declinations. Defaults to 2.}
 
 \item{norm}{Boolean specifying whether the resulting curvigram
-should be normalized to unity. Defaults to TRUE.}
+should be normalized to unity. Defaults to \emph{TRUE}.}
 }
 \description{
 This function computes the curvigram of declinations,
@@ -24,5 +24,5 @@ kernel.
 # Curvigram of Ruggles' Recumbent Stone Circle data:
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, 2)
-plot(curv$dec, curv$density, type='l', lwd=2, col='blue', xlab='DEC', ylab='')
+plotCurv(curv)
 }

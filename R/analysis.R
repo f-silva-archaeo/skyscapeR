@@ -7,13 +7,14 @@
 #' @param sd Either an array of declination values (same length as dec),
 #' or a single value to be applied to all declinations. Defaults to 2.
 #' @param norm Boolean specifying whether the resulting curvigram
-#' should be normalized to unity. Defaults to TRUE.
+#' should be normalized to unity. Defaults to \emph{TRUE}.
 #' @export
+#' @import stats
 #' @examples
 #' # Curvigram of Ruggles' Recumbent Stone Circle data:
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, 2)
-#' plot(curv$dec, curv$density, type='l', lwd=2, col='blue', xlab='DEC', ylab='')
+#' plotCurv(curv)
 curvigram <- function(dec, sd = 2, norm = T) {
   if (length(sd)==1) { sd <- rep(sd, NROW(dec)) }
 
