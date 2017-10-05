@@ -9,7 +9,7 @@ az2dec(az, loc, alt, ...)
 \arguments{
 \item{az}{Azimuth(s) for which to calculate declination(s). See examples below.}
 
-\item{loc}{Location, can be either a skyscapeR.horizon object or, alternatively,
+\item{loc}{Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 a latitude.}
 
 \item{alt}{Altitude of orientation. Optional, if left empty and a skyscapeR.object
@@ -20,10 +20,10 @@ is provided then this is will automaticallty retrieved from the horizon data via
 \description{
 This function calculates the declination corresponding to an
 orientation , i.e. an azimuth. The altitude can either be given
- or, alternatively, if a skyscapeR.horizon object is provided,
+ or, alternatively, if a \emph{skyscapeR.horizon} object is provided,
  the corresponding horizon altitude will be automatically retrieved.
 This function is a wrapper for function \code{\link[astrolibR]{hor2eq}}
-of package 'astrolibR'.
+of package \emph{astrolibR}.
 }
 \examples{
 hor <- download.HWT('HIFVTBGK')

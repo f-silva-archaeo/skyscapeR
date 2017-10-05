@@ -8,14 +8,14 @@ zenith(loc)
 }
 \arguments{
 \item{loc}{This can be either the latitude of the
-location, or a skyscapeR.horizon object.}
+location, or a \emph{skyscapeR.horizon} object.}
 }
 \description{
 This function returns the declination of the sun
 when it is at the zenith for a given location. If
  this phenomena does not occur at given location
  (i.e. if location is outside the tropical band)
- the function returns a NULL value.
+ the function returns a \emph{NULL} value.
 }
 \examples{
 # Zenith sun declination for Mexico City:

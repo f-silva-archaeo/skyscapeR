@@ -8,7 +8,7 @@ sMjLX(year = cur.year)
 }
 \arguments{
 \item{year}{Year for which to calculate the declination.
-Defaults to present year as given by Sys.Date()}
+Defaults to present year as given by \emph{Sys.Date()}.}
 }
 \description{
 This function calculates the declination of the southern

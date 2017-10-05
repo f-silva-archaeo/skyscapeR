@@ -1,4 +1,4 @@
-#' Create skyscapeR.star object
+#' Create \emph{skyscapeR.star} object
 #'
 #' This function retrieves information for a given star
 #' and saves it in the skyscapeR.star format ready to be
@@ -11,16 +11,18 @@
 #'   the second of which is a space).
 #' @export
 #' @examples
-#' # Retrieve data for Aldebaran (a Tau):
+#' # Retrieve data for Aldebaran:
 #' Aldeb <- star('Aldebaran')
-#' # or
-#' Aldeb <- star('a Tau')
+#'
+#' # Retrieve data for the Pleiades (M45):
+#' P1 <- star('Pleiades')
+#' P2 <- star('M45')
 star <- function(string) {
-  data(stars)
+  data(stars, envir = environment())
   ind <- which(stars$NAME == string)
   if (substr(string,1,3)=="HIP") { ind <- which(stars$HIP.ID == string)}
   if (substr(string,1,2)=="HR") { ind <- which(stars$HR.ID == string)}
-  if (substr(string,1,3)=="M" & nchar(string)==3) { ind <- which(stars$MESSIER.ID == string)}
+  if (substr(string,1,1)=="M" & nchar(string)==3) { ind <- which(stars$MESSIER.ID == string)}
   if (nchar(string)==5 & substr(string,2,2)==" ") { ind <- which(stars$BAYER.DESIGNATION == string)}
 
   if (length(ind) == 0) {

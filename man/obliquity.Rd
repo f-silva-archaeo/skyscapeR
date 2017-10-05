@@ -2,7 +2,7 @@
 % Please edit documentation in R/mechanics.R
 \name{obliquity}
 \alias{obliquity}
-\title{Computes obliquity based on Laskar (2004) tables}
+\title{Computes obliquity based on \emph{Laskar (2004)} tables}
 \usage{
 obliquity(year = cur.year)
 }
@@ -12,7 +12,7 @@ Defaults to present year as given by Sys.Date()}
 }
 \description{
 This function calculates the obliquity for a given year,
-by interpolating the tables provided by Laskar (2004).
+by interpolating the tables provided by \emph{Laskar (2004)}.
 It is a wrapper for function \code{\link[palinsol]{la04}}
 of package 'palinsol'.
 }
@@ -22,8 +22,8 @@ obliquity(-4000)
 }
 \references{
 Laskar, J. et al. (2004), A long-term numerical
-solution for the insolation quantities of the Earth, Astron.
- Astroph., 428, 261-285, doi:10.1051/0004-6361:20041335.
+solution for the insolation quantities of the Earth, \emph{Astron.
+ Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
 }
 \seealso{
 \code{\link[palinsol]{astro}}, \code{\link{dS}}, \code{\link{jS}}

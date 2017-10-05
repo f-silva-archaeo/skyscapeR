@@ -1,29 +1,26 @@
-devtools::use_package("astrolibR")
-devtools::use_package("palinsol")
-devtools::use_package("pracma")
 jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 
 
-#' Computes obliquity based on Laskar (2004) tables
+#' Computes obliquity based on \emph{Laskar (2004)} tables
 #'
 #' This function calculates the obliquity for a given year,
-#' by interpolating the tables provided by Laskar (2004).
+#' by interpolating the tables provided by \emph{Laskar (2004)}.
 #' It is a wrapper for function \code{\link[palinsol]{la04}}
 #' of package 'palinsol'.
 #' @param year Year for which to calculate the obliquity.
 #' Defaults to present year as given by Sys.Date()
 #' @references Laskar, J. et al. (2004), A long-term numerical
-#' solution for the insolation quantities of the Earth, Astron.
-#'  Astroph., 428, 261-285, doi:10.1051/0004-6361:20041335.
+#' solution for the insolation quantities of the Earth, \emph{Astron.
+#'  Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
 #' @export
+#' @import palinsol
 #' @seealso \code{\link[palinsol]{astro}}, \code{\link{dS}}, \code{\link{jS}}
 #' @examples
 #' #' # Obliquity for year 3999 BC:
 #' obliquity(-4000)
 obliquity = function(year = cur.year) {
-  require(palinsol)
-
+  # loadNamespace("palinsol")
   aux <- palinsol::la04(year-1950, degree=T)
   names(aux) <- NULL
   return(aux[1])
@@ -36,7 +33,7 @@ obliquity = function(year = cur.year) {
 #' at December Solstice for a given year, based upon
 #' obliquity estimation.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by Sys.Date()
+#' Defaults to present year as given by \emph{Sys.Date()}.
 #' @export
 #' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}}, \code{\link{zenith}}, \code{\link{antizenith}}
 #' @examples
@@ -54,7 +51,7 @@ dS = function(year = cur.year) {
 #' at June Solstice for a given year, based upon
 #' obliquity estimation.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by Sys.Date()
+#' Defaults to present year as given by \emph{Sys.Date()}.
 #' @export
 #' @seealso \code{\link{obliquity}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}, \code{\link{antizenith}}
 #' @examples
@@ -72,7 +69,7 @@ jS = function(year = cur.year) {
 #' minor Lunar Extreme for a given year, by simple addition
 #' of obliquity with maximum lunar inclination.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by Sys.Date()
+#' Defaults to present year as given by \emph{Sys.Date()}.
 #' @export
 #' @seealso \code{\link{smnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}}
 #' @examples
@@ -90,7 +87,7 @@ nmnLX = function(year = cur.year) {
 #' minor Lunar Extreme for a given year, by simple addition
 #' of obliquity with maximum lunar inclination.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by Sys.Date()
+#' Defaults to present year as given by \emph{Sys.Date()}.
 #' @export
 #' @seealso \code{\link{nmnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}}
 #' @examples
@@ -108,7 +105,7 @@ smnLX = function(year = cur.year) {
 #' major Lunar Extreme for a given year, by simple addition
 #' of obliquity with maximum lunar inclination.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by Sys.Date()
+#' Defaults to present year as given by \emph{Sys.Date()}.
 #' @export
 #' @seealso \code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{sMjLX}}
 #' @examples
@@ -126,7 +123,7 @@ nMjLX = function(year = cur.year) {
 #' major Lunar Extreme for a given year, by simple addition
 #' of obliquity with maximum lunar inclination.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by Sys.Date()
+#' Defaults to present year as given by \emph{Sys.Date()}.
 #' @export
 #' @seealso \code{\link{nmnLX}}, \code{\link{nMjLX}}, \code{\link{smnLX}}
 #' @examples
@@ -142,6 +139,7 @@ sMjLX = function(year = cur.year) {
 #' This function always returns a value of zero, which is the
 #' declination of the sun on the day of the (astronomical)
 #' equinoxes.
+#' @param bh \emph{NULL} parameter. Can be left empty.
 #' @export
 #' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{zenith}}, \code{\link{antizenith}}
 #' @examples
@@ -156,9 +154,9 @@ eq = function(bh=NULL) {
 #' when it is at the zenith for a given location. If
 #'  this phenomena does not occur at given location
 #'  (i.e. if location is outside the tropical band)
-#'  the function returns a NULL value.
+#'  the function returns a \emph{NULL} value.
 #' @param loc This can be either the latitude of the
-#' location, or a skyscapeR.horizon object.
+#' location, or a \emph{skyscapeR.horizon} object.
 #' @export
 #' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{antizenith}}
 #' @examples
@@ -183,9 +181,9 @@ zenith = function(loc) {
 #' when it is at the anti-zenith, or nadir, for a given
 #' location. If this phenomena does not occur at given
 #' location (i.e. if location is outside the tropical
-#' band) the function returns a NULL value.
+#' band) the function returns a \emph{NULL} value.
 #' @param loc This can be either the latitude of the l
-#' ocation, or a skyscapeR.horizon object
+#' ocation, or a \emph{skyscapeR.horizon} object.
 #' @export
 #' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}
 #' @examples
@@ -207,15 +205,15 @@ antizenith = function(loc) {
 
 
 
-#' Time shift object of class 'skyscapeR.star'
+#' Time shift object of class \emph{skyscapeR.star}
 #'
 #' This function calculates the coordinates (RA and DEC)
 #' of a star for any time in the past. It uses functions
 #' \code{\link[astrolibR]{precess}}, \code{\link[astrolibR]{co_nutate}}
 #' and \code{\link[astrolibR]{co_aberration}}.
-#' @param star Object created using \code{\link{star}}
+#' @param star Object created using \code{\link{star}}.
 #' @param year Year for which to calculate the coordinates.
-#' Defaults to present year as given by Sys.Date()
+#' Defaults to present year as given by \emph{Sys.Date()}.
 #' @export
 #' @seealso \code{\link[astrolibR]{precess}}, \code{\link[astrolibR]{co_nutate}},
 #' \code{\link[astrolibR]{co_aberration}}
@@ -257,10 +255,10 @@ palaeo.star = function(star, year = cur.year) {
 #' Calculate visible path of celestial object at given location
 #'
 #' This function calculates the visibile path of a celestial
-#' object from any location on earth. It outputs a 'skyscapeR.orbit'
+#' object from any location on earth. It outputs a \emph{skyscapeR.orbit}
 #' object, which includes AZ and ALT information.
 #' @param dec Declination of object.
-#' @param loc Locations, either a skyscapeR.object or a vector
+#' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude and longitude of location, in this order.
 #' @param res The resolution (in degrees of RA) with which to calculate the path.
 #' @param ...  Any other parameters to be passed unto \code{\link[astrolibR]{eq2hor}}.
@@ -359,16 +357,16 @@ eq2horFS = function (ra, dec, jd, lat = 43.0783, lon = -89.865, ws = F,
 }
 
 
-#' Creates a _skyscapeR.object_ for plotting of celestial objects at given epoch
+#' Creates a \emph{skyscapeR.object} for plotting of celestial objects at given epoch
 #'
 #' This function creates an object containing all the necessary information to
-#' plot celestial objects/events unto the many plotting functions of _skyscapeR_
+#' plot celestial objects/events unto the many plotting functions of \emph{skyscapeR}
 #' package.
-#' @param name The name(s) of the celestial object(s) or event(s) of interest.
-#' These can be one of the following soli-lunar events: _jS_, _dS_, _eq_, _nmnLX_, _nMjLX_,
-#' _smnLX_, _sMjLX_, or the name of any star in the database. As shorthand, the names
-#' _sun_ and _moon_ can be used to represent all the above solar and lunar events,
-#' respectively. Alternatively, a custom declination value can be used.
+#' @param names The name(s) of the celestial object(s) or event(s) of interest.
+#' These can be one of the following soli-lunar events: \emph{jS}, \emph{dS}, \emph{eq}, \emph{nmnLX}, \emph{nMjLX},
+#' \emph{smnLX}, \emph{sMjLX}, or the name of any star in the database. As shorthand, the names
+#' \emph{sun} and \emph{moon} can be used to represent all the above solar and lunar events,
+#' respectively. Alternatively, custom declination values can also be used.
 #' @param epoch The year or year range (as an array) one is interested in.
 #' @param col (Optional) The colour for plotting, and differentiating these objects.
 #' Defaults to red for all objects.
@@ -441,6 +439,7 @@ object = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
       ####### TO DO ::: include individual solar and lunar targets
 
       # stars  :::: NEEDS CHANGING TO OUTPUT MIN AND MAX DEC
+      data(stars, envir=environment())
       if (sum(sapply(as.character(stars$NAME), pracma::strcmp, s2=names[i]))) {
         aux <- array(NA, c(NROW(epoch),1))
         for (j in 1:NROW(epoch)) {
@@ -482,4 +481,31 @@ object = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
   }
   class(object) <- "skyscapeR.object"
   return(object)
+}
+
+#' Returns the azimuth of the sun at a given time from a specific location
+#'
+#' This function returns the azmuth of the sun at a givne time and location,
+#' useful for data reduction of theodolite mesaurements using the sunsight
+#' technique [add reference when created] #########################################
+#' @param loc Location, either a \emph{skyscapeR.object} or a vector
+#' containing the latitude and longitude of location, in this order.
+#' @param time String containing the date and time in the following format:
+#' "YYYY-MM-DD HH:MM:SS"
+#' @param timezone Timezone of input wither as a known acronym (eg. "GMT", "CET") or
+#' a string with continent followed by country capital (eg. "Europe/London").
+#' @export
+#' @examples
+#' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
+sunAz = function(loc, time, timezone) {
+  if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
+
+  pb.date <- as.POSIXct(time, timezone)
+  UT <- format(pb.date, tz="UTC",usetz=TRUE)
+  UT <- as.POSIXlt(UT, 'UTC')
+  jd <- astrolibR::jdcnv(UT$year+1900, UT$mon+1, UT$mday, UT$hour+UT$min/60+UT$sec/3600)
+  ss <- astrolibR::sunpos(jd)
+  az <- eq2horFS(ss$ra, ss$dec, jd, loc[1], loc[2], precess_ = F)$az
+
+  return(az)
 }

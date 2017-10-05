@@ -2,26 +2,27 @@
 % Please edit documentation in R/horizon.R
 \name{exportHor}
 \alias{exportHor}
-\title{Exports a skyscapeR.horizon object into Stellarium format}
+\title{Exports a \emph{skyscapeR.horizon} object into \emph{Stellarium} format}
 \usage{
 exportHor(hor, name, author = "skyscapeR", description, ground_col, hor_col)
 }
 \arguments{
-\item{hor}{Horizon data in skyscapeR.horizon format.}
+\item{hor}{Horizon data in \emph{skyscapeR.horizon} format.}
 
-\item{name}{Horizon name to be displayed in Stellarium, if different from one in skyscapeR.horizon object.}
+\item{name}{Horizon name to be displayed in \emph{Stellarium}, if different
+from one in \emph{skyscapeR.horizon} object.}
 
-\item{author}{Author, to be included in landscape.ini file. Optional.}
+\item{author}{(Optional) Author, to be included in \emph{landscape.ini} file.}
 
-\item{description}{Description, to be included in landscape.ini file. Optional.}
+\item{description}{(Optional) Description, to be included in \emph{landscape.ini} file.}
 
-\item{ground_col}{Colour of ground. Defaults to Stellarium's default.}
+\item{ground_col}{Colour of ground. Defaults to \emph{Stellarium}'s default.}
 
-\item{hor_col}{Colour of horizon line. Defaults to Stellarium's default.}
+\item{hor_col}{Colour of horizon line. Defaults to \emph{Stellarium}'s default.}
 }
 \description{
-This function exports any skyscapR.horizon object into the landscape
-format of Stellarium, ready to be imported.
+This function exports any \emph{skyscapR.horizon} object into the landscape
+format of \emph{Stellarium}, ready to be imported.
 }
 \examples{
 # Downloads horizon data from HeyWhatsThat and exports it into Stellarium:
@@ -32,5 +33,5 @@ exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
 }
 \seealso{
-\code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscapeR.horizon}}
+\code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plotHor}}
 }

@@ -9,7 +9,7 @@ plotAz(az, objects, loc, ...)
 \arguments{
 \item{az}{Array of azimuths. Values outside the [0, 360] range will be ignored.}
 
-\item{objects}{(Optional) A skyscapeR.object object created with \code{\link{object}}
+\item{objects}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
 for displaying the azimuths of clestial objects. Beware that this assumes a single
 location (given by parameter loc) and a flat horizon of zero degrees.}
 

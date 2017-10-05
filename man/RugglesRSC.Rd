@@ -18,9 +18,9 @@ Declination data from C.L.N. Ruggles' fieldwork of the Scottish Recumbent Stone 
 \examples{
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, 2)
-plot(curv)
+plotCurv(curv)
 }
 \references{
-Ruggles, C.L.N. (1999). Astronomy in Prehistoric Britain and Ireland. Yale University Press.
+Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}. Yale University Press.
 }
 \keyword{datasets}

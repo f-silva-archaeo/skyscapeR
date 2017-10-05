@@ -1,16 +1,13 @@
-devtools::use_package("oce")
-devtools::use_package("astrolibR")
-
 #' Calculates declination from azimuth and altitude measurements
 #'
 #' This function calculates the declination corresponding to an
 #' orientation , i.e. an azimuth. The altitude can either be given
-#'  or, alternatively, if a skyscapeR.horizon object is provided,
+#'  or, alternatively, if a \emph{skyscapeR.horizon} object is provided,
 #'  the corresponding horizon altitude will be automatically retrieved.
 #' This function is a wrapper for function \code{\link[astrolibR]{hor2eq}}
-#' of package 'astrolibR'.
+#' of package \emph{astrolibR}.
 #' @param az Azimuth(s) for which to calculate declination(s). See examples below.
-#' @param loc Location, can be either a skyscapeR.horizon object or, alternatively,
+#' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 #' a latitude.
 #' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
 #' is provided then this is will automaticallty retrieved from the horizon data via \code{\link{hor2alt}}
@@ -35,11 +32,12 @@ az2dec = function(az, loc, alt, ...){
 
 #' Retrieves horizon altitude for a given azimuth from a given horizon profile
 #'
-#' This function retieves the horizon altitud for a given azimuth from
-#' a previously created skyscapeR.horizon object via spline interpolation.
-#' @param hor A skyscapeR.horizon object from which to retrieve horizon altitude.
+#' This function retieves the horizon altitude for a given azimuth from
+#' a previously created \emph{skyscapeR.horizon} object via spline interpolation.
+#' @param hor A \emph{skyscapeR.horizon} object from which to retrieve horizon altitude.
 #' @param az Array of azimuth(s) for which to retrieve horizon altitude(s).
 #' @export
+#' @import stats
 #' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}
 #' @examples
 #' hor <- download.HWT('HIFVTBGK')
@@ -54,10 +52,10 @@ hor2alt = function(hor, az) {
 #' north) based on IGRF 12th gen model
 #'
 #' This function estimates the magnetic declination at a given location
-#' and moment in time, using the 12th generation International
-#' Geomagnetic Reference Field (IGRF) model. This function is a wrapper
-#' for function \code{\link[oce]{magneticField}} of package 'oce'.
-#' @param loc Location, can be either a skyscapeR.horizon object or, alternatively,
+#' and moment in time, using the \emph{12th generation International
+#' Geomagnetic Reference Field (IGRF)} model. This function is a wrapper
+#' for function \code{\link[oce]{magneticField}} of package \emph{oce}.
+#' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 #' a latitude.
 #' @param date Date for which to calculate magnetic declination, given as an array
 #' with either a single value (year), two values (year and month), or three values

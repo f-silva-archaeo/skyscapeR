@@ -2,23 +2,23 @@
 % Please edit documentation in R/horizon.R
 \name{createHor}
 \alias{createHor}
-\title{Create skyscapeR.horizon object from Az/Alt data}
+\title{Create .\emph{skyscapeR.horizon} object from Az/Alt data}
 \usage{
 createHor(az, alt, lat, lon, name)
 }
 \arguments{
 \item{az}{Array of azimuth values}
 
-\item{alt}{Array of altitude values}
+\item{alt}{Array of altitude values.}
 
-\item{lat}{Latitude of site}
+\item{lat}{Latitude of site.}
 
-\item{lon}{Longitude of site}
+\item{lon}{Longitude of site.}
 
-\item{name}{Name of site}
+\item{name}{Name of site.}
 }
 \description{
-This function creates a skyscapR.horizon object from measurements of
+This function creates a \emph{skyscapR.horizon} object from measurements of
 azimuth and altitude.
 }
 \examples{
@@ -26,8 +26,8 @@ azimuth and altitude.
 az <- c(0,90,180,270,360)
 alt <- c(0,5,5,0,0)
 hor <- createHor(az, alt, 40.1, -8, 'Test')
-plot(hor)
+plotHor(hor)
 }
 \seealso{
-\code{\link{plot.skyscapeR.horizon}}
+\code{\link{plotHor}}
 }

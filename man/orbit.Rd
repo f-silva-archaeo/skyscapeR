@@ -9,7 +9,7 @@ orbit(dec, loc, res = 0.5, ...)
 \arguments{
 \item{dec}{Declination of object.}
 
-\item{loc}{Locations, either a skyscapeR.object or a vector
+\item{loc}{Location, either a \emph{skyscapeR.object} or a vector
 containing the latitude and longitude of location, in this order.}
 
 \item{res}{The resolution (in degrees of RA) with which to calculate the path.}
@@ -18,7 +18,7 @@ containing the latitude and longitude of location, in this order.}
 }
 \description{
 This function calculates the visibile path of a celestial
-object from any location on earth. It outputs a 'skyscapeR.orbit'
+object from any location on earth. It outputs a \emph{skyscapeR.orbit}
 object, which includes AZ and ALT information.
 }
 \examples{

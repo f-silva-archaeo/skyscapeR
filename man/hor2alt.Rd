@@ -7,13 +7,13 @@
 hor2alt(hor, az)
 }
 \arguments{
-\item{hor}{A skyscapeR.horizon object from which to retrieve horizon altitude.}
+\item{hor}{A \emph{skyscapeR.horizon} object from which to retrieve horizon altitude.}
 
 \item{az}{Array of azimuth(s) for which to retrieve horizon altitude(s).}
 }
 \description{
-This function retieves the horizon altitud for a given azimuth from
-a previously created skyscapeR.horizon object via spline interpolation.
+This function retieves the horizon altitude for a given azimuth from
+a previously created \emph{skyscapeR.horizon} object via spline interpolation.
 }
 \examples{
 hor <- download.HWT('HIFVTBGK')

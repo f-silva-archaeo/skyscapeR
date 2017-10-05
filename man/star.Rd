@@ -2,7 +2,7 @@
 % Please edit documentation in R/data-access.R
 \name{star}
 \alias{star}
-\title{Create skyscapeR.star object}
+\title{Create \emph{skyscapeR.star} object}
 \usage{
 star(string)
 }
@@ -20,8 +20,10 @@ and saves it in the skyscapeR.star format ready to be
 used by other skyscapeR package function.
 }
 \examples{
-# Retrieve data for Aldebaran (a Tau):
+# Retrieve data for Aldebaran:
 Aldeb <- star('Aldebaran')
-# or
-Aldeb <- star('a Tau')
+
+# Retrieve data for the Pleiades (M45):
+P1 <- star('Pleiades')
+P2 <- star('M45')
 }

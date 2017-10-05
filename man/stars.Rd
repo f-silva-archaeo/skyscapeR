@@ -25,7 +25,7 @@ data(stars)
 }
 \description{
 Data on about one hundred brightest stars and clusters taken
-from the Bright Star Catalog, 5th Edition. It includes Name,
+from the \emph{Bright Star Catalog, 5th Edition}. It includes Name,
 Constellation, Bayer Designation, Apparent Magnitude, Right
 Ascension, Declination, Proper Motion (in both RA and Dec)
 and Colour. Coordinates are given for J2000 epoch.
@@ -35,7 +35,7 @@ data(stars)
 stars$VMAG[stars$NAME == 'Sirius']
 }
 \references{
-Hoffleit, D.; Jaschek, C. (1991). The Bright star catalogue. New Haven: Yale University Observatory.
+Hoffleit, D.; Jaschek, C. (1991). \emph{The Bright star catalogue}. New Haven: Yale University Observatory.
 (\href{http://tdc-www.harvard.edu/catalogs/bsc5.html}{Bright Star Catalogue})
 }
 \keyword{datasets}
