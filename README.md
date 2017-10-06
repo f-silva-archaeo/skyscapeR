@@ -14,7 +14,7 @@ install.packages('devtools')
 
 _skyscapeR_, and associated requirements, can then be installed by running:
 ```
-install_github('skyscapeR')
+devtools::install_github('f-silva-archaeo/skyscapeR')
 ```
 
 Check the manual pages for help on individual functions.
