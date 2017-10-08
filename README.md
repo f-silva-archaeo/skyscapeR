@@ -6,7 +6,7 @@ Currently it includes functions to transform horizontal (Az/Alt) to equatorial (
 
 
 ## how to install
-The package requires that the latest version of R is installed first. See the [R Project website](https://www.r-project.org/) for details. ALso suggested is the installation of [RStudio](https://www.rstudio.com/). With R installed, make sure package _devtools_ is also installed by running:
+The package requires that the latest version of R is installed first. See the [R Project website](https://www.r-project.org/) for details. Also suggested is the installation of [RStudio](https://www.rstudio.com/). With R installed, make sure package _devtools_ is also installed by running:
 
 ```
 install.packages('devtools')
@@ -14,7 +14,7 @@ install.packages('devtools')
 
 _skyscapeR_, and associated requirements, can then be installed by running:
 ```
-install_github('skyscapeR')
+devtools::install_github('f-silva-archaeo/skyscapeR')
 ```
 
 Check the manual pages for help on individual functions.

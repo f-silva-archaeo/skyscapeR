@@ -4,25 +4,42 @@
 \alias{curvigram}
 \title{Computes declination curvigram}
 \usage{
-curvigram(dec, sd = 2, norm = T)
+curvigram(dec, sd = 2, norm = F, cut = 4, range, n = 512)
 }
 \arguments{
 \item{dec}{Array of declination values}
 
-\item{sd}{Either an array of declination values (same length as dec),
-or a single value to be applied to all declinations. Defaults to 2.}
+\item{sd}{(Optional) Either a single value or string to be applied
+to all measurements (see \code{\link{bw.nrd}}), or an
+array of values of the same length as \emph{dec}. Defaults
+to 2 degrees.}
 
-\item{norm}{Boolean specifying whether the resulting curvigram
-should be normalized to unity. Defaults to \emph{TRUE}.}
+\item{norm}{(Optional) Boolean specifying whether the resulting curvigram
+should be normalized to unity. Defaults to \emph{FALSE}.}
+
+\item{cut}{(Optional) Number of uncertainties beyond the extremes
+of the data at which to trim the curvigram. Defaults to 4. See \code{\link{density}}.}
+
+\item{range}{(Optional) As an alternative to \emph{cut} you can
+stipulate the range of declination values to ouput as an array of two values.
+See \emph{from, to} in \code{\link{density}}.}
+
+\item{n}{(Optional) The number of equally spaced points at which the curvigram
+is to be calculated. Defaults to 512. See \emph{n} in \code{\link{density}}.}
 }
 \description{
 This function computes the curvigram of declinations,
 using provided measurement uncertainty and a Gaussian
-kernel.
+kernel. When all measurements have the same associated
+uncertainty this function wraps \code{\link{density}} and
+accepts the same input for \emph{bw} in \emph{sd}.
 }
 \examples{
 # Curvigram of Ruggles' Recumbent Stone Circle data:
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, 2)
 plotCurv(curv)
+}
+\seealso{
+\code{\link{density}}
 }

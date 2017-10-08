@@ -2,12 +2,24 @@
 #'
 #' This function computes the curvigram of declinations,
 #' using provided measurement uncertainty and a Gaussian
-#' kernel.
+#' kernel. When all measurements have the same associated
+#' uncertainty this function wraps \code{\link{density}} and
+#' accepts the same input for \emph{bw} in \emph{sd}.
 #' @param dec Array of declination values
-#' @param sd Either an array of declination values (same length as dec),
-#' or a single value to be applied to all declinations. Defaults to 2.
-#' @param norm Boolean specifying whether the resulting curvigram
-#' should be normalized to unity. Defaults to \emph{TRUE}.
+#' @param sd (Optional) Either a single value or string to be applied
+#' to all measurements (see \code{\link{bw.nrd}}), or an
+#' array of values of the same length as \emph{dec}. Defaults
+#' to 2 degrees.
+#' @param norm (Optional) Boolean specifying whether the resulting curvigram
+#' should be normalized to unity. Defaults to \emph{FALSE}.
+#' @param cut (Optional) Number of uncertainties beyond the extremes
+#' of the data at which to trim the curvigram. Defaults to 4. See \code{\link{density}}.
+#' @param range (Optional) As an alternative to \emph{cut} you can
+#' stipulate the range of declination values to ouput as an array of two values.
+#' See \emph{from, to} in \code{\link{density}}.
+#' @param n (Optional) The number of equally spaced points at which the curvigram
+#'  is to be calculated. Defaults to 512. See \emph{n} in \code{\link{density}}.
+#' @seealso \code{\link{density}}
 #' @export
 #' @import stats
 #' @examples
@@ -15,13 +27,31 @@
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, 2)
 #' plotCurv(curv)
-curvigram <- function(dec, sd = 2, norm = T) {
-  if (length(sd)==1) { sd <- rep(sd, NROW(dec)) }
+curvigram <- function(dec, sd = 2, norm = F, cut = 4, range, n = 512) {
+  if (length(sd)==1) {
+    if (!missing(range)) {
+      dens <- density(dec, bw=sd, from=range[1], to=range[2], n=n)
+    } else {
+      dens <- density(dec, bw=sd, cut=cut, n=n)
+    }
 
-  xx <- seq(-90,90,by=0.01)
-  spd <- array(0, NROW(xx))
-  for (i in 1:NROW(dec)) {
-    spd <- spd + dnorm(xx, dec[i], sd[i])
+    xx <- dens$x
+    spd <- dens$y
+    sd <- dens$bw
+
+  } else {
+    xx <- seq(-90,90,by=0.001)
+    spd <- array(0, NROW(xx))
+    for (i in 1:NROW(dec)) {
+      spd <- spd + dnorm(xx, dec[i], sd[i])
+    }
+    if (!missing(range)) {
+      ind <- which(xx >= range[1] & xx <= range[2])
+    } else {
+      ind <- which(xx >= min(dec) - cut*max(sd) & xx <= max(dec) + cut*max(sd))
+    }
+    xx <- xx[ind]
+    spd <- spd[ind]
   }
 
   if (norm) { spd <- spd/max(spd) }
@@ -29,6 +59,7 @@ curvigram <- function(dec, sd = 2, norm = T) {
   result <- c()
   result$dec <- xx
   result$density <- spd
+  result$sd.used <- sd
   class(result) <- "skyscapeR.curv"
   return(result)
 }

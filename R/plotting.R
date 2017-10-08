@@ -216,3 +216,61 @@ plotOrb<- function(orbit, col) {
   }
 }
 
+#' Plot stellar phase and seasonality
+#'
+#' This function creates a plot of stellar seasonality and phases/events.
+#' @param starphase Object of \emph{skyscapeR.starphase} format.
+#' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
+#' @export
+#' @import MESS RColorBrewer
+#' @seealso \code{\link{star.phases}}
+#' @examples
+#' # Plot the seasonality of Aldebaran for 3999 BCE:
+#' \dontrun{
+#' ss <- star.phases('Aldebaran',-4000, c(35,-8))
+#' plotPhases(ss)
+#' }
+plotPhases = function(starphase, ...) {
+  col <- RColorBrewer::brewer.pal(4,'Accent')
+  seasons <- c("RS","R","S","")
+  par(mar=c(2,1,1,1))
+
+  plot(-100,-100, xlim=c(1,365), ylim=c(0,1), main=paste0(starphase$star$name,' @ ', starphase$year), xlab="", ylab="", axes=F, ...)
+  axis(1, at=c(0,91,182,273,365), labels=c('dS','Eq','jS','Eq','dS'), lwd.ticks=2)
+  axis(1, at=seq(0,365,30.4), labels=NA)
+
+  for (i in 1:4) {
+    ind <- starphase$raw$seasons[[i]]
+    ind.bb <- split(ind,cumsum(c(1,abs(diff(ind))>3)))
+
+    for (j in 1:NROW(ind.bb)) {
+      ind.i <- ind.bb[[j]]
+      if (length(ind.i)>0) {
+        x.poly <- c(ind.i[1]-.5,tail(ind.i,1)+.5,tail(ind.i,1)+.5,ind.i[1]-.5)
+        y.poly <- c(0,0,1,1)
+        polygon(x.poly, y.poly, col=col[i], border=NA)
+        text(mean(ind.i),0.5,seasons[i])
+      }
+    }
+
+  }
+
+  events <- c()
+  for (i in 1:NROW(starphase$phase)) {
+    if (starphase$phase[i] == 'Curtailed Passage') { events <- c(events,'AR','HS') }
+    if (starphase$phase[i] == 'Arising and Lying Hidden') { events <- c(events,'AS','HR') }
+  }
+
+  for (i in 1:(NROW(starphase$phase)*2)) {
+    ind <- starphase$raw$events[[i]]
+    ind.bb <- split(ind,cumsum(c(1,abs(diff(ind))>3)))
+
+    for (j in 1:NROW(ind.bb)) {
+      ind.i <- ind.bb[[j]]
+      x.poly <- c(ind.i[1]-.5,tail(ind.i,1)+.5,tail(ind.i,1)+.5,ind.i[1]-.5)
+      y.poly <- c(0,0,1,1)
+      polygon(x.poly, y.poly, col=MESS::col.alpha(col[4], alpha=.3), border=NA)
+      text(mean(ind.i),0.5,events[i], cex=0.7, font=2)
+    }
+  }
+}
