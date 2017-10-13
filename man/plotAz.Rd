@@ -4,7 +4,7 @@
 \alias{plotAz}
 \title{Polar plot of orientations (azimuths)}
 \usage{
-plotAz(az, objects, loc, ...)
+plotAz(az, objects, loc, objects.label = T, ...)
 }
 \arguments{
 \item{az}{Array of azimuths. Values outside the [0, 360] range will be ignored.}
@@ -14,8 +14,11 @@ for displaying the azimuths of clestial objects. Beware that this assumes a sing
 location (given by parameter loc) and a flat horizon of zero degrees.}
 
 \item{loc}{(Optional) This can be either the latitude of the
-location, or a skyscapeR.horizon object. Only necessary for plotting potential
+location, or a \emph{skyscapeR.horizon} object. Only necessary for plotting potential
 celestial targets.}
+
+\item{objects.label}{(Optional) Boolean to control whether to label the celestial objects in
+the polar plot. Defaults to \emph{TRUE}.}
 
 \item{...}{Any other parameters to be passed unto \code{\link[plotrix]{polar.plot}}}
 }

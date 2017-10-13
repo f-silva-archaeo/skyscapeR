@@ -6,7 +6,7 @@
 #' uncertainty this function wraps \code{\link{density}} and
 #' accepts the same input for \emph{bw} in \emph{sd}.
 #' @param dec Array of declination values
-#' @param sd (Optional) Either a single value or string to be applied
+#' @param unc (Optional) Either a single value or string to be applied
 #' to all measurements (see \code{\link{bw.nrd}}), or an
 #' array of values of the same length as \emph{dec}. Defaults
 #' to 2 degrees.
@@ -27,13 +27,11 @@
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, 2)
 #' plotCurv(curv)
-curvigram <- function(dec, sd = 2, norm = F, cut = 4, range, n = 512) {
+curvigram <- function(dec, unc = 2, norm = F, cut = 4, range, n = 512) {
+  if (missing(range)) { range <- c(min(dec) - cut*max(unc), max(dec) + cut*max(unc)) }
+
   if (length(sd)==1) {
-    if (!missing(range)) {
-      dens <- density(dec, bw=sd, from=range[1], to=range[2], n=n)
-    } else {
-      dens <- density(dec, bw=sd, cut=cut, n=n)
-    }
+    dens <- density(dec, bw=unc, from=range[1], to=range[2], n=n)
 
     xx <- dens$x
     spd <- dens$y
@@ -43,13 +41,9 @@ curvigram <- function(dec, sd = 2, norm = F, cut = 4, range, n = 512) {
     xx <- seq(-90,90,by=0.001)
     spd <- array(0, NROW(xx))
     for (i in 1:NROW(dec)) {
-      spd <- spd + dnorm(xx, dec[i], sd[i])
+      spd <- spd + dnorm(xx, dec[i], unc[i])
     }
-    if (!missing(range)) {
-      ind <- which(xx >= range[1] & xx <= range[2])
-    } else {
-      ind <- which(xx >= min(dec) - cut*max(sd) & xx <= max(dec) + cut*max(sd))
-    }
+    ind <- which(xx >= range[1] & xx <= range[2])
     xx <- xx[ind]
     spd <- spd[ind]
   }
@@ -57,9 +51,11 @@ curvigram <- function(dec, sd = 2, norm = F, cut = 4, range, n = 512) {
   if (norm) { spd <- spd/max(spd) }
 
   result <- c()
+  result$mes <- dec
+  result$mes.unc <- sd
+  result$range <- range
   result$dec <- xx
   result$density <- spd
-  result$sd.used <- sd
   class(result) <- "skyscapeR.curv"
   return(result)
 }

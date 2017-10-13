@@ -442,16 +442,17 @@ object = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 
 #' Returns the azimuth of the sun at a given time from a specific location
 #'
-#' This function returns the azmuth of the sun at a givne time and location,
+#' This function returns the azimuth of the sun at a given time and location,
 #' useful for data reduction of theodolite mesaurements using the sunsight
-#' technique [add reference when created] #########################################
+#' technique (\code{\link{reduction.theod}}).
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude and longitude of location, in this order.
 #' @param time String containing the date and time in the following format:
 #' "YYYY-MM-DD HH:MM:SS"
-#' @param timezone Timezone of input wither as a known acronym (eg. "GMT", "CET") or
+#' @param timezone Timezone of input either as a known acronym (eg. "GMT", "CET") or
 #' a string with continent followed by country capital (eg. "Europe/London").
 #' @export
+#' @seealso \code{\link{reduction.theod}}
 #' @examples
 #' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
 sunAz = function(loc, time, timezone) {

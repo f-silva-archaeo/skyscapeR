@@ -12,6 +12,7 @@
 #' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
 #' is provided then this is will automaticallty retrieved from the horizon data via \code{\link{hor2alt}}
 #' @param ... Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.
+#' @import astrolibR
 #' @export
 #' @seealso \code{\link[astrolibR]{hor2eq}}, \code{\link{hor2alt}}
 #' @examples

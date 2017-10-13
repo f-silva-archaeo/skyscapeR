@@ -1,6 +1,6 @@
 #' Recumbent Stone Circle Data
 #'
-#' Declination data from C.L.N. Ruggles' fieldwork of the Scottish Recumbent Stone Circles.
+#' Declination data from C.L.N. Ruggles' fieldwork on the Scottish Recumbent Stone Circles.
 #'
 #' @docType data
 #' @usage data(RugglesRSC)

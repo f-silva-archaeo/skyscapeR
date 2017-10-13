@@ -13,7 +13,7 @@
 data(RugglesRSC)
 }
 \description{
-Declination data from C.L.N. Ruggles' fieldwork of the Scottish Recumbent Stone Circles.
+Declination data from C.L.N. Ruggles' fieldwork on the Scottish Recumbent Stone Circles.
 }
 \examples{
 data(RugglesRSC)
