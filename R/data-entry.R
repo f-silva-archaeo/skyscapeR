@@ -1,3 +1,5 @@
+jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
+
 #' Calculates declination from azimuth and altitude measurements
 #'
 #' This function calculates the declination corresponding to an
@@ -58,11 +60,7 @@ hor2alt = function(hor, az) {
 #' for function \code{\link[oce]{magneticField}} of package \emph{oce}.
 #' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 #' a latitude.
-#' @param date Date for which to calculate magnetic declination, given as an array
-#' with either a single value (year), two values (year and month), or three values
-#' (year, month and day), in this order. If no day is given the estimate is valid
-#' for the first of the month. If onlythe year is provided then the estimate is that
-#' for the 1st of January.
+#' @param date Date for which to calculate magnetic declination in the format: 'YYYY/MM/DD'
 #' @export
 #' @seealso \code{\link[oce]{magneticField}}
 #' @examples
@@ -70,13 +68,9 @@ hor2alt = function(hor, az) {
 #' london.lat <- 51.5074 #N
 #' london.lon <- -0.1278 #W
 #' loc <- c( london.lat, london.lon )
-#' mag.dec( loc, c(2016, 4, 1) )
+#' mag.dec( loc, "2016/04/01" )
 mag.dec = function(loc, date) {
-  if (class(loc) != 'skyscapeR.horizon') { hor <- c(); hor$georef <- c(loc, 0) } else { hor <- loc }
-  if (length(date)==1) { date <- c(date, 1, 1) }
-  if (length(date)==2) { date <- c(date[1], date[2], 1) }
-
-  date <- as.Date(paste(date[1],date[2],date[3]), "%Y %m %d")
-  aux <- oce::magneticField(hor$georef[2], hor$georef[1], as.POSIXlt(date))$declination
+  if (class(loc) == 'skyscapeR.horizon') { loc <- loc$georef }
+  aux <- oce::magneticField(loc[2], loc[1], as.POSIXlt(date))$declination
   return(aux)
 }

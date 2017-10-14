@@ -11,11 +11,7 @@ mag.dec(loc, date)
 \item{loc}{Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 a latitude.}
 
-\item{date}{Date for which to calculate magnetic declination, given as an array
-with either a single value (year), two values (year and month), or three values
-(year, month and day), in this order. If no day is given the estimate is valid
-for the first of the month. If onlythe year is provided then the estimate is that
-for the 1st of January.}
+\item{date}{Date for which to calculate magnetic declination in the format: 'YYYY/MM/DD'}
 }
 \description{
 This function estimates the magnetic declination at a given location
@@ -28,7 +24,7 @@ for function \code{\link[oce]{magneticField}} of package \emph{oce}.
 london.lat <- 51.5074 #N
 london.lon <- -0.1278 #W
 loc <- c( london.lat, london.lon )
-mag.dec( loc, c(2016, 4, 1) )
+mag.dec( loc, "2016/04/01" )
 }
 \seealso{
 \code{\link[oce]{magneticField}}

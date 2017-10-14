@@ -15,7 +15,7 @@
 #' @export
 #' @import parallel foreach numDeriv doParallel
 #' @importFrom rootSolve uniroot.all
-#' @seealso \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}, \code{\link{plotCurv}}, \code{\link{plotSigmas}}
+#' @seealso \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}, \code{\link{plotCurv}}, \code{\link{plotZscore}}
 #' @examples
 #' \dontrun{
 #' data(RugglesRSC)
@@ -86,17 +86,18 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000) {
   }
   pval <- np.sims / nsims
 
-  # sigma values of peaks
+  # zScores of peaks
   func0 <- splinefun(curv$dec, zScore.emp)
   fd <- numDeriv::grad(func0,curv$dec); func1 <- splinefun(curv$dec,fd)
   sd <- numDeriv::grad(func1,curv$dec); func2 <- splinefun(curv$dec,sd)
   roots <- rootSolve::uniroot.all(func1, interval= range)
-  ind <- which(func2(roots) < 0)
-  maxima <- roots[ind]
+  ind <- which(func2(roots) < 0); maxima <- roots[ind]
   ind <- which(is.finite(zScore.emp))
   funcZ <- splinefun(curv$dec[ind], zScore.emp[ind])
   sigma <- funcZ(maxima)
 
+  datarange <- c(min(curv$mes) - 4*max(curv$mes.unc), max(curv$mes) + 4*max(curv$mes.unc))
+  ind <- which(maxima <= datarange[1] | maxima >= datarange[2]); if (length(ind) > 0) { maxima <- maxima[-ind]; sigma <- sigma[-ind] }
 
   # output
   out <- c()
@@ -107,6 +108,7 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000) {
   out$nsims <- nsims
   out$null.hyp <- rbind(curv$dec,loCI,zMean,upCI); rownames(out$null.hyp) <- c('dec',paste0(as.character(lvl.dn*100),'%'),'mean',paste0(as.character(lvl.up*100),'%'))
   out$null.hyp.z <- rbind(curv$dec,lower,zScore.emp,upper); rownames(out$null.hyp.z) <- c('dec',paste0(as.character(lvl.dn*100),'%'),'zScore',paste0(as.character(lvl.up*100),'%'))
+  out$data.range <- datarange
   class(out) <- 'skyscapeR.sig'
   return(out)
 }

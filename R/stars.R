@@ -46,7 +46,8 @@ star <- function(string) {
 #'
 #' This function calculates the seasons (Rising, Setting, etc.)
 #' and pahses (Arising and Lying Hidden, Curtailed Passage) of a
-#' star for a given location and epoch.
+#' star for a given location and epoch. This functions uses the
+#' \emph{arcus visionis} approximation of Purrington (1988).
 #' @param star Either the star name or a \emph{skyscapeR.star} object.
 #' @param year The year of interest.
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
@@ -61,6 +62,10 @@ star <- function(string) {
 #' @export
 #' @import parallel numDeriv
 #' @seealso \code{\link{plotPhases}}
+#' @references Purrington, Robert D. (1988) Heliacal Rising and Setting:
+#' Quantitative Aspects, \emph{Journal for the History of Astronomy
+#' (Archaeoastronomy Supplement 12)} 19, S72-S84. Available online at
+#' [SAO/NASA ADS Astronomy Abstract Service](http://adsabs.harvard.edu/abs/1988JHAS...19...72P)
 #' @examples
 #' \dontrun{
 #' ss1 <- star.phases('Aldebaran',-4000, c(35,-8))

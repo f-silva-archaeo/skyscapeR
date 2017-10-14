@@ -36,5 +36,5 @@ plotCurv(curv, signif=sig)
 }
 }
 \seealso{
-\code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}, \code{\link{plotCurv}}, \code{\link{plotSigmas}}
+\code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}, \code{\link{plotCurv}}, \code{\link{plotZscore}}
 }

@@ -107,10 +107,3 @@ eq2horFS = function (ra, dec, jd, lat = 43.0783, lon = -89.865, ws = F,
 
   return(list(alt = alt, az = az, ha = ha))
 }
-
-#' @noRd
-test.open <- function(az,alt) {
-  if (abs(az[1] - az[NROW(az)]) < 1) {
-    return(FALSE)
-  } else { return(TRUE)}
-}

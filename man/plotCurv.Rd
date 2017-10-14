@@ -4,15 +4,15 @@
 \alias{plotCurv}
 \title{Plot a curvigram}
 \usage{
-plotCurv(curv, objects, objects.label = T, signif, xlim = NULL, ...)
+plotCurv(curv, obj, obj.label = T, signif, xlim = NULL, ...)
 }
 \arguments{
 \item{curv}{Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.}
 
-\item{objects}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
+\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the dclination of clestial objects.}
 
-\item{objects.label}{(Optional) Boolean to control whether to label the celestial objects in
+\item{obj.label}{(Optional) Boolean to control whether to label the celestial objects in
 the curvigram. Defaults to \emph{TRUE}.}
 
 \item{signif}{(Optional) A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}
@@ -32,7 +32,7 @@ curv <- curvigram(RugglesRSC$Dec, unc=2)
 plotCurv(curv, xlim=c(-40,0))
 
 # Redo the plot to include lunar extreme declinations:
-LEx <- object('moon', -2000, col='red', lty=2)
+LEx <- sky.objects('moon', -2000, col='red', lty=2)
 plotCurv(curv, objects=LEx, xlim=c(-40,0))
 
 # Add significance testing information:
@@ -42,5 +42,5 @@ plotCurv(curv, objects=LEx, signif=sig, xlim=c(-40,0))
 }
 }
 \seealso{
-\code{\link{curvigram}}, \code{\link{object}}, \code{\link{sigTest}}
+\code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
 }

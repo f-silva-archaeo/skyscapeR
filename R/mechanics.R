@@ -305,7 +305,8 @@ orbit = function(dec, loc, res=0.5, ...) {
 #' plot celestial objects/events unto the many plotting functions of \emph{skyscapeR}
 #' package.
 #' @param names The name(s) of the celestial object(s) or event(s) of interest.
-#' These can be one of the following soli-lunar events: \emph{jS}, \emph{dS}, \emph{eq}, \emph{nmnLX}, \emph{nMjLX},
+#' These can be one of the following soli-lunar events: \emph{jS}, \emph{dS}, \emph{eq},
+#'  \emph{nmnLX}, \emph{nMjLX},
 #' \emph{smnLX}, \emph{sMjLX}, or the name of any star in the database. As shorthand, the names
 #' \emph{sun} and \emph{moon} can be used to represent all the above solar and lunar events,
 #' respectively. Alternatively, custom declination values can also be used.
@@ -319,14 +320,15 @@ orbit = function(dec, loc, res=0.5, ...) {
 #' @export
 #' @examples
 #' # Create a object with solar targets for epoch range 4000-2000 BC:
-#' tt <- object('sun', c(-4000,-2000))
+#' tt <- sky.objects('sun', c(-4000,-2000))
 #'
 #' # Create an object with a few stars for same epoch:
-#' tt <- object(c('Sirius', 'Betelgeuse', 'Antares'), c(-4000,-2000), col=c('white', 'red', 'orange'))
+#' tt <- sky.objects(c('Sirius', 'Betelgeuse', 'Antares'), c(-4000,-2000),
+#' col=c('white', 'red', 'orange'))
 #'
 #' # Create an object with solstices and a custom declination value:
-#' tt <- object(c('dS','jS', -13), c(-4000,-2000))
-object = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
+#' tt <- sky.objects(c('dS','jS', -13), c(-4000,-2000))
+sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
   N <- NROW(names)
 
   if (NROW(col)==1) { col <- rep(col,N) }
@@ -444,7 +446,7 @@ object = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 #'
 #' This function returns the azimuth of the sun at a given time and location,
 #' useful for data reduction of theodolite mesaurements using the sunsight
-#' technique (\code{\link{reduction.theod}}).
+#' technique (\code{\link{reduct.theodolite}}).
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude and longitude of location, in this order.
 #' @param time String containing the date and time in the following format:
@@ -452,7 +454,7 @@ object = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 #' @param timezone Timezone of input either as a known acronym (eg. "GMT", "CET") or
 #' a string with continent followed by country capital (eg. "Europe/London").
 #' @export
-#' @seealso \code{\link{reduction.theod}}
+#' @seealso \code{\link{reduct.theodolite}}
 #' @examples
 #' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
 sunAz = function(loc, time, timezone) {

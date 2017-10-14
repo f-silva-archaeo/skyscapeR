@@ -27,7 +27,8 @@ figure the slower the computation. Defaults to 24/3600 = 1 sec.}
 \description{
 This function calculates the seasons (Rising, Setting, etc.)
 and pahses (Arising and Lying Hidden, Curtailed Passage) of a
-star for a given location and epoch.
+star for a given location and epoch. This functions uses the
+\emph{arcus visionis} approximation of Purrington (1988).
 }
 \examples{
 \dontrun{
@@ -49,6 +50,12 @@ plotPhases(ss1)
 ss1 <- star.phases('Aldebaran',-4000, c(35,-8), alt.hor=2, alt.rs=5)
 plotPhases(ss1)
 }
+}
+\references{
+Purrington, Robert D. (1988) Heliacal Rising and Setting:
+Quantitative Aspects, \emph{Journal for the History of Astronomy
+(Archaeoastronomy Supplement 12)} 19, S72-S84. Available online at
+[SAO/NASA ADS Astronomy Abstract Service](http://adsabs.harvard.edu/abs/1988JHAS...19...72P)
 }
 \seealso{
 \code{\link{plotPhases}}

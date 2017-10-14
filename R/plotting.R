@@ -3,27 +3,27 @@
 #' This function creates a polar plot of azimuthal data. It is a wrapper for
 #' \code{\link[plotrix]{polar.plot}}
 #' @param az Array of azimuths. Values outside the [0, 360] range will be ignored.
-#' @param objects (Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
-#' for displaying the azimuths of clestial objects. Beware that this assumes a single
+#' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
+#' for displaying the azimuths of celestial objects. Beware that this assumes a single
 #' location (given by parameter loc) and a flat horizon of zero degrees.
 #' @param loc (Optional) This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object. Only necessary for plotting potential
 #' celestial targets.
-#' @param objects.label (Optional) Boolean to control whether to label the celestial objects in
+#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the polar plot. Defaults to \emph{TRUE}.
 #' @param ... Any other parameters to be passed unto \code{\link[plotrix]{polar.plot}}
 #' @export
 #' @import utils stats graphics
-#' @seealso \code{\link[plotrix]{polar.plot}}, \code{\link{object}}
+#' @seealso \code{\link[plotrix]{polar.plot}}, \code{\link{sky.objects}}
 #' @examples
 #' # Plot some azimuth data:
 #' az <- c(120, 100, 93, 97, 88, 115, 112, 67)
 #' plotAz(az)
 #'
 #' # To visualize this data against the common solar and lunar targets:
-#' tt <- object(c('sun','moon'), epoch=-2000, lty=c(2,3))
+#' tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
 #' plotAz(az, tt, loc=c(35,-8))
-plotAz = function(az, objects, loc, objects.label=T, ...) {
+plotAz = function(az, obj, loc, obj.label=T, ...) {
 
   ind <- which(az > 360 | az < 0)
   if (length(ind) > 0) {
@@ -38,43 +38,50 @@ plotAz = function(az, objects, loc, objects.label=T, ...) {
   label.pos <- c(0,45,90,135,180,225,270,315)
   labels <- c("N","","E","","S","","W","")
   par(mar=c(4, 4, 2, 2) + 0.1)
-  plotrix::polar.plot(testlen, testpos, lwd=1.2, line.col='black', start=90, clockwise=T, labels= labels, label.pos = label.pos, show.grid.labels= F, ...)
+  plotrix::polar.plot(testlen, testpos, lwd=1.2, line.col='black', start=90, clockwise=T, labels= labels, label.pos = label.pos, show.grid.labels= F, grid.col='white', ...)
+  plotrix::draw.circle(0,0,1, border='grey')
   mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' Fabio Silva (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
 
   # objects
-  if (!missing(objects) & !missing(loc)) {
+  if (!missing(obj) & !missing(loc)) {
 
-    for (i in 1:objects$n) {
-      if (length(objects$epoch)==1) {
+    for (i in 1:obj$n) {
+      if (length(obj$epoch)==1) {
         rise <- c(); set <- c();
-        orb <- orbit(objects$decs[i], loc, nutate_=F, refract_=F, aberration_=F)
+        orb <- orbit(obj$decs[i], loc, nutate_=F, refract_=F, aberration_=F)
         forb <- splinefun(orb$az, orb$alt)
         rise <- uniroot(forb, interval=c(0, 180))$root
         set <- uniroot(forb, interval=c(180, 360))$root
         tt <- c(rise, set)
-        plotrix::polar.plot(c(0.01,rep(1,NROW(tt))), c(0,tt), lwd=c(0,rep(objects$lwd[i],2)), line.col=c(0,rep(objects$col[i],2)), lty=c(1,rep(objects$lty[i],2)), start=90, clockwise=T, add=T)
-        if (objects.label) {
-          plotrix::radial.plot.labels(c(0.01,1), c(0,rise), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(objects$decs)[i]), cex=0.6, col=c('black',objects$col[i]), pos=4, offset=0.5)
-          plotrix::radial.plot.labels(c(0.01,1), c(0,set), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(objects$decs)[i]), cex=0.6, col=c('black',objects$col[i]), pos=2, offset=0.5)
+        plotrix::polar.plot(c(0.01,rep(1,NROW(tt))), c(0,tt), lwd=c(0,rep(obj$lwd[i],2)), line.col=c(0,rep(obj$col[i],2)), lty=c(1,rep(obj$lty[i],2)), start=90, clockwise=T, add=T)
+        if (obj.label) {
+          plotrix::radial.plot.labels(c(0.01,1), c(0,rise), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black',obj$col[i]), pos=4, offset=0.5)
+          plotrix::radial.plot.labels(c(0.01,1), c(0,set), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black',obj$col[i]), pos=2, offset=0.5)
         }
       } else {
         rise1 <- c(); rise2 <- c(); set1 <- c(); set2 <- c()
-        orb1 <- orbit(objects$decs[1,i], loc, nutate_=F, refract_=F, aberration_=F)
+        orb1 <- orbit(obj$decs[1,i], loc, nutate_=F, refract_=F, aberration_=F)
         forb <- splinefun(orb1$az, orb1$alt)
         rise1 <- uniroot(forb, interval=c(0, 180))$root
         set1 <- uniroot(forb, interval=c(180, 360))$root
 
-        orb2 <- orbit(objects$decs[2,i], loc, nutate_=F, refract_=F, aberration_=F)
+        orb2 <- orbit(obj$decs[2,i], loc, nutate_=F, refract_=F, aberration_=F)
         forb <- splinefun(orb2$az, orb2$alt)
         rise2 <- uniroot(forb, interval=c(0, 180))$root
         set2 <- uniroot(forb, interval=c(180, 360))$root
 
-        tt <- rbind(c(0,0),c(rise1, rise2), c(set1, set2))
-        dd <- cbind(rbind(c(0.01,0.01),c(0,0),c(0,0)), rbind(c(0.01,0.01),c(1,1),c(1,1)))
-        plotrix::polar.plot(dd, polar.pos=tt, rp.type='p', poly.col=c(0,rep(MESS::col.alpha(objects$col[i],0.3),2)), line.col=c(0,rep(objects$col[i],2)), start=90, clockwise=T, add=T)
-        if (objects.label) {
-          plotrix::radial.plot.labels(c(0.01,1), c(0,mean(c(rise1,rise2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(objects$decs)[i]), cex=0.6, col=c('black', objects$col[i]), pos=4, offset=0.5)
-          plotrix::radial.plot.labels(c(0.01,1), c(0,mean(c(set1,set2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(objects$decs)[i]), cex=0.6, col=c('black', objects$col[i]), pos=2, offset=0.5)
+        # tt <- rbind(c(0,0),c(rise1, rise2), c(set1, set2))
+        # dd <- cbind(rbind(c(0.01,0.01),c(0,0),c(0,0)), rbind(c(0.01,0.01),c(1,1),c(1,1)))
+
+        rise <- seq(min(c(rise1,rise2)), max(c(rise1,rise2)), by=0.1)
+        set <- seq(min(c(set1,set2)), max(c(set1,set2)), length.out=NROW(rise))
+        tt <- rbind(rep(0,NROW(rise)), rise, set)
+        dd <- cbind(rbind(rep(0.01,NROW(rise)),rep(0,NROW(rise)),rep(0,NROW(rise))), rbind(rep(0.01,NROW(rise)),rep(1,NROW(rise)),rep(1,NROW(rise))))
+
+        plotrix::polar.plot(dd, polar.pos=tt, rp.type='p', poly.col=c(0,rep(MESS::col.alpha(obj$col[i],0.3),2)), line.col=c(0,rep(obj$col[i],2)), start=90, clockwise=T, add=T)
+        if (obj.label) {
+          plotrix::radial.plot.labels(c(0.01,1), c(0,mean(c(rise1,rise2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black', obj$col[i]), pos=4, offset=0.5)
+          plotrix::radial.plot.labels(c(0.01,1), c(0,mean(c(set1,set2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black', obj$col[i]), pos=2, offset=0.5)
         }
       }
     }
@@ -86,9 +93,9 @@ plotAz = function(az, objects, loc, objects.label=T, ...) {
 #'
 #' This function creates a plot of a curvigram.
 #' @param curv Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.
-#' @param objects (Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
+#' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the dclination of clestial objects.
-#' @param objects.label (Optional) Boolean to control whether to label the celestial objects in
+#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the curvigram. Defaults to \emph{TRUE}.
 #' @param signif (Optional) A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}
 #' for displaying confidence envelope around the chosen null hypothesis and overall p-value.
@@ -96,7 +103,7 @@ plotAz = function(az, objects, loc, objects.label=T, ...) {
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @export
 #' @import utils stats graphics
-#' @seealso \code{\link{curvigram}}, \code{\link{object}}, \code{\link{sigTest}}
+#' @seealso \code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
 #' @examples
 #' # Plot the curvigram of Recumbent Stone Circles:
 #' data(RugglesRSC)
@@ -104,7 +111,7 @@ plotAz = function(az, objects, loc, objects.label=T, ...) {
 #' plotCurv(curv, xlim=c(-40,0))
 #'
 #' # Redo the plot to include lunar extreme declinations:
-#' LEx <- object('moon', -2000, col='red', lty=2)
+#' LEx <- sky.objects('moon', -2000, col='red', lty=2)
 #' plotCurv(curv, objects=LEx, xlim=c(-40,0))
 #'
 #' # Add significance testing information:
@@ -112,7 +119,7 @@ plotAz = function(az, objects, loc, objects.label=T, ...) {
 #' sig <- sigTest(curv, nh.Uniform(c(57,2)))
 #' plotCurv(curv, objects=LEx, signif=sig, xlim=c(-40,0))
 #' }
-plotCurv = function(curv, objects, objects.label=T, signif, xlim=NULL, ...) {
+plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
   par(mar=c(4, 4, 2, 2) + 0.1)
   if (is.null(xlim)) { xlim <- c(min(curv$dec)-5, max(curv$dec)+5) }
   plot.default(-100,-100, xlab='Declination', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
@@ -139,16 +146,16 @@ plotCurv = function(curv, objects, objects.label=T, signif, xlim=NULL, ...) {
   }
 
   # objects
-  if (!missing(objects)) {
-    for (i in 1:objects$n) {
-      if (length(objects$epoch)==1) {
-        abline(v=objects$decs[i], col=objects$col[i], lwd=objects$lwd[i], lty=objects$lty[i])
-        if (objects.label) { text(objects$decs[i], .95*par('usr')[4], colnames(objects$decs)[i], col=objects$col[i], pos=4, offset=0.2, cex=0.7) }
+  if (!missing(obj)) {
+    for (i in 1:obj$n) {
+      if (length(obj$epoch)==1) {
+        abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
+        if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
       } else {
-        xp <- c(objects$decs[,i], rev(objects$decs[,i]))
+        xp <- c(obj$decs[,i], rev(obj$decs[,i]))
         yp <- c(-1,-1,2,2)
-        polygon(xp, yp, border=objects$col[i], col=MESS::col.alpha(objects$col[i],.3))
-        if (objects.label) { text(objects$decs[2,i], .95*par('usr')[4], colnames(objects$decs)[i], col=objects$col[i], pos=4, offset=0.2, cex=0.7) }
+        polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
+        if (obj.label) { text(obj$decs[2,i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
       }
     }
   }
@@ -161,9 +168,9 @@ plotCurv = function(curv, objects, objects.label=T, signif, xlim=NULL, ...) {
 #' This function creates a plot of a z-score transformed curvigram, which is to say the
 #' curvigram transformed into sigma units, based on a previously generated significance test.
 #' @param signif A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}.
-#' @param objects (Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
+#' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the dclination of clestial objects.
-#' @param objects.label (Optional) Boolean to control whether to label the celestial objects in
+#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the curvigram. Defaults to \emph{TRUE}.
 #' @param xlim Array of two values restricting the horizontal range of the plot.
 #' @export
@@ -171,13 +178,14 @@ plotCurv = function(curv, objects, objects.label=T, signif, xlim=NULL, ...) {
 #' @examples
 #' \dontrun{
 #' data(RugglesRSC)
-#' curv <- curvigram(RugglesRSC$Dec, sd=2)
+#' curv <- curvigram(RugglesRSC$Dec, unc=2)
 #' sig <- sigTest(curv, nh.Uniform(c(57,2)))
 #'
-#' plotSigmas(sig)
+#' plotZscore(sig)
 #' }
-plotSigmas = function(signif, objects, objects.label=T, xlim=NULL) {
-  if (is.null(xlim)) { xlim <- c(min(signif$null.hyp.z[1,])-5, max(signif$null.hyp.z[1,])+5) }
+plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
+  # if (is.null(xlim)) { xlim <- c(min(signif$null.hyp.z[1,])-5, max(signif$null.hyp.z[1,])+5) }
+  if (is.null(xlim)) { xlim <- signif$data.range }
   plot.new()
   plot(-100,100, axes=F, xlim=xlim, ylim=c(-2, max(signif$maxima[2,])+1), xlab="Declination", ylab="")
   axis(1, at = seq(-90,90,10))
@@ -199,16 +207,16 @@ plotSigmas = function(signif, objects, objects.label=T, xlim=NULL) {
   abline(h=0)
 
   # objects
-  if (!missing(objects)) {
-    for (i in 1:objects$n) {
-      if (length(objects$epoch)==1) {
-        abline(v=objects$decs[i], col=objects$col[i], lwd=objects$lwd[i], lty=objects$lty[i])
-        if (objects.label) { text(objects$decs[i], .95*par('usr')[4], colnames(objects$decs)[i], col=objects$col[i], pos=4, offset=0.2, cex=0.7) }
+  if (!missing(obj)) {
+    for (i in 1:obj$n) {
+      if (length(obj$epoch)==1) {
+        abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
+        if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
       } else {
-        xp <- c(objects$decs[,i], rev(objects$decs[,i]))
+        xp <- c(obj$decs[,i], rev(obj$decs[,i]))
         yp <- c(-1,-1,2,2)
-        polygon(xp, yp, border=objects$col[i], col=MESS::col.alpha(objects$col[i],.3))
-        if (objects.label) { text(objects$decs[2,i], .95*par('usr')[4], colnames(objects$decs)[i], col=objects$col[i], pos=4, offset=0.2, cex=0.7) }
+        polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
+        if (obj.label) { text(obj$decs[2,i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
       }
     }
   }
@@ -227,21 +235,21 @@ plotSigmas = function(signif, objects, objects.label=T, xlim=NULL) {
 #' @param az0 Leftmost azimuth of plot. Defaults to 0 degrees, i.e. North at the left.
 #' @param zoom Boolean that controls whether to provide a zoomed-in view of 100 degrees in
 #' azimuth and 5 degrees of altitude above the horizonline. Defaults to \emph{FALSE}.
-#' @param objects (Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
+#' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the paths of celestial objects.
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @export
 #' @import utils stats graphics grDevices
-#' @seealso \code{\link{download.HWT}}, \code{\link{object}}
+#' @seealso \code{\link{download.HWT}}, \code{\link{sky.objects}}
 #' @examples
 #' # Plot a horizon retrieved from HeyWhatsThat:
 #' hor <- download.HWT('HIFVTBGK')
 #' plotHor(hor)
 #'
 #' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
-#' tt <- object('sun', -2000, 'blue')
+#' tt <- sky.objects('sun', -2000, 'blue')
 #' plotHor(hor, objects=tt)
-plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, objects, ...) {
+plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, ...) {
   # rejiggle so plot starts at given start point
   if (az0 < -360) { az0 <- az0 + 360 }
   ind <- which(hor$az < az0)
@@ -283,17 +291,17 @@ plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, objects, ...) {
   mtext(paste0('skyscapeR ',packageVersion('skyscapeR'),' Fabio Silva (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
 
   # objects
-  if (!missing(objects)) {
-    ind <- sort(objects$decs[1,], decreasing=T, index.return=T)$ix
+  if (!missing(obj)) {
+    ind <- sort(obj$decs[1,], decreasing=T, index.return=T)$ix
     for (i in ind) {
-      if (length(objects$epoch)==1) {
-        orb <- orbit(objects$decs[i], hor, res=0.5)
-        plotOrb(orb, objects$col[i])
+      if (length(obj$epoch)==1) {
+        orb <- orbit(obj$decs[i], hor, res=0.5)
+        plotOrb(orb, obj$col[i])
       } else {
-        orb1 <- orbit(objects$decs[1,i], hor, res=0.5)
-        orb2 <- orbit(objects$decs[2,i], hor, res=0.5)
-        plotOrb(orb1, objects$col[i])
-        plotOrb(orb2, objects$col[i])
+        orb1 <- orbit(obj$decs[1,i], hor, res=0.5)
+        orb2 <- orbit(obj$decs[2,i], hor, res=0.5)
+        plotOrb(orb1, obj$col[i])
+        plotOrb(orb2, obj$col[i])
       }
     }
   }

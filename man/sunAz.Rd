@@ -19,11 +19,11 @@ a string with continent followed by country capital (eg. "Europe/London").}
 \description{
 This function returns the azimuth of the sun at a given time and location,
 useful for data reduction of theodolite mesaurements using the sunsight
-technique (\code{\link{reduction.theod}}).
+technique (\code{\link{reduct.theodolite}}).
 }
 \examples{
 sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
 }
 \seealso{
-\code{\link{reduction.theod}}
+\code{\link{reduct.theodolite}}
 }

@@ -4,7 +4,7 @@
 \alias{plotHor}
 \title{Plot horizon data}
 \usage{
-plotHor(hor, show.az = F, max.alt, az0 = 0, zoom = F, objects, ...)
+plotHor(hor, show.az = F, max.alt, az0 = 0, zoom = F, obj, ...)
 }
 \arguments{
 \item{hor}{Object of \emph{skyscapeR.horizon} format.}
@@ -19,7 +19,7 @@ Defaults to \emph{FALSE}.}
 \item{zoom}{Boolean that controls whether to provide a zoomed-in view of 100 degrees in
 azimuth and 5 degrees of altitude above the horizonline. Defaults to \emph{FALSE}.}
 
-\item{objects}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
+\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the paths of celestial objects.}
 
 \item{...}{Any other parameters to be passed unto \code{\link{plot.default}}.}
@@ -33,9 +33,9 @@ hor <- download.HWT('HIFVTBGK')
 plotHor(hor)
 
 # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
-tt <- object('sun', -2000, 'blue')
+tt <- sky.objects('sun', -2000, 'blue')
 plotHor(hor, objects=tt)
 }
 \seealso{
-\code{\link{download.HWT}}, \code{\link{object}}
+\code{\link{download.HWT}}, \code{\link{sky.objects}}
 }

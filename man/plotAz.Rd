@@ -4,20 +4,20 @@
 \alias{plotAz}
 \title{Polar plot of orientations (azimuths)}
 \usage{
-plotAz(az, objects, loc, objects.label = T, ...)
+plotAz(az, obj, loc, obj.label = T, ...)
 }
 \arguments{
 \item{az}{Array of azimuths. Values outside the [0, 360] range will be ignored.}
 
-\item{objects}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{object}}
-for displaying the azimuths of clestial objects. Beware that this assumes a single
+\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
+for displaying the azimuths of celestial objects. Beware that this assumes a single
 location (given by parameter loc) and a flat horizon of zero degrees.}
 
 \item{loc}{(Optional) This can be either the latitude of the
 location, or a \emph{skyscapeR.horizon} object. Only necessary for plotting potential
 celestial targets.}
 
-\item{objects.label}{(Optional) Boolean to control whether to label the celestial objects in
+\item{obj.label}{(Optional) Boolean to control whether to label the celestial objects in
 the polar plot. Defaults to \emph{TRUE}.}
 
 \item{...}{Any other parameters to be passed unto \code{\link[plotrix]{polar.plot}}}
@@ -32,9 +32,9 @@ az <- c(120, 100, 93, 97, 88, 115, 112, 67)
 plotAz(az)
 
 # To visualize this data against the common solar and lunar targets:
-tt <- object(c('sun','moon'), epoch=-2000, lty=c(2,3))
+tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
 plotAz(az, tt, loc=c(35,-8))
 }
 \seealso{
-\code{\link[plotrix]{polar.plot}}, \code{\link{object}}
+\code{\link[plotrix]{polar.plot}}, \code{\link{sky.objects}}
 }
