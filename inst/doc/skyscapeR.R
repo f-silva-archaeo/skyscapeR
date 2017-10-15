@@ -1,5 +1,9 @@
 ## ---- echo = FALSE-------------------------------------------------------
+<<<<<<< HEAD
 knitr::opts_chunk$set(fig.width = 4.5, fig.height = 4.5, fig.align='center')
+=======
+knitr::opts_chunk$set(fig.width = 5, fig.height = 5)
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 
 ## ------------------------------------------------------------------------
 library(skyscapeR)
@@ -17,6 +21,7 @@ lunar <- sky.objects('moon', epoch=-2000, col='red', lty=2)
 ## ----fig.show='hold'-----------------------------------------------------
 plotCurv(curv, lunar)
 
+<<<<<<< HEAD
 ## ------------------------------------------------------------------------
 georef <- rbind(c(35.1,-7.1),c(35.1,-7),c(35.2,-7.1),c(35.1,-7.3))    # GPS data
 azimuths <- c(93, 108, 105, 98)    # Compass measurements
@@ -43,6 +48,10 @@ data
 
 ## ---- fig.show='hold'----------------------------------------------------
 az <- rnorm(30, 85, 20)    # This creates 30 random azimuths
+=======
+## ---- fig.show='hold'----------------------------------------------------
+az <- rnorm(30, 85, 20) # This creates 30 random azimuths
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 plotAz(az)
 
 ## ---- fig.show='hold'----------------------------------------------------
@@ -50,6 +59,7 @@ sunandmoon <- sky.objects(c('sun','moon'), epoch=-4000, col=c('blue','red'), lty
 plotAz(az, obj=sunandmoon, loc=c(52,0))
 
 ## ------------------------------------------------------------------------
+<<<<<<< HEAD
 dec <- az2dec(az, loc= c(35,-7), alt=0)
 dec
 
@@ -82,6 +92,8 @@ aux <- sky.objects(names=c('sun', 'Aldebaran'), epoch=c(-4300,-3700), col=c('blu
 plotHor(hor, obj=aux)
 
 ## ------------------------------------------------------------------------
+=======
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 ss <- star('Sirius')
 ss
 

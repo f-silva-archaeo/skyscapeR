@@ -9,13 +9,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 ```{r, echo = FALSE}
+<<<<<<< HEAD
 knitr::opts_chunk$set(fig.width = 4.5, fig.height = 4.5, fig.align='center')
+=======
+knitr::opts_chunk$set(fig.width = 5, fig.height = 5)
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 ```
 _skyscapeR_ is a open source R package for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy. It is intended to become a fully-fledged, transparent and peer-reviewed package offering a robust set of quantitative methods while retaining simplicity of use.
 
 
 It includes functions to transform horizontal (Az/Alt) to equatorial (Dec/RA) coordinates, create or download horizon profiles, plot them and overlay them with visible paths of common celestial objects/events for prehistoric or historic periods, as well as functions to test statistical significance and estimate stellar visibility and seasonality. It also includes the ability to easily construct azimuth polar plots and declination curvigrams. Future versions will add data reduction and likelihood-based model selection facilities, as well as an easy-to-use Graphical User Interface.
 
+<<<<<<< HEAD
 ## 1. First Steps
 Like all vignettes for _R_ packages this is neither intended for those unexperienced in _R_ nor a fully-fledged and detailed manual for _skyscapeR_. Neither will it be understandeable to those unfamiliar with the terminology and methodologies of cultural astronomy, archaeoastronomy or skyscape archaeology.
 
@@ -26,6 +31,16 @@ If you are new to _R_ then I recommend the online free short course [Code School
 
 ### Installation
 The package requires that the latest version of _R_ is installed first. See the [R Project website](https://www.r-project.org/) for details. Also suggested is the installation of [RStudio](https://www.rstudio.com/). With _R_ installed, install package _devtools_ by running:
+=======
+## First Steps
+Like all vignettes for _R_ packages this is neither intended for those unexperienced in _R_ nor a fully-fledged manual for _skyscapeR_ (that will come later with v.1.0.0). Nor is it going to be understandeable to those unfamiliar with the terminology and methodologies of cultural astronomy, archaeoastronomy or skyscape archaeology.
+
+This document is an entry-point to the package's main functions and sets out workflows of what you can do with it.  If you are new to _R_ then I recommend the online free short course [Code School's TryR](http://tryr.codeschool.com). For those who are already familiar with R I apologise in advance for any patronising bits (such as the next two sections). With some basic _R_ skills, guidance from this vignette and autonomous exploration of the manual pages for individual functions, anyone with prior training in skyscape archaeology can become a master _skyscapeR_.
+
+
+### Installation
+The package requires that the latest version of R is installed first. See the [R Project website](https://www.r-project.org/) for details. Also suggested is the installation of [RStudio](https://www.rstudio.com/). With R installed, install package _devtools_ by running:
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 
 ```
 install.packages('devtools')
@@ -46,8 +61,13 @@ library(skyscapeR)
 ```
 
 
+<<<<<<< HEAD
 ### Datasets and help
 The current version of _skyscapeR_ comes with a couple of measurment datasets that can be used for learning and testing the package. These can be loaded by typing:
+=======
+### Data Sets and Help
+The current version of _skyscapeR_ comes with a couple of datasets that can be used for learning and testing the package. These can be loaded by typing:
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 ```
 data(RugglesRSC)
 ```
@@ -65,8 +85,13 @@ In this case, if you want to know more about the _RugglesRSC_ dataset you can ty
 This opens the manual page for the dataset, or function. In _RStudio_ this opens on the bottom-right pane by default.
 
 
+<<<<<<< HEAD
 ## 2. Hello, Curvigram!
 Let's start by creating your first curvigram with _skyscapeR_. The function for this is aptly called ```curvigram()```. Go ahead and do ```?curvigram``` right now to learn more about it, including an example at the bottom of the manual page, which we will now do:
+=======
+### Hello, Curvigram!
+Let's now do your first curvigram with _skyscapeR_. The function for this is aptly called ```curvigram()```. Go ahead and do ```?curvigram``` right now to learn more about it, including an example at the bottom of the manual page, which we will now do:
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 ```{r}
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, 2)
@@ -80,7 +105,11 @@ plotCurv(curv)
 Be sure to check ```?curvigram``` and ```?plotCurv``` to see what other options are available.
 
 
+<<<<<<< HEAD
 ### Adding celestial objects to a curvigram
+=======
+### Adding Celestial Objects to the mix
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 Let's add some celestial targets to the curvigram on order to compare them with those frequency peaks. We need to create a _skyscapeR.object_ first. This is done with ```sky.objects()```:
 ```{r}
 lunar <- sky.objects('moon', epoch=-2000, col='red', lty=2)
@@ -94,6 +123,7 @@ plotCurv(curv, lunar)
 You can now see the southern major lunar extreme (sMjLX) and the southern minor lunar extreme (smnLX) declinations for the year 1999 BCE on the same plot.
 
 
+<<<<<<< HEAD
 ## 3. Handling and Visualizing Fieldwork Data
 _skyscapeR_ has some built-in function to automatically process fieldwork data. Although the data reduction process can be done manually using other functions (such as ```az2dec()```, ```mag.dec()``` or ```sunAz()```) the entire process has been automated by using the `reduct.` functions.
 
@@ -139,6 +169,23 @@ Similarly to ```reduct.compass()``` if a horizon profile is given, the altitude 
 In general, the use of azimuths for analysis and visualization in _skyscapeR_ is deprecated since azimuths are location-specific. It is preferable to convert all measurements to declinations and work with equatorial coordinates (see section below). However _it_skyscapeR_ does include a much requested function to create a polar plot of azimuth values. The function is ```plotAz()```:
 ```{r, fig.show='hold'}
 az <- rnorm(30, 85, 20)    # This creates 30 random azimuths
+=======
+## Handling Fieldwork Data
+### Data Reduction for Compass Measurements
+```
+reduction.comp()
+```
+
+### Data Reduction for Theodolite Measurements
+```
+reduction.theod()
+```
+
+### Plotting Azimuths
+In general, the use of azimuths for analysis and visualization in _skyscapeR_ is deprecated since azimuths are location-specific. It is preferable to convert all measurements to declinations and work with equatorial coordinates (see section below). However _it_skyscapeR_ does include a much requested function to create a polar plot of azimuth values. The function is ```plotAz()```:
+```{r, fig.show='hold'}
+az <- rnorm(30, 85, 20) # This creates 30 random azimuths
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 plotAz(az)
 ```
 
@@ -148,6 +195,7 @@ sunandmoon <- sky.objects(c('sun','moon'), epoch=-4000, col=c('blue','red'), lty
 plotAz(az, obj=sunandmoon, loc=c(52,0))
 ```
 
+<<<<<<< HEAD
 ### Converting azimuth to declination
 If you are looking for a mere horizontal to equatorial coordinate conversion, without all the extra automation that the ```reduct.``` functions provide you can use the ```az2dec()``` function:
 ```{r}
@@ -214,6 +262,14 @@ Or create a new one, in this case using an epoch range for cases where we might 
 aux <- sky.objects(names=c('sun', 'Aldebaran'), epoch=c(-4300,-3700), col=c('blue', 'red'))
 plotHor(hor, obj=aux)
 ```
+=======
+### Converting Azimuths to Declination
+```
+az2dec()
+```
+
+## Dealing with Horizons
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 
 
 ## Stars
@@ -230,7 +286,11 @@ ss$dec
 ```
 
 
+<<<<<<< HEAD
 ### Star phases and seasonality
+=======
+### Star Phases and Seasonality
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456
 To estimate the phases, events and/or seasonality of stars the function ```star.phases()``` can be used. It works as follows, for the location of Cairo, an epoch of -3000, and a horizon altitude of 2º:
 ```{r}
 sp <- star.phases('Sirius', -3000, loc=c(30.0,31.2), alt.hor=2)
@@ -277,3 +337,12 @@ If one is not interested in ploting the results of the significance testing, but
 sg$p.value
 sg$maxima
 ```
+<<<<<<< HEAD
+=======
+
+
+## Where next for _skyscapeR_ ?
+
+
+## References
+>>>>>>> 148f0aac44cdb26b4817853981309b3b99f1d456

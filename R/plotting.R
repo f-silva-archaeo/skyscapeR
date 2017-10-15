@@ -71,9 +71,6 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
         rise2 <- uniroot(forb, interval=c(0, 180))$root
         set2 <- uniroot(forb, interval=c(180, 360))$root
 
-        # tt <- rbind(c(0,0),c(rise1, rise2), c(set1, set2))
-        # dd <- cbind(rbind(c(0.01,0.01),c(0,0),c(0,0)), rbind(c(0.01,0.01),c(1,1),c(1,1)))
-
         rise <- seq(min(c(rise1,rise2)), max(c(rise1,rise2)), by=0.1)
         set <- seq(min(c(set1,set2)), max(c(set1,set2)), length.out=NROW(rise))
         tt <- rbind(rep(0,NROW(rise)), rise, set)
@@ -89,7 +86,6 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
     plotrix::polar.plot(testlen, testpos, lwd=1.2, line.col='black', start=90, clockwise=T, add = T)
   }
   options(warn=-2); par(oldpar); options(warn=0)
-
 }
 
 #' Plot a curvigram

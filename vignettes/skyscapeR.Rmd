@@ -203,6 +203,7 @@ data
 ```
 
 
+<<<<<<< HEAD
 ### Visualizing celestial object paths 
 ```plotHor()``` can be used to display the visible paths of celestial objects chosen with ```sky.objects()```. To use the one we created before for the curvigram just type:
 ```{r, fig.width = 7, fig.height = 4}
@@ -231,6 +232,27 @@ ss$dec
 
 
 ### Star phases and seasonality
+To estimate the phases, events and/or seasonality of stars the function ```star.phases()``` can be used. It works as follows, for the location of Cairo, an epoch of -3000, and a horizon altitude of 2º:
+```{r}
+sp <- star.phases('Sirius', -3000, loc=c(30.0,31.2), alt.hor=2)
+```
+
+=======
+## Stars
+_skyscapeR_ includes data on the brightest xx stars in the night sky. The data table is accessible via ```data(stars)```. To pick a particular stars, maybe to see what declination it has, or had, you can do as follows:
+```{r}
+ss <- star('Sirius')
+ss
+```
+
+This shows the information for Sirius which is now loaded into object `ss`. Note the epoch the data is output, _J2000_, by default. To get coordinates for other epochs just do:
+```{r}
+ss <- star('Sirius', year=-4000)
+ss$dec
+```
+
+
+### Star Phases and Seasonality
 To estimate the phases, events and/or seasonality of stars the function ```star.phases()``` can be used. It works as follows, for the location of Cairo, an epoch of -3000, and a horizon altitude of 2º:
 ```{r}
 sp <- star.phases('Sirius', -3000, loc=c(30.0,31.2), alt.hor=2)
