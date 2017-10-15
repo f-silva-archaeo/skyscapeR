@@ -24,6 +24,7 @@
 #' tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
 #' plotAz(az, tt, loc=c(35,-8))
 plotAz = function(az, obj, loc, obj.label=T, ...) {
+  oldpar <- par()
 
   ind <- which(az > 360 | az < 0)
   if (length(ind) > 0) {
@@ -60,12 +61,12 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
         }
       } else {
         rise1 <- c(); rise2 <- c(); set1 <- c(); set2 <- c()
-        orb1 <- orbit(obj$decs[1,i], loc, nutate_=F, refract_=F, aberration_=F)
+        orb1 <- orbit(obj$decs[3,i], loc, nutate_=F, refract_=F, aberration_=F)
         forb <- splinefun(orb1$az, orb1$alt)
         rise1 <- uniroot(forb, interval=c(0, 180))$root
         set1 <- uniroot(forb, interval=c(180, 360))$root
 
-        orb2 <- orbit(obj$decs[2,i], loc, nutate_=F, refract_=F, aberration_=F)
+        orb2 <- orbit(obj$decs[4,i], loc, nutate_=F, refract_=F, aberration_=F)
         forb <- splinefun(orb2$az, orb2$alt)
         rise2 <- uniroot(forb, interval=c(0, 180))$root
         set2 <- uniroot(forb, interval=c(180, 360))$root
@@ -87,6 +88,8 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
     }
     plotrix::polar.plot(testlen, testpos, lwd=1.2, line.col='black', start=90, clockwise=T, add = T)
   }
+  options(warn=-2); par(oldpar); options(warn=0)
+
 }
 
 #' Plot a curvigram
@@ -121,6 +124,7 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' }
 plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
   par(mar=c(4, 4, 2, 2) + 0.1)
+  plot.new()
   if (is.null(xlim)) { xlim <- c(min(curv$dec)-5, max(curv$dec)+5) }
   plot.default(-100,-100, xlab='Declination', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
   axis(1); axis(2)
@@ -152,10 +156,10 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
         abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
         if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
       } else {
-        xp <- c(obj$decs[,i], rev(obj$decs[,i]))
+        xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
         yp <- c(-1,-1,2,2)
         polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
-        if (obj.label) { text(obj$decs[2,i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+        if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
       }
     }
   }
@@ -186,6 +190,7 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
 plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
   # if (is.null(xlim)) { xlim <- c(min(signif$null.hyp.z[1,])-5, max(signif$null.hyp.z[1,])+5) }
   if (is.null(xlim)) { xlim <- signif$data.range }
+  par(mar=c(4, 4, 2, 2) + 0.1)
   plot.new()
   plot(-100,100, axes=F, xlim=xlim, ylim=c(-2, max(signif$maxima[2,])+1), xlab="Declination", ylab="")
   axis(1, at = seq(-90,90,10))
@@ -213,10 +218,10 @@ plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
         abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
         if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
       } else {
-        xp <- c(obj$decs[,i], rev(obj$decs[,i]))
+        xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
         yp <- c(-1,-1,2,2)
         polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
-        if (obj.label) { text(obj$decs[2,i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+        if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
       }
     }
   }
@@ -298,8 +303,8 @@ plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, ...) {
         orb <- orbit(obj$decs[i], hor, res=0.5)
         plotOrb(orb, obj$col[i])
       } else {
-        orb1 <- orbit(obj$decs[1,i], hor, res=0.5)
-        orb2 <- orbit(obj$decs[2,i], hor, res=0.5)
+        orb1 <- orbit(obj$decs[3,i], hor, res=0.5)
+        orb2 <- orbit(obj$decs[4,i], hor, res=0.5)
         plotOrb(orb1, obj$col[i])
         plotOrb(orb2, obj$col[i])
       }

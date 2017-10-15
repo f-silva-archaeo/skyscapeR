@@ -2,8 +2,8 @@
 #'
 #' This function calculates the true azimuth of a structure measured with
 #' a theodolite using the sunsight technique.
-#' @param loc Location, can be either a \emph{skyscapeR.horizon} object or,
-#' alternatively, a latitude.
+#' @param loc Location, either a \emph{skyscapeR.object} or a vector
+#' containing the latitude and longitude of location, in this order.
 #' @param az Array of azimuths. Use \code{\link[astrolibR]{ten}} to convert to
 #' decimal point format if necessary.
 #' @param date Date of measurements as a string in the format: 'YYYY/MM/DD'
@@ -37,16 +37,23 @@
 reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt) {
   if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$georef } else { hor <- NULL }
 
+  if (NROW(loc) < NROW(az)*2) { loc <- matrix(loc,NROW(az),2, byrow=T) }
+  if (NROW(date) < NROW(az)) { date <- matrix(date,NROW(az),1, byrow=T) }
+  if (NROW(time) < NROW(az)) { time <- matrix(time,NROW(az),1, byrow=T) }
+  if (NROW(tz) < NROW(az)) { tz <- matrix(tz,NROW(az),1, byrow=T) }
+  if (NROW(az.sun) < NROW(az)) { az.sun <- matrix(az.sun,NROW(az),1, byrow=T) }
+  if (!missing(alt)) { if (NROW(alt) < NROW(az)) { alt <- matrix(alt,NROW(az),1, byrow=T) } }
+
   date <- as.Date(date, "%Y/%m/%d")
   time <- paste(date, time)
 
-  diff <- az - rep(az.sun, NROW(az))
-  ind <- which(abs(diff)>180); if (length(ind)>0) { diff[ind] <- az[ind] - rep(az.sun-360, NROW(ind)) }
+  diff <- az - az.sun
+  ind <- which(abs(diff)>180); if (length(ind)>0) { diff[ind] <- az[ind] - az.sun[ind]-360 }
 
   az.sun.corr <- sunAz(loc, time, tz)
   az.corr <- az.sun.corr + diff
 
-  df <- data.frame(Latitude=loc[1], Longitude=loc[2], Uncorrected.Az=az, Date.Time=time, Sun.Az=az.sun.corr, Corrected.Az=az.corr)
+  df <- data.frame(Latitude=loc[,1], Longitude=loc[,2], Uncorrected.Az=az, Date.Time=time, Sun.Az=az.sun.corr, Corrected.Az=az.corr)
 
   if (!missing(alt)) {
     dec <- az2dec(az.corr, loc, alt)
@@ -66,8 +73,8 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt) {
 #'
 #' This function calculates the true azimuth of a structure measured with
 #' a compass.
-#' @param loc Location, can be either a \emph{skyscapeR.horizon} object or,
-#' alternatively, a latitude.
+#' @param loc Location, either a \emph{skyscapeR.object} or a vector
+#' containing the latitude and longitude of location, in this order.
 #' @param mag.az Array of magnetic azimuth measurements.
 #' @param date (Optional) Date of measurements as a string in the format: 'YYYY/MM/DD'.
 #' Only necessary is \emph{magdec} is not given.
@@ -91,12 +98,16 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt) {
 reduct.compass = function(loc, mag.az, date, magdec, alt) {
   if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$georef } else { hor <- NULL }
 
+  if (NROW(loc) < NROW(mag.az)*2) { loc <- matrix(loc,NROW(mag.az),2, byrow=T) }
+  if (!missing(date) & (NROW(date) < NROW(mag.az))) { date <- matrix(date,NROW(mag.az),1, byrow=T) }
+  if (!missing(alt)) { if (NROW(alt) < NROW(mag.az)) { alt <- matrix(alt,NROW(mag.az),1, byrow=T) } }
+
   if (missing(magdec) & !missing(date)) {
     magdec <- mag.dec(loc, date)
   }
   true.az <- mag.az + magdec
 
-  df <- data.frame(Latitude=loc[1], Longitude=loc[2], Magnetic.Az=mag.az, Date=date, Mag.Dec=magdec, True.Az=true.az)
+  df <- data.frame(Latitude=loc[,1], Longitude=loc[,2], Magnetic.Az=mag.az, Date=date, Mag.Dec=magdec, True.Az=true.az)
 
   if (!missing(alt)) {
     dec <- az2dec(true.az, loc, alt)

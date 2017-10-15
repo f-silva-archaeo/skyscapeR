@@ -71,6 +71,7 @@ hor2alt = function(hor, az) {
 #' mag.dec( loc, "2016/04/01" )
 mag.dec = function(loc, date) {
   if (class(loc) == 'skyscapeR.horizon') { loc <- loc$georef }
-  aux <- oce::magneticField(loc[2], loc[1], as.POSIXlt(date))$declination
+  if (is.null(dim(loc))) { dim(loc) <- c(1,NROW(loc)) }
+  aux <- oce::magneticField(loc[,2], loc[,1], as.POSIXlt(date, format="%Y/%m/%d"))$declination
   return(aux)
 }

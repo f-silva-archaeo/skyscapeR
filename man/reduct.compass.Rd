@@ -7,8 +7,8 @@
 reduct.compass(loc, mag.az, date, magdec, alt)
 }
 \arguments{
-\item{loc}{Location, can be either a \emph{skyscapeR.horizon} object or,
-alternatively, a latitude.}
+\item{loc}{Location, either a \emph{skyscapeR.object} or a vector
+containing the latitude and longitude of location, in this order.}
 
 \item{mag.az}{Array of magnetic azimuth measurements.}
 

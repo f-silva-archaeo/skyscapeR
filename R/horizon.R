@@ -4,8 +4,8 @@
 #' azimuth and altitude.
 #' @param az Array of azimuth values
 #' @param alt Array of altitude values.
-#' @param lat Latitude of site.
-#' @param lon Longitude of site.
+#' @param loc Location, a vector containing the latitude and longitude of
+#' the location, in this order.
 #' @param name Name of site.
 #' @seealso \code{\link{plotHor}}
 #' @export
@@ -13,14 +13,14 @@
 #' # Create a skyscapeR.horizon from 5 measurements:
 #' az <- c(0,90,180,270,360)
 #' alt <- c(0,5,5,0,0)
-#' hor <- createHor(az, alt, 40.1, -8, 'Test')
+#' hor <- createHor(az, alt, c(40.1,-8), 'Test')
 #' plotHor(hor)
-createHor = function(az, alt, lat, lon, name) {
+createHor = function(az, alt, loc, name) {
   # return result
   hor <- c()
   hor$alt <- alt
   hor$az <- az
-  hor$georef <- c(lat,lon); names(hor$georef) <- c('Lat','Lon')
+  hor$georef <- loc; names(hor$georef) <- c('Lat','Lon')
   hor$name <- name
   class(hor) <- "skyscapeR.horizon"
   return(hor)

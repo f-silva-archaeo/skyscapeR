@@ -7,8 +7,8 @@
 reduct.theodolite(loc, az, date, time, tz, az.sun = 0, alt)
 }
 \arguments{
-\item{loc}{Location, can be either a \emph{skyscapeR.horizon} object or,
-alternatively, a latitude.}
+\item{loc}{Location, either a \emph{skyscapeR.object} or a vector
+containing the latitude and longitude of location, in this order.}
 
 \item{az}{Array of azimuths. Use \code{\link[astrolibR]{ten}} to convert to
 decimal point format if necessary.}

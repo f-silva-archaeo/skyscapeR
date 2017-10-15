@@ -204,54 +204,6 @@ antizenith = function(loc) {
 
 
 
-
-#' Time shift object of class \emph{skyscapeR.star}
-#'
-#' This function calculates the coordinates (RA and DEC)
-#' of a star for any time in the past. It uses functions
-#' \code{\link[astrolibR]{precess}}, \code{\link[astrolibR]{co_nutate}}
-#' and \code{\link[astrolibR]{co_aberration}}.
-#' @param star Object created using \code{\link{star}}.
-#' @param year Year for which to calculate the coordinates.
-#' Defaults to present year as given by \emph{Sys.Date()}.
-#' @export
-#' @seealso \code{\link[astrolibR]{precess}}, \code{\link[astrolibR]{co_nutate}},
-#' \code{\link[astrolibR]{co_aberration}}
-#' @examples
-#' # Time shift data on Sirius to 2500 BC:
-#' Sirius <- star('Sirius')
-#' Sirius.2500BC <- palaeo.star(Sirius, -2501)
-palaeo.star = function(star, year = cur.year) {
-  if (class(star)=="skyscapeR.star") {
-    # precession
-    trash <- capture.output(coor <- astrolibR::precess(star$ra,star$dec, 2000, year), file=NULL)
-
-    # proper motion
-    adj.pm <- star$proper.motion*(year-2000)/1000
-    coor$ra <- coor$ra + astrolibR::ten(0,0,adj.pm[1])*sign(adj.pm[1])
-    coor$dec <- coor$dec + astrolibR::ten(0,0,adj.pm[2])*sign(adj.pm[2])
-
-    # nutation
-    adj.nu <- astrolibR::co_nutate(astrolibR::jdcnv(year,1,1,0), star$ra, star$dec)
-    coor$ra <- coor$ra + astrolibR::ten(0,0,adj.nu$d_ra)*sign(adj.nu$d_ra)
-    coor$dec <- coor$dec + astrolibR::ten(0,0,adj.nu$d_dec)*sign(adj.nu$d_dec)
-
-    # aberration
-    adj.ab <- astrolibR::co_aberration(astrolibR::jdcnv(year,1,1,0), star$ra, star$dec, pracma::deg2rad(obliquity(year)))
-    coor$ra <- coor$ra + astrolibR::ten(0,0,adj.ab$d_ra)*sign(adj.ab$d_ra)
-    coor$dec <- coor$dec + astrolibR::ten(0,0,adj.ab$d_dec)*sign(adj.ab$d_dec)
-
-    # output
-    star$ra <- coor$ra
-    star$dec <- coor$dec
-    star$epoch <- as.character(year)
-
-    return(star)
-  } else { stop('No object of class skyscaper.star detected. Please check man pages: ?palaeosky')}
-
-}
-
-
 #' Calculate visible path of celestial object at given location
 #'
 #' This function calculates the visibile path of a celestial
@@ -383,14 +335,12 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
         next
       }
 
-      ####### TO DO ::: include individual solar and lunar targets
-
-      # stars  :::: NEEDS CHANGING TO OUTPUT MIN AND MAX DEC
+      # stars
       data(stars, envir=environment())
       if (sum(sapply(as.character(stars$NAME), pracma::strcmp, s2=names[i]))) {
         aux <- array(NA, c(NROW(epoch),1))
         for (j in 1:NROW(epoch)) {
-          aux[j,] <- palaeo.star(do.call(star, list(names[i])), epoch[j])$dec
+          aux[j,] <- star(names[i], epoch[j])$dec
         }
         colnames(aux) <- names[i]
         tt <- cbind(tt, aux)
@@ -399,6 +349,17 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
         tt.lwd <- c(tt.lwd, lwd[i])
         next
       }
+
+      # if none of the above fit the bill try calling the functions
+      aux <- array(NA, c(NROW(epoch),1))
+      for (j in 1:NROW(epoch)) {
+        aux[j,] <- do.call(names[i], list(epoch[j]))
+      }
+      colnames(aux) <- names[i]
+      tt <- cbind(tt, aux)
+      tt.col <- c(tt.col, col[i])
+      tt.lty <- c(tt.lty, lty[i])
+      tt.lwd <- c(tt.lwd, lwd[i])
     }
 
     # custom dec
@@ -413,20 +374,17 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
       next
     }
 
-    # if none of the above fit the bill try calling the functions
-    aux <- array(NA, c(NROW(epoch),1))
-    for (j in 1:NROW(epoch)) {
-      aux[j,] <- do.call(names[i], list(epoch[j]))
-    }
-    colnames(aux) <- names[i]
-    tt <- cbind(tt, aux)
-    tt.col <- c(tt.col, col[i])
-    tt.lty <- c(tt.lty, lty[i])
-    tt.lwd <- c(tt.lwd, lwd[i])
   }
   options(warn=0)
   rownames(tt) <- epoch
 
+  # check min and max decs
+  if (NROW(epoch)==2) {
+    ind <- which(substr(colnames(tt),1,6) != 'Custom')
+    dec.range <- sapply(colnames(tt[,ind]), minmaxdec, from=min(epoch), to=max(epoch))
+    aux <- matrix(NA, 2, NCOL(tt)); aux[,ind] <- dec.range; aux[,-ind] <- tt[,-ind]; rownames(aux) <- c('min','max')
+    tt <- rbind(tt,aux)
+  }
 
   # return result
   object <- c()
@@ -459,13 +417,17 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 #' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
 sunAz = function(loc, time, timezone) {
   if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
+  if (is.null(dim(loc))) { dim(loc) <- c(1, NROW(loc)) }
 
-  pb.date <- as.POSIXct(time, timezone)
-  UT <- format(pb.date, tz="UTC",usetz=TRUE)
-  UT <- as.POSIXlt(UT, 'UTC')
-  jd <- astrolibR::jdcnv(UT$year+1900, UT$mon+1, UT$mday, UT$hour+UT$min/60+UT$sec/3600)
-  ss <- astrolibR::sunpos(jd)
-  az <- eq2horFS(ss$ra, ss$dec, jd, loc[1], loc[2], precess_ = F)$az
+  az <- c()
+  for (i in 1:NROW(loc)) {
+    pb.date <- as.POSIXct(time[i], timezone[i])
+    UT <- format(pb.date, tz="UTC",usetz=TRUE)
+    UT <- as.POSIXlt(UT, 'UTC')
+    jd <- astrolibR::jdcnv(UT$year+1900, UT$mon+1, UT$mday, UT$hour+UT$min/60+UT$sec/3600)
+    ss <- astrolibR::sunpos(jd)
+    az[i] <- eq2horFS(ss$ra, ss$dec, jd, loc[i,1], loc[i,2], precess_ = F)$az
+  }
 
   return(az)
 }
