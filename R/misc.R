@@ -107,3 +107,28 @@ eq2horFS = function (ra, dec, jd, lat = 43.0783, lon = -89.865, ws = F,
 
   return(list(alt = alt, az = az, ha = ha))
 }
+
+#' @noRd
+minmaxdec = function(name, from, to) {
+xx <- seq(from, to, 100)
+dd <- c()
+
+# Stars
+data(stars, envir=environment())
+if (sum(sapply(as.character(stars$NAME), pracma::strcmp, s2=name))) {
+  for (i in 1: NROW(xx)) {
+    dd[i] <- star(name, xx[i])$dec
+  }
+} else {
+  # Solar-Lunar targets
+  for (i in 1: NROW(xx)) {
+    dd[i] <- do.call(name, list(xx[i]))
+  }
+}
+ff <- splinefun(xx,dd)
+xxz <- seq(from,to,0.01)
+dd <- ff(xxz)
+mm <- c(min(dd),max(dd))
+
+return(mm)
+}

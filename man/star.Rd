@@ -4,7 +4,7 @@
 \alias{star}
 \title{Create \emph{skyscapeR.star} object}
 \usage{
-star(string)
+star(string, year)
 }
 \arguments{
 \item{string}{This can be either: 1) the common name for the star,
@@ -13,10 +13,13 @@ star(string)
 4) the Messier catalogue number (if string begins with M), or
 5) the Bayer designation (if string has exactly 5 characters,
  the second of which is a space).}
+
+\item{year}{Year for which to calculate the coordinates.
+Defaults to J2000.0 epoch.}
 }
 \description{
 This function retrieves information for a given star
-and saves it in the skyscapeR.star format ready to be
+and saves it in the \emph{skyscapeR.star} format ready to be
 used by other skyscapeR package function.
 }
 \examples{
@@ -26,4 +29,11 @@ Aldeb <- star('Aldebaran')
 # Retrieve data for the Pleiades (M45):
 P1 <- star('Pleiades')
 P2 <- star('M45')
+
+# Retrieve data for Sirius on 2999 BC:
+ss <- star('Sirius', -3000)
+}
+\seealso{
+\code{\link[astrolibR]{precess}}, \code{\link[astrolibR]{co_nutate}},
+\code{\link[astrolibR]{co_aberration}}
 }

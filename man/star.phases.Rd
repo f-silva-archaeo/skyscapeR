@@ -17,7 +17,7 @@ containing the latitude and longitude of location, in this order.}
 \item{alt.hor}{(Optional) The altitude of the horizon to consider.
 Defaults to zero degrees.}
 
-\item{alt.rs}{(Optional) The maximum altitude of a star's first
+\item{alt.rs}{(Optional) The maximum altitude of a star's first or last
 visibility for it to still be considered to be as rising or setting.
 Defaults to ten degrees.}
 
