@@ -37,6 +37,7 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000) {
   parallel::clusterEvalQ(cl, library(skyscapeR))
   doParallel::registerDoParallel(cl)
   foreach::getDoParWorkers()
+  message(paste0('Running ', nsims, ' simulations. This may take a while...'))
 
   res <- foreach (i = 1:(1.2*nsims), .combine=rbind, .inorder = F, .errorhandling = 'remove') %dopar% {
     simData <- sample(null.hyp$dec, N, prob=null.hyp$density, replace=T)

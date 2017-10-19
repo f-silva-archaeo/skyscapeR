@@ -4,7 +4,7 @@
 \alias{reduct.theodolite}
 \title{Data reduction for theodolite measurements using the sun-sight method}
 \usage{
-reduct.theodolite(loc, az, date, time, tz, az.sun = 0, alt)
+reduct.theodolite(loc, az, date, time, tz, az.sun = 0, alt, name, ID, HWT.ID)
 }
 \arguments{
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
@@ -25,6 +25,13 @@ a string with continent followed by country capital (eg. "Europe/London").}
 \item{alt}{(Optional) Altitude, necessary for automatic declination calculation.
 If missing and \emph{loc} is a \emph{skuscapeR.horizon} object then the altitude
 will be automatically read from the horizon profile.}
+
+\item{name}{(Optional) Names or labels to identify each measurement.}
+
+\item{ID}{(Optional) IDs or codes to identify each measurement.}
+
+\item{HWT.ID}{(Optional) HeyWhatsThat IDs relating to a previously generated
+horizon profile for measurement.}
 }
 \description{
 This function calculates the true azimuth of a structure measured with

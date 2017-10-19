@@ -29,7 +29,8 @@ az2dec = function(az, loc, alt, ...){
   if (class(loc) != 'skyscapeR.horizon') { hor <- c(); hor$georef <- c(loc, 0) } else { hor <- loc }
   if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az) }
 
-  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$georef[1], hor$georef[2], precess_ = F, ...)$dec, 2); names <- ''
+  prec <- max(nchar(sub('.*\\.', '', as.character(az))))
+  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$georef[1], hor$georef[2], precess_ = F, ...)$dec, prec)
   return(dec)
 }
 
@@ -47,7 +48,7 @@ az2dec = function(az, loc, alt, ...){
 #' hor2alt(hor, 90)
 hor2alt = function(hor, az) {
   hh <- splinefun(hor$az, hor$alt)
-  alt <- hh(az)
+  alt <- round(hh(az), 2)
   return(alt)
 }
 

@@ -120,7 +120,6 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' }
 plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
   par(mar=c(4, 4, 2, 2) + 0.1)
-  plot.new()
   if (is.null(xlim)) { xlim <- c(min(curv$dec)-5, max(curv$dec)+5) }
   plot.default(-100,-100, xlab='Declination', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
   axis(1); axis(2)
@@ -187,7 +186,6 @@ plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
   # if (is.null(xlim)) { xlim <- c(min(signif$null.hyp.z[1,])-5, max(signif$null.hyp.z[1,])+5) }
   if (is.null(xlim)) { xlim <- signif$data.range }
   par(mar=c(4, 4, 2, 2) + 0.1)
-  plot.new()
   plot(-100,100, axes=F, xlim=xlim, ylim=c(-2, max(signif$maxima[2,])+1), xlab="Declination", ylab="")
   axis(1, at = seq(-90,90,10))
   mtext("Standard Deviations", side=2, line=2)
