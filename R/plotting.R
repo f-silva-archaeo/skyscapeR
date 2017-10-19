@@ -101,6 +101,7 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' @param xlim Array of two values restricting the horizontal range of the plot.
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @import utils stats graphics
+#' @export
 #' @seealso \code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
 #' @examples
 #' # Plot the curvigram of Recumbent Stone Circles:

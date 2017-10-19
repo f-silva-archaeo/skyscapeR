@@ -73,7 +73,7 @@ curv <- curvigram(RugglesRSC$Dec, 2)
 ```
 
 This creates a curvigram based on the declination data in the _RugglesRSC_ dataset, and using an uncertainty of 2º for all measurements. You can visualize it by typing:
-```{r fig.show='hold'}
+```{r, fig.show='hold'}
 plotCurv(curv)
 ```
 
@@ -87,7 +87,7 @@ lunar <- sky.objects('moon', epoch=-2000, col='red', lty=2)
 ```
 
 This creates an object that will include all standard lunar targets (currently only the lunar extremes), set for the year 1999 BCE (see section on epochs below), and these will be drawn in red colour with line type (lty) two, which is to say dashed (check out other types and options in ```?par```). Then redo the curvigram with this object:
-```{r fig.show='hold'}
+```{r, fig.show='hold'}
 plotCurv(curv, lunar)
 ```
 
