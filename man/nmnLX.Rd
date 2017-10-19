@@ -2,7 +2,7 @@
 % Please edit documentation in R/mechanics.R
 \name{nmnLX}
 \alias{nmnLX}
-\title{Declination of northerm minor Lunar Extreme for a given year}
+\title{Declination of northern minor Lunar Extreme for a given year}
 \usage{
 nmnLX(year = cur.year)
 }

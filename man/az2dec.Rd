@@ -13,7 +13,7 @@ az2dec(az, loc, alt, ...)
 a latitude.}
 
 \item{alt}{Altitude of orientation. Optional, if left empty and a skyscapeR.object
-is provided then this is will automaticallty retrieved from the horizon data via \code{\link{hor2alt}}}
+is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}}
 
 \item{...}{Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.}
 }

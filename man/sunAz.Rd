@@ -18,7 +18,7 @@ a string with continent followed by country capital (eg. "Europe/London").}
 }
 \description{
 This function returns the azimuth of the sun at a given time and location,
-useful for data reduction of theodolite mesaurements using the sunsight
+useful for data reduction of theodolite measurements using the sunsight
 technique (\code{\link{reduct.theodolite}}).
 }
 \examples{

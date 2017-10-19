@@ -7,8 +7,8 @@
 antizenith(loc)
 }
 \arguments{
-\item{loc}{This can be either the latitude of the l
-ocation, or a \emph{skyscapeR.horizon} object.}
+\item{loc}{This can be either the latitude of the
+location, or a \emph{skyscapeR.horizon} object.}
 }
 \description{
 This function returns the declination of the sun

@@ -17,7 +17,7 @@ Defaults to \emph{FALSE}.}
 \item{az0}{Leftmost azimuth of plot. Defaults to 0 degrees, i.e. North at the left.}
 
 \item{zoom}{Boolean that controls whether to provide a zoomed-in view of 100 degrees in
-azimuth and 5 degrees of altitude above the horizonline. Defaults to \emph{FALSE}.}
+azimuth and 5 degrees of altitude above the horizon line. Defaults to \emph{FALSE}.}
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the paths of celestial objects.}

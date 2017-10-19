@@ -12,7 +12,7 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 #' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 #' a latitude.
 #' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
-#' is provided then this is will automaticallty retrieved from the horizon data via \code{\link{hor2alt}}
+#' is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}
 #' @param ... Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.
 #' @import astrolibR
 #' @export
@@ -29,13 +29,14 @@ az2dec = function(az, loc, alt, ...){
   if (class(loc) != 'skyscapeR.horizon') { hor <- c(); hor$georef <- c(loc, 0) } else { hor <- loc }
   if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az) }
 
-  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$georef[1], hor$georef[2], precess_ = F, ...)$dec, 2); names <- ''
+  prec <- max(nchar(sub('.*\\.', '', as.character(az))))
+  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$georef[1], hor$georef[2], precess_ = F, ...)$dec, prec)
   return(dec)
 }
 
 #' Retrieves horizon altitude for a given azimuth from a given horizon profile
 #'
-#' This function retieves the horizon altitude for a given azimuth from
+#' This function retrieves the horizon altitude for a given azimuth from
 #' a previously created \emph{skyscapeR.horizon} object via spline interpolation.
 #' @param hor A \emph{skyscapeR.horizon} object from which to retrieve horizon altitude.
 #' @param az Array of azimuth(s) for which to retrieve horizon altitude(s).
@@ -47,7 +48,7 @@ az2dec = function(az, loc, alt, ...){
 #' hor2alt(hor, 90)
 hor2alt = function(hor, az) {
   hh <- splinefun(hor$az, hor$alt)
-  alt <- hh(az)
+  alt <- round(hh(az), 2)
   return(alt)
 }
 

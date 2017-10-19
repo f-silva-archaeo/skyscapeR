@@ -1,6 +1,6 @@
 #' Create .\emph{skyscapeR.horizon} object from Az/Alt data
 #'
-#' This function creates a \emph{skyscapR.horizon} object from measurements of
+#' This function creates a \emph{skyscapeR.horizon} object from measurements of
 #' azimuth and altitude.
 #' @param az Array of azimuth values
 #' @param alt Array of altitude values.
@@ -30,7 +30,7 @@ createHor = function(az, alt, loc, name) {
 
 #' Exports a \emph{skyscapeR.horizon} object into \emph{Stellarium} format
 #'
-#' This function exports any \emph{skyscapR.horizon} object into the landscape
+#' This function exports any \emph{skyscapeR.horizon} object into the landscape
 #' format of \emph{Stellarium}, ready to be imported.
 #' @param hor Horizon data in \emph{skyscapeR.horizon} format.
 #' @param name Horizon name to be displayed in \emph{Stellarium}, if different
@@ -78,7 +78,7 @@ exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor
 
 #' Download horizon data from \emph{HeyWhatsThat}
 #'
-#' This function downloads horizon data from \emph{HeyWhasThat},
+#' This function downloads horizon data from \emph{HeyWhatsThat},
 #' given its ID, and saves it as a \emph{skyscapeR.horizon} object.
 #' @param HWTID This is the 8 character ID attributed by
 #' \emph{HeyWhatsThat.com}

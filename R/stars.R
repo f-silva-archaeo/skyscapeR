@@ -79,7 +79,7 @@ star <- function(string, year) {
 #' Calculate the seasons and phases of a star
 #'
 #' This function calculates the seasons (Rising, Setting, etc.)
-#' and pahses (Arising and Lying Hidden, Curtailed Passage) of a
+#' and phases (Arising and Lying Hidden, Curtailed Passage) of a
 #' star for a given location and epoch. This functions uses the
 #' \emph{arcus visionis} approximation of Purrington (1988).
 #' @param star Either the star name or a \emph{skyscapeR.star} object.
@@ -124,7 +124,6 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$georef[1]
     lon <- loc$georef[2]
-    #### TO DO add read up alt.hor from horizon data
   } else {
     lat <- loc[1]
     lon <- loc[2]
@@ -132,12 +131,13 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
 
   # load star data
   if (class(star)!='skyscapeR.star') { star <- star(star, year) }
-  arcus_visionis <- 2.1*star$app.mag + 10 ################ check validity/origin of this!
+  arcus_visionis <- 2.1*star$app.mag + 10
 
   # init parallel cluster
   cl <- parallel::makeCluster(parallel::detectCores() - 1)
   parallel::clusterEvalQ(cl, library(skyscapeR))
   parallel::clusterExport(cl, list("lat", "lon"), envir=environment())
+  message(paste0('Running calculations. This may take a while...'))
 
   # calculations
   jd0 <- astrolibR::juldate(c(year,1,1,0)) + 2400000
@@ -160,10 +160,6 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
   naut <- which(Sun.alt >= -12 & Sun.alt < -6)
   astr <- which(Sun.alt >= -18 & Sun.alt < -12)
   night <- which(Sun.alt < -18)
-
-  # plot(tx, Sun.alt, type='l', xlim=c(110,110+60))
-  # lines(tx, Star.alt, col='blue')
-  # points(tx[ss.ind], Star.alt[ss.ind], col='red')
 
   # Seasons
   nightime <- c(civ,naut,astr,night)

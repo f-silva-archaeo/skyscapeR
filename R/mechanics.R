@@ -63,7 +63,7 @@ jS = function(year = cur.year) {
 }
 
 
-#' Declination of northerm minor Lunar Extreme for a given year
+#' Declination of northern minor Lunar Extreme for a given year
 #'
 #' This function calculates the declination of the northern
 #' minor Lunar Extreme for a given year, by simple addition
@@ -182,8 +182,8 @@ zenith = function(loc) {
 #' location. If this phenomena does not occur at given
 #' location (i.e. if location is outside the tropical
 #' band) the function returns a \emph{NULL} value.
-#' @param loc This can be either the latitude of the l
-#' ocation, or a \emph{skyscapeR.horizon} object.
+#' @param loc This can be either the latitude of the
+#' location, or a \emph{skyscapeR.horizon} object.
 #' @export
 #' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}
 #' @examples
@@ -206,7 +206,7 @@ antizenith = function(loc) {
 
 #' Calculate visible path of celestial object at given location
 #'
-#' This function calculates the visibile path of a celestial
+#' This function calculates the visible path of a celestial
 #' object from any location on earth. It outputs a \emph{skyscapeR.orbit}
 #' object, which includes AZ and ALT information.
 #' @param dec Declination of object.
@@ -403,7 +403,7 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 #' Returns the azimuth of the sun at a given time from a specific location
 #'
 #' This function returns the azimuth of the sun at a given time and location,
-#' useful for data reduction of theodolite mesaurements using the sunsight
+#' useful for data reduction of theodolite measurements using the sunsight
 #' technique (\code{\link{reduct.theodolite}}).
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude and longitude of location, in this order.

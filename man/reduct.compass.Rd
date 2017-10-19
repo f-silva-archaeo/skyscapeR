@@ -4,7 +4,7 @@
 \alias{reduct.compass}
 \title{Data reduction for compass measurements}
 \usage{
-reduct.compass(loc, mag.az, date, magdec, alt)
+reduct.compass(loc, mag.az, date, magdec, alt, name, ID, HWT.ID)
 }
 \arguments{
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
@@ -20,6 +20,13 @@ Only necessary is \emph{magdec} is not given.}
 \item{alt}{(Optional) Altitude, necessary for automatic declination calculation.
 If missing and \emph{loc} is a \emph{skuscapeR.horizon} object then the altitude
 will be automatically read from the horizon profile.}
+
+\item{name}{(Optional) Names or labels to identify each measurement.}
+
+\item{ID}{(Optional) IDs or codes to identify each measurement.}
+
+\item{HWT.ID}{(Optional) HeyWhatsThat IDs relating to a previously generated
+horizon profile for measurement.}
 }
 \description{
 This function calculates the true azimuth of a structure measured with

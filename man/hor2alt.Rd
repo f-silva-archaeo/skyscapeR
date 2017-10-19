@@ -12,7 +12,7 @@ hor2alt(hor, az)
 \item{az}{Array of azimuth(s) for which to retrieve horizon altitude(s).}
 }
 \description{
-This function retieves the horizon altitude for a given azimuth from
+This function retrieves the horizon altitude for a given azimuth from
 a previously created \emph{skyscapeR.horizon} object via spline interpolation.
 }
 \examples{

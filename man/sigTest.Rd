@@ -9,7 +9,7 @@ sigTest(curv, null.hyp, level = 0.95, type = "2-tailed", nsims = 2000)
 \arguments{
 \item{curv}{Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}}
 
-\item{null.hyp}{Object of \emph{skyscaper.nh} format, created with one of the Null Hypothesis models
+\item{null.hyp}{Object of \emph{skyscapeR.nh} format, created with one of the Null Hypothesis models
 of \emph{skyscapeR} (see See Also section below).}
 
 \item{level}{(Optional) Level of confidence for p-value calculation and output. Defaults to 0.95,

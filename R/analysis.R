@@ -15,7 +15,7 @@
 #' @param cut (Optional) Number of uncertainties beyond the extremes
 #' of the data at which to trim the curvigram. Defaults to 4. See \code{\link{density}}.
 #' @param range (Optional) As an alternative to \emph{cut} you can
-#' stipulate the range of declination values to ouput as an array of two values.
+#' stipulate the range of declination values to output as an array of two values.
 #' See \emph{from, to} in \code{\link{density}}.
 #' @param n (Optional) The number of equally spaced points at which the curvigram
 #'  is to be calculated. Defaults to 512. See \emph{n} in \code{\link{density}}.

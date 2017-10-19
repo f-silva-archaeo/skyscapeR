@@ -11,7 +11,7 @@ download.HWT(HWTID)
 \emph{HeyWhatsThat.com}}
 }
 \description{
-This function downloads horizon data from \emph{HeyWhasThat},
+This function downloads horizon data from \emph{HeyWhatsThat},
 given its ID, and saves it as a \emph{skyscapeR.horizon} object.
 }
 \examples{

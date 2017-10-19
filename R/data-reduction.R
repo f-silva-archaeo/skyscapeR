@@ -12,8 +12,12 @@
 #' a string with continent followed by country capital (eg. "Europe/London").
 #' @param az.sun (Optional) Measured azimuth of the sun. Defaults to zero.
 #' @param alt (Optional) Altitude, necessary for automatic declination calculation.
-#' If missing and \emph{loc} is a \emph{skuscapeR.horizon} object then the altitude
+#' If missing and \emph{loc} is a \emph{skyscapeR.horizon} object then the altitude
 #' will be automatically read from the horizon profile.
+#' @param name (Optional) Names or labels to identify each measurement.
+#' @param ID (Optional) IDs or codes to identify each measurement.
+#' @param HWT.ID (Optional) HeyWhatsThat IDs relating to a previously generated
+#' horizon profile for measurement.
 #' @export
 #' @seealso \code{\link{sunAz}}, \code{\link[astrolibR]{ten}}, \code{\link{sixty}}
 #' @references Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}.
@@ -34,7 +38,7 @@
 #' # Alternatively, the altitude can be automatically retrieved from a horizon profile:
 #' hor <- download.HWT('UFXERSLQ')
 #' data <- reduct.theodolite(hor, az, date, time, tz= "Europe/Malta", az.sun)
-reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt) {
+reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt, name, ID, HWT.ID) {
   if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$georef } else { hor <- NULL }
 
   if (NROW(loc) < NROW(az)*2) { loc <- matrix(loc,NROW(az),2, byrow=T) }
@@ -50,21 +54,34 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt) {
   diff <- az - az.sun
   ind <- which(abs(diff)>180); if (length(ind)>0) { diff[ind] <- az[ind] - az.sun[ind]-360 }
 
-  az.sun.corr <- sunAz(loc, time, tz)
+  prec <- max(nchar(sub('.*\\.', '', as.character(az))))
+  az.sun.corr <- round(sunAz(loc, time, tz), prec)
   az.corr <- az.sun.corr + diff
 
-  df <- data.frame(Latitude=loc[,1], Longitude=loc[,2], Uncorrected.Az=az, Date.Time=time, Sun.Az=az.sun.corr, Corrected.Az=az.corr)
+  df <- c()
+  if (!missing(ID)) { df$ID <- ID }
+  if (!missing(name)) { df$Name <- name }
+  df$Latitude=loc[,1]
+  df$Longitude=loc[,2]
+  if (!missing(HWT.ID)) { df$HWT.ID <- HWT.ID }
+  df$Uncorrected.Az=az
+  df$Date.Time=time
+  df$Sun.Az=az.sun.corr
+  df$Corrected.Az=az.corr
 
   if (!missing(alt)) {
+    message('Altitude values found. Calculating declination...')
     dec <- az2dec(az.corr, loc, alt)
     df$Altitude = alt
     df$Declination <- dec
   } else if (class(hor)=='skyscapeR.horizon') {
+    message('Horizon profile found. Obtaining altitude values and calculating declination...')
     dec <- az2dec(az.corr, hor)
     df$Altitude <- hor2alt(hor, az.corr)
     df$Declination <- dec
-  }
+  } else { message('No altitude values or horizon profile found. Declination values were not calculated.') }
 
+  df <- as.data.frame(df)
   return(df)
 }
 
@@ -82,6 +99,10 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt) {
 #' @param alt (Optional) Altitude, necessary for automatic declination calculation.
 #' If missing and \emph{loc} is a \emph{skuscapeR.horizon} object then the altitude
 #' will be automatically read from the horizon profile.
+#' @param name (Optional) Names or labels to identify each measurement.
+#' @param ID (Optional) IDs or codes to identify each measurement.
+#' @param HWT.ID (Optional) HeyWhatsThat IDs relating to a previously generated
+#' horizon profile for measurement.
 #' @export
 #' @seealso \code{\link{mag.dec}}, \code{\link{az2dec}}, \code{\link{hor2alt}}
 #' @examples
@@ -95,7 +116,7 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt) {
 #' # Alternatively, the altitude can be automatically retrieved from a horizon profile:
 #' hor <- download.HWT('NML6GMSX')
 #' data <- reduct.compass(hor, mag.az, "2016/04/02")
-reduct.compass = function(loc, mag.az, date, magdec, alt) {
+reduct.compass = function(loc, mag.az, date, magdec, alt, name, ID, HWT.ID) {
   if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$georef } else { hor <- NULL }
 
   if (NROW(loc) < NROW(mag.az)*2) { loc <- matrix(loc,NROW(mag.az),2, byrow=T) }
@@ -105,19 +126,31 @@ reduct.compass = function(loc, mag.az, date, magdec, alt) {
   if (missing(magdec) & !missing(date)) {
     magdec <- mag.dec(loc, date)
   }
-  true.az <- mag.az + magdec
+  prec <- max(nchar(sub('.*\\.', '', as.character(mag.az))))
+  true.az <- round(mag.az + magdec, prec)
+  df <- c()
+  if (!missing(ID)) { df$ID <- ID }
+  if (!missing(name)) { df$Name <- name }
+  df$Latitude=loc[,1]
+  df$Longitude=loc[,2]
 
-  df <- data.frame(Latitude=loc[,1], Longitude=loc[,2], Magnetic.Az=mag.az, Date=date, Mag.Dec=magdec, True.Az=true.az)
-
+  df$Magnetic.Az=mag.az
+  df$Date=date
+  df$Mag.Dec=magdec
+  df$True.Az=true.az
+  if (!missing(HWT.ID)) { df$HWT.ID <- HWT.ID }
   if (!missing(alt)) {
+    message('Altitude values found. Calculating declination...')
     dec <- az2dec(true.az, loc, alt)
     df$Altitude = alt
     df$Declination <- dec
   } else if (class(hor)=='skyscapeR.horizon') {
+    message('Horizon profile found. Obtaining altitude values and calculating declination...')
     dec <- az2dec(true.az, hor)
     df$Altitude <- hor2alt(hor, true.az)
     df$Declination <- dec
-  }
+  } else { message('No altitude values or horizon profile found. Declination values were not calculated.') }
 
+  df <- as.data.frame(df)
   return(df)
 }

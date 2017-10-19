@@ -93,14 +93,13 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' This function creates a plot of a curvigram.
 #' @param curv Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-#' for displaying the dclination of clestial objects.
+#' for displaying the dclination of celestial objects.
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the curvigram. Defaults to \emph{TRUE}.
 #' @param signif (Optional) A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}
 #' for displaying confidence envelope around the chosen null hypothesis and overall p-value.
 #' @param xlim Array of two values restricting the horizontal range of the plot.
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
-#' @export
 #' @import utils stats graphics
 #' @seealso \code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
 #' @examples
@@ -120,7 +119,6 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' }
 plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
   par(mar=c(4, 4, 2, 2) + 0.1)
-  plot.new()
   if (is.null(xlim)) { xlim <- c(min(curv$dec)-5, max(curv$dec)+5) }
   plot.default(-100,-100, xlab='Declination', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
   axis(1); axis(2)
@@ -169,7 +167,7 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
 #' curvigram transformed into sigma units, based on a previously generated significance test.
 #' @param signif A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-#' for displaying the dclination of clestial objects.
+#' for displaying the declination of clestial objects.
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the curvigram. Defaults to \emph{TRUE}.
 #' @param xlim Array of two values restricting the horizontal range of the plot.
@@ -187,7 +185,6 @@ plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
   # if (is.null(xlim)) { xlim <- c(min(signif$null.hyp.z[1,])-5, max(signif$null.hyp.z[1,])+5) }
   if (is.null(xlim)) { xlim <- signif$data.range }
   par(mar=c(4, 4, 2, 2) + 0.1)
-  plot.new()
   plot(-100,100, axes=F, xlim=xlim, ylim=c(-2, max(signif$maxima[2,])+1), xlab="Declination", ylab="")
   axis(1, at = seq(-90,90,10))
   mtext("Standard Deviations", side=2, line=2)
@@ -235,7 +232,7 @@ plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
 #' @param max.alt Maximum altitude to display. Defaults to 45 degrees.
 #' @param az0 Leftmost azimuth of plot. Defaults to 0 degrees, i.e. North at the left.
 #' @param zoom Boolean that controls whether to provide a zoomed-in view of 100 degrees in
-#' azimuth and 5 degrees of altitude above the horizonline. Defaults to \emph{FALSE}.
+#' azimuth and 5 degrees of altitude above the horizon line. Defaults to \emph{FALSE}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the paths of celestial objects.
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.

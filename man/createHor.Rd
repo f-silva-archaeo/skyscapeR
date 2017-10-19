@@ -17,7 +17,7 @@ the location, in this order.}
 \item{name}{Name of site.}
 }
 \description{
-This function creates a \emph{skyscapR.horizon} object from measurements of
+This function creates a \emph{skyscapeR.horizon} object from measurements of
 azimuth and altitude.
 }
 \examples{

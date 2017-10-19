@@ -26,7 +26,7 @@ figure the slower the computation. Defaults to 24/3600 = 1 sec.}
 }
 \description{
 This function calculates the seasons (Rising, Setting, etc.)
-and pahses (Arising and Lying Hidden, Curtailed Passage) of a
+and phases (Arising and Lying Hidden, Curtailed Passage) of a
 star for a given location and epoch. This functions uses the
 \emph{arcus visionis} approximation of Purrington (1988).
 }

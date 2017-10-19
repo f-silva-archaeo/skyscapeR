@@ -1,16 +1,14 @@
 ---
 title: "How to use _skyscapeR_"
 author: "Fabio Silva"
-date: "`r Sys.Date()`"
+date: "2017-10-17"
 output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
-```{r, echo = F}
-knitr::opts_chunk$set(fig.width = 4.5, fig.height = 4.5, fig.align='center')
-```
+
 _skyscapeR_ is a open source R package for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy. It is intended to become a fully-fledged, transparent and peer-reviewed package offering a robust set of quantitative methods while retaining simplicity of use.
 
 
@@ -41,7 +39,8 @@ Upon succesful completion you should see a line saying ```* DONE (skyscapeR)```.
 
 ### Initialization
 Every time you want to use the package within R it needs to be loaded. For this you need to type:
-```{r}
+
+```r
 library(skyscapeR)
 ```
 
@@ -67,29 +66,41 @@ This opens the manual page for the dataset, or function. In _RStudio_ this opens
 
 ## 2. Hello, Curvigram!
 Let's start by creating your first curvigram with _skyscapeR_. The function for this is aptly called ```curvigram()```. Go ahead and do ```?curvigram``` right now to learn more about it, including an example at the bottom of the manual page, which we will now do:
-```{r}
+
+```r
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, 2)
 ```
 
 This creates a curvigram based on the declination data in the _RugglesRSC_ dataset, and using an uncertainty of 2º for all measurements. You can visualize it by typing:
-```{r fig.show='hold'}
+
+```r
 plotCurv(curv)
 ```
+
+<img src="figure/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" />
 
 Be sure to check ```?curvigram``` and ```?plotCurv``` to see what other options are available.
 
 
 ### Adding celestial objects to a curvigram
 Let's add some celestial targets to the curvigram on order to compare them with those frequency peaks. We need to create a _skyscapeR.object_ first. This is done with ```sky.objects()```:
-```{r}
+
+```r
 lunar <- sky.objects('moon', epoch=-2000, col='red', lty=2)
 ```
 
+```
+## LA04 data loaded
+```
+
 This creates an object that will include all standard lunar targets (currently only the lunar extremes), set for the year 1999 BCE (see section on epochs below), and these will be drawn in red colour with line type (lty) two, which is to say dashed (check out other types and options in ```?par```). Then redo the curvigram with this object:
-```{r fig.show='hold'}
+
+```r
 plotCurv(curv, lunar)
 ```
+
+<img src="figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" />
 
 You can now see the southern major lunar extreme (sMjLX) and the southern minor lunar extreme (smnLX) declinations for the year 1999 BCE on the same plot.
 
@@ -100,27 +111,65 @@ _skyscapeR_ has some built-in function to automatically process fieldwork data. 
 ### Data reduction of compass measurements
 Imagine that you've just returned from a day of fieldwork surveying a set of archaeological structures for their orientation with your compass and clinometer. You can input your measurements into R, along with the georeferences and measurement date, and use ```reduct.compass()``` to process it.
 
-```{r}
+
+```r
 georef <- rbind(c(35.1,-7.1),c(35.1,-7),c(35.2,-7.1),c(35.1,-7.3))    # GPS data
 azimuths <- c(93, 108, 105, 98)    # Compass measurements
 altitudes <- c(2, 1.5, 0.5, 1)    # Clinometer measurements
 
 data <- reduct.compass(loc=georef, mag.az=azimuths, date="2017/06/13", alt=altitudes)
+```
+
+```
+## Altitude values found. Calculating declination...
+```
+
+```r
 data
+```
+
+```
+##   Latitude Longitude Magnetic.Az       Date   Mag.Dec True.Az Altitude
+## 1     35.1      35.1          93 2017/06/13   5.00640  98.006      2.0
+## 2     35.2      35.1         108 2017/06/13   5.02004 113.020      1.5
+## 3     -7.1      -7.0         105 2017/06/13 -11.47167  93.528      0.5
+## 4     -7.1      -7.3          98 2017/06/13 -11.61256  86.387      1.0
+##   Declination
+## 1      -5.561
+## 2     -17.960
+## 3      -2.873
+## 4       3.298
 ```
 This has: (1) automatically retrieved the value of magnetic declinations for your locations and dates; (2) corrected azimuths to true; and (3) calculated the corresponding declination. The resulting _data.frame_ object can be easily exported into a file for safe keeping using the standard _R_ utils (such as ```write.csv()```, for example).
 
 If the altitude component is not included then the function will only calculate the true azimuth:
-```{r}
+
+```r
 data2 <- reduct.compass(loc=georef, mag.az=azimuths, date="2017/06/13")
+```
+
+```
+## No altitude values or horizon profile found. Declination values were not calculated.
+```
+
+```r
 data2
+```
+
+```
+##   Latitude Longitude Magnetic.Az       Date   Mag.Dec True.Az
+## 1     35.1      35.1          93 2017/06/13   5.00640  98.006
+## 2     35.2      35.1         108 2017/06/13   5.02004 113.020
+## 3     -7.1      -7.0         105 2017/06/13 -11.47167  93.528
+## 4     -7.1      -7.3          98 2017/06/13 -11.61256  86.387
 ```
 
 In such cases, if a horizon profile is given, the altitude can be automatically retrieved from it. See section on _Dealing with Horizons_ below for examples.
 
 ### Data reduction of theodolite measurements
 On the other hand, if fieldwork consisted on theodolite/total station measurements using the sun-sight technique, the azimuth still need to be processed. For such precise measurements we recommend using function ```ten()``` to convert from deg-arcmin-arcsec to decimal point degree as follows:
-```{r}
+
+```r
 georef <- c( ten(35,50,37.8), ten(14,34,6.4) )    # GPS data
 az <- c( ten(298,24,10), ten(302,20,40))    # Theodolite H measurements
 alt <- c( ten(1,32,10), ten(0,2,27))    # Theodolite V measurements
@@ -130,29 +179,61 @@ time <- "11:07:17"    # Time the sun measurement was taken
 timezone <- "Europe/Malta"    # Timezone corresponding to time above
 
 data <- reduct.theodolite(loc=georef, az, date, time, timezone, az.sun, alt)
+```
+
+```
+## Altitude values found. Calculating declination...
+```
+
+```r
 data
+```
+
+```
+##   Latitude Longitude Uncorrected.Az           Date.Time   Sun.Az
+## 1 35.84383  14.56844       298.4028 2016-02-20 11:07:17 157.7928
+## 2 35.84383  14.56844       302.3444 2016-02-20 11:07:17 157.7928
+##   Corrected.Az   Altitude Declination
+## 1     128.6983 1.53611111   -29.64171
+## 2     132.6400 0.04083333   -33.67346
 ```
 
 Similarly to ```reduct.compass()``` if a horizon profile is given, the altitude can be automatically retrieved from it.
 
 ### Plotting azimuths
 In general, the use of azimuths for analysis and visualization in _skyscapeR_ is deprecated since azimuths are location-specific. It is preferable to convert all measurements to declinations and work with equatorial coordinates (see section below). However _it_skyscapeR_ does include a much requested function to create a polar plot of azimuth values. The function is ```plotAz()```:
-```{r, fig.show='hold'}
+
+```r
 az <- rnorm(30, 85, 20)    # This creates 30 random azimuths
 plotAz(az)
 ```
 
+<img src="figure/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" />
+
 You can use the same _skyscapeR.object_ for this plot, but then you need to specify a single location (since azimuths are location-specific). At the moment the horizon altitude is assumed to be 0º and flat as well.
-```{r, fig.show='hold'}
+
+```r
 sunandmoon <- sky.objects(c('sun','moon'), epoch=-4000, col=c('blue','red'), lty=c(2,3))
 plotAz(az, obj=sunandmoon, loc=c(52,0))
 ```
 
+<img src="figure/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" />
+
 ### Converting azimuth to declination
 If you are looking for a mere horizontal to equatorial coordinate conversion, without all the extra automation that the ```reduct.``` functions provide you can use the ```az2dec()``` function:
-```{r}
+
+```r
 dec <- az2dec(az, loc= c(35,-7), alt=0)
 dec
+```
+
+```
+##  [1]  24.6209748 -21.0598619  -6.3546228  16.5712298  -6.9035378
+##  [6]  -1.5372062 -24.1532467 -11.3971768 -24.0656380   6.8222880
+## [11] -21.7167232  -9.8841082   8.3271794  14.6526890 -43.9330850
+## [16] -10.8218730  -4.0063635  35.0495492 -11.5620367  30.0873526
+## [21]  32.2895884  19.3590992   4.5823811  10.9273693  -2.5291713
+## [26]  -3.5916263  32.0081379   7.5040242  -1.5155913  -0.9004657
 ```
 
 
@@ -161,7 +242,8 @@ One of _skyscapeR_'s main missions is to handle horizon profile data. This is do
 
 ### Creating or downloading profiles
 If you have azimuth and altitude data a profile can be constructed as in the following example:
-```{r}
+
+```r
 az <- c(0,90,180,270,360)
 alt <- c(0,5,5,0,0)
 georef = c(40.1, -8)
@@ -169,18 +251,24 @@ hor <- createHor(az, alt, loc=georef, name= 'Horizon Profile 1')
 ```
 
 This can be visualized by simply typing:
-```{r, fig.width = 7, fig.height = 4}
+
+```r
 plotHor(hor)
 ```
+
+<img src="figure/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" />
 
 Not the prettiest horizon you've ever seen, but that's what can be interpolated from the five datapoints given...
 
 A prettier horizon profile can be downlaoded from the [HeyWhatsThat (HWT)](http://www.heywhatsthat.com) website. These profiles are based on the SRTM digital elevation models and, therefore are not always trustworthy (especially so if the horizon is near). Nevertheless they can be a great help for situations when a horizon altitude is impossible to measure on site. To do this, first create a horizon profile at the HWT website, then save the 8-digit ID code that is as the end of the permanent link given by HWT. For example, if the link is `https://www.heywhatsthat.com/?view=NML6GMSX`, save the bit after `view=` and use function ```download.HWT()```:
 
-```{r, fig.width = 7, fig.height = 4}
+
+```r
 hor <- download.HWT('NML6GMSX')
 plotHor(hor)
 ```
+
+<img src="figure/unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" style="display: block; margin: auto;" />
 
 ### Exporting profiles to _Stellarium_
 One can then export these profiles into a format that _Stellarium_ recognises:
@@ -191,88 +279,132 @@ This creates a zip-file ready to be imported into _Stellarium_'s landscape featu
 
 ### Automating horizon altitude retrieval
 With a horizon profile set up (or even many), you can retrieve the horizon altitude for any azimuth value by doing:
-``` {r}
+
+```r
 hor2alt(hor, az=90)
+```
+
+```
+## [1] 2.06
+```
+
+```r
 hor2alt(hor, az=110)
 ```
 
+```
+## [1] 2.91
+```
+
 This automation can also be used in the data reduction functions by using a _skyscapeR.horizon_ object rather than simple georeferences:
-```{r}
+
+```r
 data <- reduct.compass(loc=hor, mag.az=azimuths, date="2017/06/13")
+```
+
+```
+## Horizon profile found. Obtaining altitude values and calculating declination...
+```
+
+```r
 data
+```
+
+```
+##   Latitude Longitude Magnetic.Az       Date   Mag.Dec True.Az Altitude
+## 1 40.44385 -7.938178          93 2017/06/13 -2.118487  90.882     2.06
+## 2 40.44385 -7.938178         108 2017/06/13 -2.118487 105.882     2.74
+## 3 40.44385 -7.938178         105 2017/06/13 -2.118487 102.882     2.50
+## 4 40.44385 -7.938178          98 2017/06/13 -2.118487  95.882     2.22
+##   Declination
+## 1       0.471
+## 2     -10.366
+## 3      -8.296
+## 4      -3.215
 ```
 
 ### Visualizing celestial object paths 
 ```plotHor()``` can be used to display the visible paths of celestial objects chosen with ```sky.objects()```. To use the one we created before for the curvigram just type:
-```{r, fig.width = 7, fig.height = 4}
+
+```r
 plotHor(hor, obj=lunar)
 ```
 
+<img src="figure/unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" style="display: block; margin: auto;" />
+
 Or create a new one, in this case using an epoch range for cases where we might have uncertainty in the age of the site, and including both solar and a stellar target:
-```{r, fig.width = 7, fig.height = 4}
+
+```r
 aux <- sky.objects(names=c('sun', 'Aldebaran'), epoch=c(-4300,-3700), col=c('blue', 'red'))
 plotHor(hor, obj=aux)
 ```
 
+<img src="figure/unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" style="display: block; margin: auto;" />
 
-## 5. Stars
+
+## Stars
 _skyscapeR_ includes data on the brightest xx stars in the night sky. The data table is accessible via ```data(stars)```. To pick a particular stars, maybe to see what declination it has, or had, you can do as follows:
-```{r}
+
+```r
 ss <- star('Sirius')
 ss
 ```
 
+```
+## $name
+## [1] "Sirius"
+## 
+## $constellation
+## [1] "Cma"
+## 
+## $colour
+## [1] "White"
+## 
+## $app.mag
+## [1] -1.46
+## 
+## $ra
+## [1] 101.2885
+## 
+## $dec
+## [1] -16.71314
+## 
+## $proper.motion
+## [1]  -546.01 -1223.08
+## 
+## $epoch
+## [1] "J2000.0"
+## 
+## attr(,"class")
+## [1] "skyscapeR.star"
+```
+
 This shows the information for Sirius which is now loaded into object `ss`. Note the epoch the data is output, _J2000_, by default. To get coordinates for other epochs just do:
-```{r}
+
+```r
 ss <- star('Sirius', year=-4000)
 ss$dec
+```
+
+```
+## [1] -26.57285
 ```
 
 
 ### Star phases and seasonality
 To estimate the phases, events and/or seasonality of stars the function ```star.phases()``` can be used. It works as follows, for the location of Cairo, an epoch of -3000, and a horizon altitude of 2º:
-```{r}
-sp <- star.phases('Sirius', -3000, loc=c(30.0,31.2), alt.hor=2)
-```
-
-One can then check the star's phase, event date-range and seasons by typing:
-```{r}
-sp$phase
-sp$events
-sp$seasons
-```
-
-The range of dates for events is a range of dates, given the parameters, where it is possible to observe the star and recognise the observation as the said event (note in particular the meaning of parameter `alt.rs` in the manual page for ```star.phases()```). These can be visualized using:
-```{r, fig.show='hold', fig.width = 5, fig.height = 1}
-plotPhases(sp)
-```
 
 
-## Significance Testing for Curvigrams
-You can test the statistical significance of an empirical curvigram by comparing it with the expectattion of a given null hypothesis. This technique can be used to output a _p-value_ (either 1-tailed or 2-tailed) which is an establsihed measure of significance. 
 
-_skyscapeR_ comes with a limited set of built-in null hypothesis, namely that of a random azimuthal orientation (`nh.Uniform()`), a random solar orientation (`nh.SolarRange()`), a random lunar orientation (`nh.LunarRange()`) and a random orientation to the Summer Full Moon (`nh.SummerFM()`). To demonstrate significance testing we will again use the Recumbent Stone Circle data. But first, one needs to choose one's null hypothesis. As usual, the help pages are essential to understand what parameter are required.
-```{r}
-nullhyp <- nh.Uniform(c(57,2), alt=0)
-```
 
-Then one uses `sigTest()` to run the significance testing routine. This can take a while depending on your machine's resources. If it takes too long, try lowering the _nsims_ parameter (though this brings a cost of resolution, see the manual page for this function).
-```{r}
-sg <- sigTest(curv, nullhyp)
-```
 
-One can then plot the curvigram again, but now with the results of the significance testing displayed. This adds the expectation around the null hypothesis (the grey shaded area) as well as the estimated overall p-value.
-```{r, fig.show='hold'}
-plotCurv(curv,signif=sg)
-```
 
-Only peaks that are outside the grey-shaded area can be considered significant. To quantify the significance of individual peaks one can plot the z-score transformed curvigram, which also highlights the number of sigma deviations for each peak:
-```{r, fig.show='hold'}
-plotZscore(sg, lunar)
-```
 
-If one is not interested in ploting the results of the significance testing, but simply getting the values then you can retrieve them from the output of `sigTest()`:
-```{r}
-sg$p.value
-sg$maxima
-```
+
+
+
+
+
+
+
+

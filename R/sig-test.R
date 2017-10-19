@@ -4,7 +4,7 @@
 #' and null hypothesis and outputs a p-value as well as all the information needed for
 #' ancillary plotting.
 #' @param curv Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}
-#' @param null.hyp Object of \emph{skyscaper.nh} format, created with one of the Null Hypothesis models
+#' @param null.hyp Object of \emph{skyscapeR.nh} format, created with one of the Null Hypothesis models
 #' of \emph{skyscapeR} (see See Also section below).
 #' @param level (Optional) Level of confidence for p-value calculation and output. Defaults to 0.95,
 #' i.e. a 95\% confidence envelope.
@@ -37,6 +37,7 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000) {
   parallel::clusterEvalQ(cl, library(skyscapeR))
   doParallel::registerDoParallel(cl)
   foreach::getDoParWorkers()
+  message(paste0('Running ', nsims, ' simulations. This may take a while...'))
 
   res <- foreach (i = 1:(1.2*nsims), .combine=rbind, .inorder = F, .errorhandling = 'remove') %dopar% {
     simData <- sample(null.hyp$dec, N, prob=null.hyp$density, replace=T)

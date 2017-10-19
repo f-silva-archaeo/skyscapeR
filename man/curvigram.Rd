@@ -21,7 +21,7 @@ should be normalized to unity. Defaults to \emph{FALSE}.}
 of the data at which to trim the curvigram. Defaults to 4. See \code{\link{density}}.}
 
 \item{range}{(Optional) As an alternative to \emph{cut} you can
-stipulate the range of declination values to ouput as an array of two values.
+stipulate the range of declination values to output as an array of two values.
 See \emph{from, to} in \code{\link{density}}.}
 
 \item{n}{(Optional) The number of equally spaced points at which the curvigram

@@ -17,7 +17,7 @@ containing the latitude and longitude of location, in this order.}
 \item{...}{Any other parameters to be passed unto \code{\link[astrolibR]{eq2hor}}.}
 }
 \description{
-This function calculates the visibile path of a celestial
+This function calculates the visible path of a celestial
 object from any location on earth. It outputs a \emph{skyscapeR.orbit}
 object, which includes AZ and ALT information.
 }

@@ -21,7 +21,7 @@ from one in \emph{skyscapeR.horizon} object.}
 \item{hor_col}{Colour of horizon line. Defaults to \emph{Stellarium}'s default.}
 }
 \description{
-This function exports any \emph{skyscapR.horizon} object into the landscape
+This function exports any \emph{skyscapeR.horizon} object into the landscape
 format of \emph{Stellarium}, ready to be imported.
 }
 \examples{
