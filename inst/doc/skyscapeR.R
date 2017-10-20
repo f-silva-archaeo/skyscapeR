@@ -1,4 +1,4 @@
-## ---- echo = FALSE-------------------------------------------------------
+## ---- echo = F-----------------------------------------------------------
 knitr::opts_chunk$set(fig.width = 4.5, fig.height = 4.5, fig.align='center')
 
 ## ------------------------------------------------------------------------
@@ -8,13 +8,13 @@ library(skyscapeR)
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, 2)
 
-## ----fig.show='hold'-----------------------------------------------------
+## ---- fig.show='hold'----------------------------------------------------
 plotCurv(curv)
 
 ## ------------------------------------------------------------------------
 lunar <- sky.objects('moon', epoch=-2000, col='red', lty=2)
 
-## ----fig.show='hold'-----------------------------------------------------
+## ---- fig.show='hold'----------------------------------------------------
 plotCurv(curv, lunar)
 
 ## ------------------------------------------------------------------------
@@ -90,7 +90,7 @@ ss <- star('Sirius', year=-4000)
 ss$dec
 
 ## ------------------------------------------------------------------------
-sp <- star.phases('Sirius', -3000, loc=c(30.0,31.2), alt.hor=2)
+sp <- star.phases('Sirius', -3000, loc=c(30.0,31.2), alt.hor=2, ncores=2)   # Number of cores forced to 2 for production of vignette only
 
 ## ------------------------------------------------------------------------
 sp$phase
@@ -104,7 +104,7 @@ plotPhases(sp)
 nullhyp <- nh.Uniform(c(57,2), alt=0)
 
 ## ------------------------------------------------------------------------
-sg <- sigTest(curv, nullhyp)
+sg <- sigTest(curv, nullhyp, ncores=2)   # Number of cores forced to 2 for production of vignette only
 
 ## ---- fig.show='hold'----------------------------------------------------
 plotCurv(curv,signif=sg)
