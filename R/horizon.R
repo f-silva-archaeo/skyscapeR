@@ -48,6 +48,8 @@ createHor = function(az, alt, loc, name) {
 #' hor <- download.HWT('HIFVTBGK')
 #' exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor_col) {
+  if (class(hor) != 'skyscapeR.hor') { stop('No skyscapeR.hor object found.') }
+
   if (missing(name)) { name = hor$name }
   if (missing(description)) { description <- paste0("Horizon created using skyscapeR ", packageVersion('skyscapeR'), ".") }
   if (substr(description,nchar(description),nchar(description)) != ".") { description <- paste0(description,". Horizon created using skyscapeR ", packageVersion('skyscapeR'), ".") }
@@ -89,6 +91,8 @@ exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor
 #' # Retrieve horizon data for \href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:
 #' hor <- download.HWT('HIFVTBGK')
 download.HWT = function(HWTID) {
+  if (nchar(HWTID) != 8) { stop('Incorrect HeyWhatsThat ID.') }
+
   ## Horizon metadata
   test <- readLines(paste0("http://www.heywhatsthat.com/iphone/pan.cgi?id=",HWTID))
   hor <- c()

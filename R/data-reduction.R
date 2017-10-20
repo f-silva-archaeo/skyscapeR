@@ -64,10 +64,10 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt, name, ID,
   df$Latitude=loc[,1]
   df$Longitude=loc[,2]
   if (!missing(HWT.ID)) { df$HWT.ID <- HWT.ID }
-  df$Uncorrected.Az=az
+  df$Uncorrected.Azimuth=az
   df$Date.Time=time
   df$Sun.Az=az.sun.corr
-  df$Corrected.Az=az.corr
+  df$True.Azimuth=az.corr
 
   if (!missing(alt)) {
     message('Altitude values found. Calculating declination...')
@@ -134,10 +134,10 @@ reduct.compass = function(loc, mag.az, date, magdec, alt, name, ID, HWT.ID) {
   df$Latitude=loc[,1]
   df$Longitude=loc[,2]
 
-  df$Magnetic.Az=mag.az
+  df$Magnetic.Azimuth=mag.az
   df$Date=date
   df$Mag.Dec=magdec
-  df$True.Az=true.az
+  df$True.Azimuth=true.az
   if (!missing(HWT.ID)) { df$HWT.ID <- HWT.ID }
   if (!missing(alt)) {
     message('Altitude values found. Calculating declination...')

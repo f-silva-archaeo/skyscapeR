@@ -7,7 +7,8 @@
 plotAz(az, obj, loc, obj.label = T, ...)
 }
 \arguments{
-\item{az}{Array of azimuths. Values outside the [0, 360] range will be ignored.}
+\item{az}{Array of azimuths or data frame with column named \emph{True.Azimuth}. Values
+outside the [0, 360] range will be ignored.}
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the azimuths of celestial objects. Beware that this assumes a single
