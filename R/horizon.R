@@ -48,7 +48,7 @@ createHor = function(az, alt, loc, name) {
 #' hor <- download.HWT('HIFVTBGK')
 #' exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor_col) {
-  if (class(hor) != 'skyscapeR.hor') { stop('No skyscapeR.hor object found.') }
+  if (class(hor) != 'skyscapeR.horizon') { stop('No skyscapeR.hor object found.') }
 
   if (missing(name)) { name = hor$name }
   if (missing(description)) { description <- paste0("Horizon created using skyscapeR ", packageVersion('skyscapeR'), ".") }
