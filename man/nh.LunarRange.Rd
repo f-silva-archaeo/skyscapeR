@@ -16,8 +16,10 @@ This function returns the declination distribution of
 the the Sun throughout the year for use in significance testing.
 }
 \examples{
+\dontrun{
 aux <- nh.SolarRange(-4000)
 plot(aux$dec, aux$density, type='l')
+}
 }
 \seealso{
 \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}

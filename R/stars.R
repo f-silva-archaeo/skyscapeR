@@ -93,6 +93,8 @@ star <- function(string, year) {
 #' Defaults to ten degrees.
 #' @param res (Optional) Resolution of calculation. The smaller this
 #' figure the slower the computation. Defaults to 24/3600 = 1 sec.
+#' @param ncores (Optional) Number of processing cores to use for parallelisation. Defaults to the number of
+#' available cores minus 1.
 #' @export
 #' @import parallel numDeriv
 #' @seealso \code{\link{plotPhases}}
@@ -120,7 +122,7 @@ star <- function(string, year) {
 #' ss1 <- star.phases('Aldebaran',-4000, c(35,-8), alt.hor=2, alt.rs=5)
 #' plotPhases(ss1)
 #' }
-star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600) {
+star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600, ncores) {
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$georef[1]
     lon <- loc$georef[2]
@@ -134,10 +136,11 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
   arcus_visionis <- 2.1*star$app.mag + 10
 
   # init parallel cluster
-  cl <- parallel::makeCluster(parallel::detectCores() - 1)
+  if (missing(ncores)) { ncores <-  parallel::detectCores()-1 }
+  cl <- parallel::makeCluster(ncores, type = "PSOCK")
   parallel::clusterEvalQ(cl, library(skyscapeR))
   parallel::clusterExport(cl, list("lat", "lon"), envir=environment())
-  message(paste0('Running calculations. This may take a while...'))
+  message(paste0('Running calculations on ', ncores, ' processing cores. This may take a while...'))
 
   # calculations
   jd0 <- astrolibR::juldate(c(year,1,1,0)) + 2400000

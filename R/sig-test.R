@@ -12,6 +12,8 @@
 #' @param nsims (Optional) Number of simulations to run. The higher this number the slower this process will
 #' be, but the lower it is the less power the method has. Defaults to 2000 as a base minimum to test for
 #' significance at the p=0.0005 level, but the recommended value is 10,000.
+#' @param ncores (Optional) Number of processing cores to use for parallelisation. Defaults to the number of
+#' available cores minus 1.
 #' @export
 #' @import parallel foreach numDeriv doParallel
 #' @importFrom rootSolve uniroot.all
@@ -24,7 +26,7 @@
 #'
 #' plotCurv(curv, signif=sig)
 #' }
-sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000) {
+sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000, ncores) {
   requireNamespace('foreach')
   # redo curvigram with fixed range
   N <- length(curv$mes)
@@ -33,11 +35,12 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000) {
   curv <- curvigram(raw, unc=mes.unc, range=range)
 
   # monte carlo resampling
-  cl <- parallel::makeCluster(parallel::detectCores()-1, type = "PSOCK")
+  if (missing(ncores)) { ncores <-  parallel::detectCores()-1 }
+  cl <- parallel::makeCluster(ncores, type = "PSOCK")
   parallel::clusterEvalQ(cl, library(skyscapeR))
   doParallel::registerDoParallel(cl)
   foreach::getDoParWorkers()
-  message(paste0('Running ', nsims, ' simulations. This may take a while...'))
+  message(paste0('Running calculations on ', ncores, ' processing cores. This may take a while...'))
 
   res <- foreach (i = 1:(1.2*nsims), .combine=rbind, .inorder = F, .errorhandling = 'remove') %dopar% {
     simData <- sample(null.hyp$dec, N, prob=null.hyp$density, replace=T)
@@ -130,8 +133,10 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000) {
 #' @export
 #' @seealso \code{\link{sigTest}}, \code{\link{nh.SummerFM}}, \code{\link{nh.SolarRange}}
 #' @examples
+#' \dontrun{
 #' aux <- nh.Uniform(loc=c(52,-2), alt=2)
 #' plot(aux$dec, aux$density, type='l')
+#' }
 nh.Uniform = function(loc, alt=0) {
   if (class(loc) == 'skyscapeR.horizon') { loc <- loc$georef }
 
@@ -161,8 +166,10 @@ nh.Uniform = function(loc, alt=0) {
 #' @export
 #' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}
 #' @examples
+#' \dontrun{
 #' aux <- nh.SolarRange(-4000)
 #' plot(aux$dec, aux$density, type='l')
+#' }
 nh.SolarRange = function(year = cur.year) {
   options(warn=-1)
   jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000
@@ -192,8 +199,10 @@ nh.SolarRange = function(year = cur.year) {
 #' @export
 #' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}
 #' @examples
+#' \dontrun{
 #' aux <- nh.SolarRange(-4000)
 #' plot(aux$dec, aux$density, type='l')
+#' }
 nh.LunarRange = function(year = cur.year) {
   options(warn=-1)
   jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000
@@ -231,8 +240,10 @@ nh.LunarRange = function(year = cur.year) {
 #' @export
 #' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SolarRange}}
 #' @examples
+#' \dontrun{
 #' aux <- nh.SummerFM(.99, 20, -4000)
 #' plot(aux$dec, aux$density, type='l')
+#' }
 nh.SummerFM = function(min.phase = .99, min.sundec = 20, year = cur.year) {
   options(warn=-1)
   jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000

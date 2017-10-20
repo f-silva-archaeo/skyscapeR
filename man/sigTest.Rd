@@ -4,7 +4,8 @@
 \alias{sigTest}
 \title{Perform a null hypothesis significance test of a given curvigram}
 \usage{
-sigTest(curv, null.hyp, level = 0.95, type = "2-tailed", nsims = 2000)
+sigTest(curv, null.hyp, level = 0.95, type = "2-tailed", nsims = 2000,
+  ncores)
 }
 \arguments{
 \item{curv}{Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}}
@@ -20,6 +21,9 @@ i.e. a 95\% confidence envelope.}
 \item{nsims}{(Optional) Number of simulations to run. The higher this number the slower this process will
 be, but the lower it is the less power the method has. Defaults to 2000 as a base minimum to test for
 significance at the p=0.0005 level, but the recommended value is 10,000.}
+
+\item{ncores}{(Optional) Number of processing cores to use for parallelisation. Defaults to the number of
+available cores minus 1.}
 }
 \description{
 This function performs a null hypothesis significance test, for a given curvigram
