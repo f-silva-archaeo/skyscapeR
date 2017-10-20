@@ -10,7 +10,7 @@ plotCurv(curv, obj, obj.label = T, signif, xlim = NULL, ...)
 \item{curv}{Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.}
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-for displaying the dclination of celestial objects.}
+for displaying the declination of celestial objects.}
 
 \item{obj.label}{(Optional) Boolean to control whether to label the celestial objects in
 the curvigram. Defaults to \emph{TRUE}.}

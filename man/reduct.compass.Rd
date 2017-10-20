@@ -18,7 +18,7 @@ Only necessary is \emph{magdec} is not given.}
 \item{magdec}{(Optional) Magnetic declination, if known.}
 
 \item{alt}{(Optional) Altitude, necessary for automatic declination calculation.
-If missing and \emph{loc} is a \emph{skuscapeR.horizon} object then the altitude
+If missing and \emph{loc} is a \emph{skyscapeR.horizon} object then the altitude
 will be automatically read from the horizon profile.}
 
 \item{name}{(Optional) Names or labels to identify each measurement.}

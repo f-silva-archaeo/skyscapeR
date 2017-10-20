@@ -10,7 +10,7 @@ plotZscore(signif, obj, obj.label = T, xlim = NULL)
 \item{signif}{A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}.}
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-for displaying the declination of clestial objects.}
+for displaying the declination of celestial objects.}
 
 \item{obj.label}{(Optional) Boolean to control whether to label the celestial objects in
 the curvigram. Defaults to \emph{TRUE}.}
