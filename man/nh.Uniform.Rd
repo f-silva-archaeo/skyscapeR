@@ -20,8 +20,10 @@ corresponds to a uniform distribution in azimuths (i.e. random
  orientation) for use in significance testing.
 }
 \examples{
+\dontrun{
 aux <- nh.Uniform(loc=c(52,-2), alt=2)
 plot(aux$dec, aux$density, type='l')
+}
 }
 \seealso{
 \code{\link{sigTest}}, \code{\link{nh.SummerFM}}, \code{\link{nh.SolarRange}}

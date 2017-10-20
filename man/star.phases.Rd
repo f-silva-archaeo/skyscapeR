@@ -4,7 +4,8 @@
 \alias{star.phases}
 \title{Calculate the seasons and phases of a star}
 \usage{
-star.phases(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600)
+star.phases(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600,
+  ncores)
 }
 \arguments{
 \item{star}{Either the star name or a \emph{skyscapeR.star} object.}
@@ -23,6 +24,9 @@ Defaults to ten degrees.}
 
 \item{res}{(Optional) Resolution of calculation. The smaller this
 figure the slower the computation. Defaults to 24/3600 = 1 sec.}
+
+\item{ncores}{(Optional) Number of processing cores to use for parallelisation. Defaults to the number of
+available cores minus 1.}
 }
 \description{
 This function calculates the seasons (Rising, Setting, etc.)

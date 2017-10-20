@@ -97,7 +97,7 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt, name, ID,
 #' Only necessary is \emph{magdec} is not given.
 #' @param magdec (Optional) Magnetic declination, if known.
 #' @param alt (Optional) Altitude, necessary for automatic declination calculation.
-#' If missing and \emph{loc} is a \emph{skuscapeR.horizon} object then the altitude
+#' If missing and \emph{loc} is a \emph{skyscapeR.horizon} object then the altitude
 #' will be automatically read from the horizon profile.
 #' @param name (Optional) Names or labels to identify each measurement.
 #' @param ID (Optional) IDs or codes to identify each measurement.

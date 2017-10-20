@@ -93,7 +93,7 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' This function creates a plot of a curvigram.
 #' @param curv Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-#' for displaying the dclination of celestial objects.
+#' for displaying the declination of celestial objects.
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the curvigram. Defaults to \emph{TRUE}.
 #' @param signif (Optional) A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}
@@ -168,7 +168,7 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
 #' curvigram transformed into sigma units, based on a previously generated significance test.
 #' @param signif A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-#' for displaying the declination of clestial objects.
+#' for displaying the declination of celestial objects.
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the curvigram. Defaults to \emph{TRUE}.
 #' @param xlim Array of two values restricting the horizontal range of the plot.

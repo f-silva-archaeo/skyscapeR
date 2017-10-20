@@ -156,7 +156,7 @@ dec
 ```
 
 
-## 4. Dealing with Horizon Profiles
+## 4. Handling Horizon Profiles
 One of _skyscapeR_'s main missions is to handle horizon profile data. This is done through the creation of a _skyscapeR.hor_ object which can then be plugged in to several functions of this package not only for automation, but also for the purposes of visualizing the visible paths of celestial objects.
 
 ### Creating or downloading profiles
@@ -232,7 +232,7 @@ ss$dec
 ### Star phases and seasonality
 To estimate the phases, events and/or seasonality of stars the function ```star.phases()``` can be used. It works as follows, for the location of Cairo, an epoch of -3000, and a horizon altitude of 2º:
 ```{r}
-sp <- star.phases('Sirius', -3000, loc=c(30.0,31.2), alt.hor=2)
+sp <- star.phases('Sirius', -3000, loc=c(30.0,31.2), alt.hor=2, ncores=2)   # Number of cores forced to 2 for production of vignette only
 ```
 
 One can then check the star's phase, event date-range and seasons by typing:
@@ -258,7 +258,7 @@ nullhyp <- nh.Uniform(c(57,2), alt=0)
 
 Then one uses `sigTest()` to run the significance testing routine. This can take a while depending on your machine's resources. If it takes too long, try lowering the _nsims_ parameter (though this brings a cost of resolution, see the manual page for this function).
 ```{r}
-sg <- sigTest(curv, nullhyp)
+sg <- sigTest(curv, nullhyp, ncores=2)   # Number of cores forced to 2 for production of vignette only
 ```
 
 One can then plot the curvigram again, but now with the results of the significance testing displayed. This adds the expectation around the null hypothesis (the grey shaded area) as well as the estimated overall p-value.
