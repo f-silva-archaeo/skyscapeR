@@ -2,7 +2,8 @@
 #'
 #' This function creates a polar plot of azimuthal data. It is a wrapper for
 #' \code{\link[plotrix]{polar.plot}}
-#' @param az Array of azimuths. Values outside the [0, 360] range will be ignored.
+#' @param az Array of azimuths or data frame with column named \emph{True.Azimuth}. Values
+#' outside the [0, 360] range will be ignored.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the azimuths of celestial objects. Beware that this assumes a single
 #' location (given by parameter loc) and a flat horizon of zero degrees.
@@ -24,7 +25,7 @@
 #' tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
 #' plotAz(az, tt, loc=c(35,-8))
 plotAz = function(az, obj, loc, obj.label=T, ...) {
-  oldpar <- par()
+  if (class(az)=='data.frame') { az <- az$True.Azimuth }
 
   ind <- which(az > 360 | az < 0)
   if (length(ind) > 0) {
@@ -34,6 +35,7 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 
   n <- NROW(az)
 
+  oldpar <- par()
   testlen <- c(0.01,rep(1,n))
   testpos <- c(0,az)
   label.pos <- c(0,45,90,135,180,225,270,315)
@@ -119,6 +121,8 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' plotCurv(curv, objects=LEx, signif=sig, xlim=c(-40,0))
 #' }
 plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
+  if (class(curv)!='skyscapeR.curv') { stop('No skyscapeR.curv object found.') }
+
   par(mar=c(4, 4, 2, 2) + 0.1)
   if (is.null(xlim)) { xlim <- c(min(curv$dec)-5, max(curv$dec)+5) }
   plot.default(-100,-100, xlab='Declination', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
@@ -183,6 +187,8 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
 #' plotZscore(sig)
 #' }
 plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
+  if (class(signif)!='skyscapeR.sig') { stop('No skyscapeR.sig object found.') }
+
   # if (is.null(xlim)) { xlim <- c(min(signif$null.hyp.z[1,])-5, max(signif$null.hyp.z[1,])+5) }
   if (is.null(xlim)) { xlim <- signif$data.range }
   par(mar=c(4, 4, 2, 2) + 0.1)
@@ -236,6 +242,10 @@ plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
 #' azimuth and 5 degrees of altitude above the horizon line. Defaults to \emph{FALSE}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the paths of celestial objects.
+#' @param measure (Optional) A data.frame object with columns \emph{True.Azimuth} and
+#' \emph{Altitude} such as the ones produced by \code{\link{reduct.compass}} or
+#' \code{\link{reduct.theodolite}}. If no column named \emph{Altitude} is found then it will
+#' plot all azimuths are zero degrees altitude.
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @export
 #' @import utils stats graphics grDevices
@@ -248,7 +258,9 @@ plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
 #' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
 #' tt <- sky.objects('sun', -2000, 'blue')
 #' plotHor(hor, objects=tt)
-plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, ...) {
+plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...) {
+  if (class(hor)!='skyscapeR.hor') { stop('No skyscapeR.hor object found.') }
+
   # rejiggle so plot starts at given start point
   if (az0 < -360) { az0 <- az0 + 360 }
   ind <- which(hor$az < az0)
@@ -311,6 +323,15 @@ plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, ...) {
   y <- c(hor$alt, rep(-20,NROW(hor$az)))
   polygon(x ,y, col=rgb(217/255,95/255,14/255,1))
 
+  # measurements
+  if (!missing(measure)) {
+    if (class(measure)=='data.frame') {
+      if("True.Azimuth" %in% colnames(measure)) { az <- measure$True.Azimuth }
+      if("Altitude" %in% colnames(measure)) { alt <- measure$Altitude } else { alt <- rep(0,NROW(az)) }
+      points(az, alt)
+    } else { message('Measurement data not in correct format. Check ?plotHor for more details.') }
+
+  }
 }
 
 
@@ -364,6 +385,8 @@ plotOrb<- function(orbit, col) {
 #' plotPhases(ss)
 #' }
 plotPhases = function(starphase, ...) {
+  if (class(starphase)!='skyscapeR.starphase') { stop('No skyscapeR.starphase object found.') }
+
   col <- RColorBrewer::brewer.pal(4,'Accent')
   seasons <- c("RS","R","S","")
   par(mar=c(2,1,1,1))

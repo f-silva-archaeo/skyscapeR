@@ -30,7 +30,7 @@
 curvigram <- function(dec, unc = 2, norm = F, cut = 4, range, n = 512) {
   if (missing(range)) { range <- c(min(dec) - cut*max(unc), max(dec) + cut*max(unc)) }
 
-  if (length(sd)==1) {
+  if (length(unc)==1) {
     dens <- density(dec, bw=unc, from=range[1], to=range[2], n=n)
 
     xx <- dens$x

@@ -4,7 +4,7 @@
 \alias{plotHor}
 \title{Plot horizon data}
 \usage{
-plotHor(hor, show.az = F, max.alt, az0 = 0, zoom = F, obj, ...)
+plotHor(hor, show.az = F, max.alt, az0 = 0, zoom = F, obj, measure, ...)
 }
 \arguments{
 \item{hor}{Object of \emph{skyscapeR.horizon} format.}
@@ -21,6 +21,11 @@ azimuth and 5 degrees of altitude above the horizon line. Defaults to \emph{FALS
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the paths of celestial objects.}
+
+\item{measure}{(Optional) A data.frame object with columns \emph{True.Azimuth} and
+\emph{Altitude} such as the ones produced by \code{\link{reduct.compass}} or
+\code{\link{reduct.theodolite}}. If no column named \emph{Altitude} is found then it will
+plot all azimuths are zero degrees altitude.}
 
 \item{...}{Any other parameters to be passed unto \code{\link{plot.default}}.}
 }
