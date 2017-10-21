@@ -25,14 +25,15 @@ Defaults to ten degrees.}
 \item{res}{(Optional) Resolution of calculation. The smaller this
 figure the slower the computation. Defaults to 24/3600 = 1 sec.}
 
-\item{ncores}{(Optional) Number of processing cores to use for parallelisation. Defaults to the number of
-available cores minus 1.}
+\item{ncores}{(Optional) Number of processing cores to use for parallelisation.
+Defaults to the number of available cores minus 1.}
 }
 \description{
 This function calculates the seasons (Rising, Setting, etc.)
 and phases (Arising and Lying Hidden, Curtailed Passage) of a
 star for a given location and epoch. This functions uses the
-\emph{arcus visionis} approximation of Purrington (1988).
+\emph{arcus visionis} approximation of Purrington (1988). For
+the nomenclature used, and description of star phases, see Brady (2015).
 }
 \examples{
 \dontrun{
@@ -60,6 +61,10 @@ Purrington, Robert D. (1988) Heliacal Rising and Setting:
 Quantitative Aspects, \emph{Journal for the History of Astronomy
 (Archaeoastronomy Supplement 12)} 19, S72-S84. Available online at
 [SAO/NASA ADS Astronomy Abstract Service](http://adsabs.harvard.edu/abs/1988JHAS...19...72P)
+
+Brady, Bernadette (2015) Star Phases: the Naked-eye Astronomy of the Old Kingdom
+Pyramid Texts. In F Silva and N Campion (eds) \emph{Skyscapes: The Role and Importance of
+the Sky in Archaeology}. Oxford: Oxbow Books, pp. 76-86.
 }
 \seealso{
 \code{\link{plotPhases}}
