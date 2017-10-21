@@ -30,15 +30,21 @@ is to be calculated. Defaults to 512. See \emph{n} in \code{\link{density}}.}
 \description{
 This function computes the curvigram of declinations,
 using provided measurement uncertainty and a Gaussian
-kernel. When all measurements have the same associated
+kernel, i.e. using the method of Silva (2017). When all
+measurements have the same associated
 uncertainty this function wraps \code{\link{density}} and
-accepts the same input for \emph{bw} in \emph{sd}.
+accepts the same input for \emph{bw} in \emph{unc}.
 }
 \examples{
 # Curvigram of Ruggles' Recumbent Stone Circle data:
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, 2)
 plotCurv(curv)
+}
+\references{
+Silva, Fabio (2017) Inferring Alignments I: Exploring the Accuracy
+and Precision of Two Statistical Approaches, \emph{Journal of Skyscape Archaeology}
+3(1), 93-111. DOI: 10.1558/jsa.31958
 }
 \seealso{
 \code{\link{density}}
