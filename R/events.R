@@ -18,6 +18,7 @@
 #' Only activated for single year epochs.
 #' @export
 #' @examples
+#' \dontrun{
 #' # Create a object with solar targets for epoch range 4000-2000 BC:
 #' tt <- sky.objects('sun', c(-4000,-2000))
 #'
@@ -27,6 +28,7 @@
 #'
 #' # Create an object with solstices and a custom declination value:
 #' tt <- sky.objects(c('dS','jS', -13), c(-4000,-2000))
+#' }
 sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
   N <- NROW(names)
 

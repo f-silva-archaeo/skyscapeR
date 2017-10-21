@@ -58,7 +58,6 @@ Laskar04 = function(t, degree=TRUE) {
         ORB <- ORB + D*diff
       }
   }
-
   if (degree) {rad2deg <- 180/pi
   ORB['eps'] <- ORB['eps']*rad2deg
   ORB['varpi'] <- ORB['varpi']*rad2deg}
@@ -68,6 +67,7 @@ Laskar04 = function(t, degree=TRUE) {
   OUT = as.numeric(ORB[names]) ; names(OUT) <- names
   OUT
 }
+
 
 
 

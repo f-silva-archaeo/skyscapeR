@@ -31,6 +31,7 @@ plot celestial objects/events unto the many plotting functions of \emph{skyscape
 package.
 }
 \examples{
+\dontrun{
 # Create a object with solar targets for epoch range 4000-2000 BC:
 tt <- sky.objects('sun', c(-4000,-2000))
 
@@ -40,4 +41,5 @@ col=c('white', 'red', 'orange'))
 
 # Create an object with solstices and a custom declination value:
 tt <- sky.objects(c('dS','jS', -13), c(-4000,-2000))
+}
 }
