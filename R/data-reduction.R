@@ -119,7 +119,7 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt, name, ID,
 reduct.compass = function(loc, mag.az, date, magdec, alt, name, ID, HWT.ID) {
   if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$georef } else { hor <- NULL }
 
-  if (NROW(loc) < NROW(mag.az)*2) { loc <- matrix(loc,NROW(mag.az),2, byrow=T) }
+  if (length(loc) < length(mag.az)*2) { loc <- matrix(loc,NROW(mag.az),2, byrow=T) }
   if (!missing(date) & (NROW(date) < NROW(mag.az))) { date <- matrix(date,NROW(mag.az),1, byrow=T) }
   if (!missing(alt)) { if (NROW(alt) < NROW(mag.az)) { alt <- matrix(alt,NROW(mag.az),1, byrow=T) } }
 

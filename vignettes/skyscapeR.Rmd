@@ -24,18 +24,23 @@ If you are new to _R_ then I recommend the online free short course [Code School
 
 
 ### Installation
-The package requires that the latest version of _R_ is installed first. See the [R Project website](https://www.r-project.org/) for details. Also suggested is the installation of [RStudio](https://www.rstudio.com/). With _R_ installed, install package _devtools_ by running:
+The package requires that the latest version of _R_ is installed first. See the [R Project website](https://www.r-project.org/) for details. Also suggested is the installation of [RStudio](https://www.rstudio.com/). With _R_ installed, you can install the latest _skyscapeR_ release directly from [CRAN](https://cran.r-project.org/package=skyscapeR) by doing:
+```
+install.packages('skyscapeR')
+```
+This will install the package itself along with any dependencies. Upon successful completion you should see a line saying ```* DONE (skyscapeR)```. If this doesn't happen then there should be an error message explaining what went wrong.
+
+If you rather install the latest development versions(often unstable or untested) you can do so directly from the GitHub repository. Firstly, ensure you have package _devtools_ installed, by running:
 
 ```
 install.packages('devtools')
 ```
 
-The latest version of _skyscapeR_, and associated requirements, can then be downloaded and installed by running:
+Then type the following to download and install _skyscapeR_:
 ```
 devtools::install_github('f-silva-archaeo/skyscapeR')
 ```
-
-Upon succesful completion you should see a line saying ```* DONE (skyscapeR)```. If this doesn't happen then there should be an error message explaining what went wrong.
+At the end, you shoudl see the same successful completion line.
 
 
 ### Initialization

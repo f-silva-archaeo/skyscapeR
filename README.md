@@ -21,3 +21,5 @@ Future versions will add further functionality, as well as an easy-to-use Graphi
 
 ## Release Notes
 The latest release version (v0.2.2) is available on CRAN. This Git contains the latest development version which contains bug fixes and additional tools (some of which might not have been fully tested).
+
+For information on how to use _skyscapeR_ see [the official vignette](https://cran.rstudio.com/web/packages/skyscapeR/vignettes/skyscapeR.html).
