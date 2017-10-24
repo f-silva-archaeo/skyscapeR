@@ -19,5 +19,5 @@ Currently it includes functions to:
 
 Future versions will add further functionality, as well as an easy-to-use Graphical User Interface.
 
-## Releases and Installation
+## Release Notes
 The latest release version (v0.2.2) is available on CRAN. This Git contains the latest development version which contains bug fixes and additional tools (some of which might not have been fully tested).
