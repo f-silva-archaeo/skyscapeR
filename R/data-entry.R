@@ -10,7 +10,7 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 #' of package \emph{astrolibR}.
 #' @param az Azimuth(s) for which to calculate declination(s). See examples below.
 #' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
-#' a latitude.
+#' an array of latitude values.
 #' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
 #' is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}
 #' @param ... Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.
@@ -26,11 +26,15 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 #' # Can also be used for an array of azimuths:
 #' decs <- az2dec( c(87,92,110), hor )
 az2dec = function(az, loc, alt, ...){
-  if (class(loc) != 'skyscapeR.horizon') { hor <- c(); hor$georef <- c(loc, 0) } else { hor <- loc }
+  if (class(loc) != 'skyscapeR.horizon') {
+    hor <- c()
+    if (length(loc) == length(az)) { hor$georef <- cbind(loc, 0) }
+    if (length(loc) == 2*NROW(az)) { hor$georef <- loc; dim(hor$georef) <- c(NROW(az),2) }
+  } else { hor <- loc }
   if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az) }
 
   prec <- max(nchar(sub('.*\\.', '', as.character(az))))
-  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$georef[1], hor$georef[2], precess_ = F, ...)$dec, prec)
+  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$georef[,1], hor$georef[,2], precess_ = F, ...)$dec, prec)
   return(dec)
 }
 

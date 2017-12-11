@@ -1,0 +1,3 @@
+load("/Users/fabiosilva/Dropbox/Archaeology/Code/skyscapeR/data/stars.rda")
+exit
+q()

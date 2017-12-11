@@ -21,7 +21,7 @@ Data from C.L.N. Ruggles' fieldwork on the Stone Rows of Cork and Kerry.
 \examples{
 data(RugglesCKR)
 curv <- curvigram(RugglesCKR$Dec.Hill, 2)
-plotCurv(curv)
+plot(curv)
 }
 \references{
 Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}. Yale University Press.

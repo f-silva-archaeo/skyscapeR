@@ -7,20 +7,20 @@
 #' @param loc Location, a vector containing the latitude and longitude of
 #' the location, in this order.
 #' @param name Name of site.
-#' @seealso \code{\link{plotHor}}
+#' @seealso \code{\link{plot.skyscape.hor}}
 #' @export
 #' @examples
 #' # Create a skyscapeR.horizon from 5 measurements:
 #' az <- c(0,90,180,270,360)
 #' alt <- c(0,5,5,0,0)
 #' hor <- createHor(az, alt, c(40.1,-8), 'Test')
-#' plotHor(hor)
+#' plot(hor)
 createHor = function(az, alt, loc, name) {
   # return result
   hor <- c()
   hor$alt <- alt
   hor$az <- az
-  hor$georef <- loc; names(hor$georef) <- c('Lat','Lon')
+  hor$georef <- loc; names(hor$georef) <- c('Lat','Lon'); dim(hor$georef) <- c(1,2)
   hor$name <- name
   class(hor) <- "skyscapeR.horizon"
   return(hor)
@@ -39,7 +39,7 @@ createHor = function(az, alt, loc, name) {
 #' @param description (Optional) Description, to be included in \emph{landscape.ini} file.
 #' @param ground_col Colour of ground. Defaults to \emph{Stellarium}'s default.
 #' @param hor_col Colour of horizon line. Defaults to \emph{Stellarium}'s default.
-#' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plotHor}}
+#' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscape.hor}}
 #' @references \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
 #' @export
 #' @import utils
@@ -195,7 +195,7 @@ download.HWT = function(HWTID) {
   ind <- which(hor$az<0)
   hor$az <- c(hor$az,hor$az[ind]+360); hor$az <- hor$az[-ind]
   hor$alt <- c(hor$alt,hor$alt[ind]); hor$alt <- hor$alt[-ind]
-  hor$georef <- c(hor$Lat,hor$Lon); names(hor$georef) <- c('Lat','Lon')
+  hor$georef <- c(hor$Lat,hor$Lon); names(hor$georef) <- c('Lat','Lon'); dim(hor$georef) <- c(1,2)
   hor$ID <- HWTID
   class(hor) <- "skyscapeR.horizon"
   return(hor)

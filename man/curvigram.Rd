@@ -7,9 +7,10 @@
 curvigram(dec, unc = 2, norm = F, cut = 4, range, n = 512)
 }
 \arguments{
-\item{dec}{Array of declination values}
+\item{dec}{Array of declination values.}
 
-\item{unc}{(Optional) Either a single value or string to be applied
+\item{unc}{(Optional) Uncertainty in declination values.
+Either a single value or string to be applied
 to all measurements (see \code{\link{bw.nrd}}), or an
 array of values of the same length as \emph{dec}. Defaults
 to 2 degrees.}
@@ -39,7 +40,7 @@ accepts the same input for \emph{bw} in \emph{unc}.
 # Curvigram of Ruggles' Recumbent Stone Circle data:
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, 2)
-plotCurv(curv)
+plot(curv)
 }
 \references{
 Silva, Fabio (2017) Inferring Alignments I: Exploring the Accuracy

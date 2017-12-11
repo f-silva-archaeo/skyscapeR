@@ -17,5 +17,5 @@
 #' @examples
 #' data(RugglesCKR)
 #' curv <- curvigram(RugglesCKR$Dec.Hill, 2)
-#' plotCurv(curv)
+#' plot(curv)
 "RugglesCKR"

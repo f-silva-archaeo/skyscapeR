@@ -99,7 +99,7 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the curvigram. Defaults to \emph{TRUE}.
 #' @param signif (Optional) A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}
-#' for displaying confidence envelope around the chosen null hypothesis and overall p-value.
+#' for displaying confidence envelope around the chosen null hypothesis and global p-value.
 #' @param xlim Array of two values restricting the horizontal range of the plot.
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @import utils stats graphics
@@ -109,23 +109,22 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 #' # Plot the curvigram of Recumbent Stone Circles:
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, unc=2)
-#' plotCurv(curv, xlim=c(-40,0))
+#' plot(curv, xlim=c(-40,0))
 #'
 #' # Redo the plot to include lunar extreme declinations:
 #' LEx <- sky.objects('moon', -2000, col='red', lty=2)
-#' plotCurv(curv, objects=LEx, xlim=c(-40,0))
+#' plot(curv, objects=LEx, xlim=c(-40,0))
 #'
 #' # Add significance testing information:
 #' \dontrun{
 #' sig <- sigTest(curv, nh.Uniform(c(57,2)))
-#' plotCurv(curv, objects=LEx, signif=sig, xlim=c(-40,0))
+#' plot(curv, objects=LEx, signif=sig, xlim=c(-40,0))
 #' }
-plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
-  if (class(curv)!='skyscapeR.curv') { stop('No skyscapeR.curv object found.') }
+plot.skyscapeR.curv = function(curv, obj, signif, obj.label=T, xlim=NULL, ...) {
 
   par(mar=c(4, 4, 2, 2) + 0.1)
   if (is.null(xlim)) { xlim <- c(min(curv$dec)-5, max(curv$dec)+5) }
-  plot.default(-100,-100, xlab='Declination', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
+  plot.default(-100,-100, xlab='Declination (º)', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
   axis(1); axis(2)
   lines(curv$dec, curv$density, lwd=1.5, col='blue')
   box()
@@ -144,7 +143,7 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
     if (signif$p.value > 0) {
       text(xlim[2], max(curv$density), labels=bquote(paste('p'[.(tail)]*' = ', .(signif$p.value))), pos=2, cex=1.2)
     } else {
-      text(xlim[2], max(curv$density), labels=bquote(paste('p'[.(tail)]*' < ', .(1/signif$nsims))), pos=2, cex=1.2)
+      text(xlim[2], max(curv$density), labels=bquote(paste('p'[.(tail)]*' < ', .(1/(signif$nsims+1)))), pos=2, cex=1.2)
     }
   }
 
@@ -162,70 +161,6 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
       }
     }
   }
-}
-
-
-
-#' Plot a z-score transformed curvigram
-#'
-#' This function creates a plot of a z-score transformed curvigram, which is to say the
-#' curvigram transformed into sigma units, based on a previously generated significance test.
-#' @param signif A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}.
-#' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-#' for displaying the declination of celestial objects.
-#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
-#' the curvigram. Defaults to \emph{TRUE}.
-#' @param xlim Array of two values restricting the horizontal range of the plot.
-#' @export
-#' @seealso \code{\link{sigTest}}
-#' @examples
-#' \dontrun{
-#' data(RugglesRSC)
-#' curv <- curvigram(RugglesRSC$Dec, unc=2)
-#' sig <- sigTest(curv, nh.Uniform(c(57,2)))
-#'
-#' plotZscore(sig)
-#' }
-plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
-  if (class(signif)!='skyscapeR.sig') { stop('No skyscapeR.sig object found.') }
-
-  # if (is.null(xlim)) { xlim <- c(min(signif$null.hyp.z[1,])-5, max(signif$null.hyp.z[1,])+5) }
-  if (is.null(xlim)) { xlim <- signif$data.range }
-  par(mar=c(4, 4, 2, 2) + 0.1)
-  plot(-100,100, axes=F, xlim=xlim, ylim=c(-2, max(signif$maxima[2,])+1), xlab="Declination", ylab="")
-  axis(1, at = seq(-90,90,10))
-  mtext("Standard Deviations", side=2, line=2)
-  axis(2, at = seq(-10,100,2), labels = seq(-10,100,2))
-  lines(signif$null.hyp.z[1,], signif$null.hyp.z[3,], col='blue')
-  x.polygon <- c(signif$null.hyp.z[1,], rev(signif$null.hyp.z[1,]))
-  y.polygon <- c(signif$null.hyp.z[4,], rev(signif$null.hyp.z[2,]))
-  polygon(x.polygon, y.polygon, border=NA, col=MESS::col.alpha('grey', 0.7))
-  abline(h=0)
-  box()
-  mtext(paste0('skyscapeR ',packageVersion('skyscapeR'),' Fabio Silva (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
-
-
-  for (i in 1:NCOL(signif$maxima)) {
-    points(signif$maxima[1,i], signif$maxima[2,i], pch=3)
-    text(signif$maxima[1,i], signif$maxima[2,i], labels= substitute(paste(s, sigma), list(s = round(signif$maxima[2,i],2))), pos=4)
-  }
-  abline(h=0)
-
-  # objects
-  if (!missing(obj)) {
-    for (i in 1:obj$n) {
-      if (length(obj$epoch)==1) {
-        abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
-        if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
-      } else {
-        xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
-        yp <- c(-1,-1,2,2)
-        polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
-        if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
-      }
-    }
-  }
-
 }
 
 
@@ -253,13 +188,12 @@ plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
 #' @examples
 #' # Plot a horizon retrieved from HeyWhatsThat:
 #' hor <- download.HWT('HIFVTBGK')
-#' plotHor(hor)
+#' plot(hor)
 #'
 #' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
 #' tt <- sky.objects('sun', -2000, 'blue')
-#' plotHor(hor, objects=tt)
-plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...) {
-  if (class(hor)!='skyscapeR.horizon') { stop('No skyscapeR.horizon object found.') }
+#' plot(hor, objects=tt)
+plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...) {
 
   # rejiggle so plot starts at given start point
   if (az0 < -360) { az0 <- az0 + 360 }
@@ -307,12 +241,12 @@ plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...)
     for (i in ind) {
       if (length(obj$epoch)==1) {
         orb <- orbit(obj$decs[i], hor, res=0.5)
-        plotOrb(orb, obj$col[i])
+        plot(orb, obj$col[i])
       } else {
         orb1 <- orbit(obj$decs[3,i], hor, res=0.5)
         orb2 <- orbit(obj$decs[4,i], hor, res=0.5)
-        plotOrb(orb1, obj$col[i])
-        plotOrb(orb2, obj$col[i])
+        plot(orb1, obj$col[i])
+        plot(orb2, obj$col[i])
       }
     }
   }
@@ -343,7 +277,7 @@ plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...)
 #' @seealso \code{\link{plot.skyscapeR.horizon}}, \code{\link{orbit}}
 #' @import utils stats graphics
 #' @noRd
-plotOrb<- function(orbit, col) {
+plot.skyscapeR.orbit<- function(orbit, col) {
 
   ind.break <- which(abs(diff(orbit$az)) > 1)
   if (NROW(ind.break) > 0) {
@@ -382,10 +316,9 @@ plotOrb<- function(orbit, col) {
 #' # Plot the seasonality of Aldebaran for 3999 BCE:
 #' \dontrun{
 #' ss <- star.phases('Aldebaran',-4000, c(35,-8))
-#' plotPhases(ss)
+#' plot(ss)
 #' }
-plotPhases = function(starphase, ...) {
-  if (class(starphase)!='skyscapeR.starphase') { stop('No skyscapeR.starphase object found.') }
+plot.skyscapeR.starphase = function(starphase, ...) {
 
   col <- RColorBrewer::brewer.pal(4,'Accent')
   seasons <- c("RS","R","S","")

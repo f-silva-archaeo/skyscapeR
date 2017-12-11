@@ -33,5 +33,5 @@ exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
 }
 \seealso{
-\code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plotHor}}
+\code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscape.hor}}
 }
