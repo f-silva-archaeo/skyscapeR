@@ -4,7 +4,7 @@
 \alias{sigTest}
 \title{Perform a null hypothesis significance test of a given curvigram}
 \usage{
-sigTest(curv, null.hyp, level = 0.95, type = "2-tailed", nsims = 2000,
+sigTest(curv, null.hyp, level = 0.95, type = "1-tailed", nsims = 2000,
   ncores)
 }
 \arguments{
@@ -16,7 +16,7 @@ of \emph{skyscapeR} (see See Also section below).}
 \item{level}{(Optional) Level of confidence for p-value calculation and output. Defaults to 0.95,
 i.e. a 95\% confidence envelope.}
 
-\item{type}{(Optional) Whether the test is to be '1-tailed' or '2-tailed'. Defaults to '2-tailed'.}
+\item{type}{(Optional) Whether the test is to be '1-tailed' or '2-tailed'. Defaults to '1-tailed'.}
 
 \item{nsims}{(Optional) Number of simulations to run. The higher this number the slower this process will
 be, but the lower it is the less power the method has. Defaults to 2000 as a base minimum to test for
@@ -36,7 +36,7 @@ data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, sd=2)
 sig <- sigTest(curv, null.hyp=nh.Uniform(c(57,2)))
 
-plotCurv(curv, signif=sig)
+plot(curv, signif=sig)
 }
 }
 \seealso{

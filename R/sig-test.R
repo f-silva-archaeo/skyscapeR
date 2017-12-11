@@ -8,7 +8,7 @@
 #' of \emph{skyscapeR} (see See Also section below).
 #' @param level (Optional) Level of confidence for p-value calculation and output. Defaults to 0.95,
 #' i.e. a 95\% confidence envelope.
-#' @param type (Optional) Whether the test is to be '1-tailed' or '2-tailed'. Defaults to '2-tailed'.
+#' @param type (Optional) Whether the test is to be '1-tailed' or '2-tailed'. Defaults to '1-tailed'.
 #' @param nsims (Optional) Number of simulations to run. The higher this number the slower this process will
 #' be, but the lower it is the less power the method has. Defaults to 2000 as a base minimum to test for
 #' significance at the p=0.0005 level, but the recommended value is 10,000.
@@ -24,9 +24,9 @@
 #' curv <- curvigram(RugglesRSC$Dec, sd=2)
 #' sig <- sigTest(curv, null.hyp=nh.Uniform(c(57,2)))
 #'
-#' plotCurv(curv, signif=sig)
+#' plot(curv, signif=sig)
 #' }
-sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000, ncores) {
+sigTest = function(curv, null.hyp, level=.95, type='1-tailed', nsims=2000, ncores) {
   requireNamespace('foreach')
   # redo curvigram with fixed range
   N <- length(curv$mes)
@@ -78,7 +78,7 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000, ncore
   upCI <- zMean + upper*zStd
   loCI <- zMean + lower*zStd
 
-  # overall p-value
+  # global p-value
   area.up <- zScore.emp - upper; area.up[area.up<0] <- NA; stat.emp <- sum(area.up, na.rm=T)
   if (type=='2-tailed') { area.dn <- lower - zScore.emp ; area.dn[area.dn<0] <- NA; stat.emp <- stat.emp + sum(area.dn, na.rm=T)}
 
@@ -88,7 +88,7 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000, ncore
     if (type=='2-tailed') { area.dn <- lower - zScore.sim[i,] ; area.dn[area.dn<0] <- NA; stat.sim <- stat.sim + sum(area.dn, na.rm=T)}
     if (stat.sim >= stat.emp) {np.sims <- np.sims + 1}
   }
-  pval <- np.sims / nsims
+  pval <- (np.sims + 1) / (nsims + 1)
 
   # zScores of peaks
   func0 <- splinefun(curv$dec, zScore.emp)
@@ -121,23 +121,23 @@ sigTest = function(curv, null.hyp, level=.95, type='2-tailed', nsims=2000, ncore
 
 
 #' Declination distribution corresponding to a uniform azimuthal
-#' distribution for null hypothesis significance testing
+#' distribution
 #'
 #' This function returns the declination distribution that
 #' corresponds to a uniform distribution in azimuths (i.e. random
-#'  orientation) for use in significance testing.
+#'  orientation). It can be used for significance testing.
 #' @param loc This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object.
 #' @param alt (Optional) The horizon altitude to use in
 #' \code{\link{az2dec}} conversion. Defaults to 0 degrees.
 #' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{nh.SummerFM}}, \code{\link{nh.SolarRange}}
+#' @seealso \code{\link{sigTest}}, \code{\link{distSummerFM}}, \code{\link{distSolarRange}}, \code{\link{distLunarRange}}
 #' @examples
 #' \dontrun{
-#' aux <- nh.Uniform(loc=c(52,-2), alt=2)
+#' aux <- distRandom(loc=c(52,-2), alt=2)
 #' plot(aux$dec, aux$density, type='l')
 #' }
-nh.Uniform = function(loc, alt=0) {
+distRandom = function(loc, alt=0) {
   if (class(loc) == 'skyscapeR.horizon') { loc <- loc$georef }
 
   xx <- seq(0, 360, .01)
@@ -145,32 +145,31 @@ nh.Uniform = function(loc, alt=0) {
   aux <- density(ddd, bw=0.1)
 
   out <- c()
-  out$type <- 'nh.Uniform'
+  out$type <- 'distRandom'
   out$param$loc <- loc
   out$param$alt <- alt
   out$dec <- aux$x
   out$density <- aux$y
-  class(out) <- 'skyscapeR.nh'
+  class(out) <- 'skyscapeR.dist'
 
   return(out)
 }
 
 
 #' Declination distribution of the Sun throughout the year
-#'  for null hypothesis significance testing
 #'
 #' This function returns the declination distribution of
-#' the the Sun throughout the year for use in significance testing.
+#' the the Sun throughout the year. It can be used for significance testing.
 #' @param year Year for which to calculate the distribution.
 #' Defaults to present year as given by Sys.Date()
 #' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}
+#' @seealso \code{\link{sigTest}}, \code{\link{distRandom}}, \code{\link{distSummerFM}}, \code{\link{distLunarRange}}
 #' @examples
 #' \dontrun{
-#' aux <- nh.SolarRange(-4000)
+#' aux <- distSolarRange(-4000)
 #' plot(aux$dec, aux$density, type='l')
 #' }
-nh.SolarRange = function(year = cur.year) {
+distSolarRange = function(year = cur.year) {
   options(warn=-1)
   jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000
   xx <- seq(jd0, jd0+365*50,1)
@@ -179,31 +178,30 @@ nh.SolarRange = function(year = cur.year) {
   options(warn=0)
 
   out <- c()
-  out$type <- 'nh.SolarRange'
+  out$type <- 'distSolarRange'
   out$param$year <- year
   out$dec <- aux$x
   out$density <- aux$y
-  class(out) <- 'skyscapeR.nh'
+  class(out) <- 'skyscapeR.dist'
 
   return(out)
 }
 
 
 #' Declination distribution of the Moon throughout the year
-#'  for null hypothesis significance testing
 #'
 #' This function returns the declination distribution of
-#' the the Sun throughout the year for use in significance testing.
+#' the the Sun throughout the year. It can be used for significance testing.
 #' @param year Year for which to calculate the distribution.
 #' Defaults to present year as given by Sys.Date()
 #' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}
+#' @seealso \code{\link{sigTest}}, \code{\link{distRandom}}, \code{\link{distSummerFM}}, \code{\link{distSolarRange}}
 #' @examples
 #' \dontrun{
-#' aux <- nh.SolarRange(-4000)
+#' aux <- distLunarRange(-4000)
 #' plot(aux$dec, aux$density, type='l')
 #' }
-nh.LunarRange = function(year = cur.year) {
+distLunarRange = function(year = cur.year) {
   options(warn=-1)
   jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000
   xx <- seq(jd0, jd0+365*200,1)
@@ -212,21 +210,20 @@ nh.LunarRange = function(year = cur.year) {
   options(warn=0)
 
   out <- c()
-  out$type <- 'nh.MoonRange'
+  out$type <- 'distMoonRange'
   out$param$year <- year
   out$dec <- aux$x
   out$density <- aux$y
-  class(out) <- 'skyscapeR.nh'
+  class(out) <- 'skyscapeR.dist'
 
   return(out)
 }
 
 
 #' Declination distribution of the Summer Full Moon
-#'  for null hypothesis significance testing
 #'
 #' This function returns the declination distribution of
-#' the Summer Full Moon for use in significance testing.
+#' the Summer Full Moon. It can be used for significance testing.
 #' @param min.phase (Optional) This should be the minimum
 #'  lunar phase (i.e. percentage illumination) for the moon
 #'   to be considered full. The value should range between
@@ -235,16 +232,16 @@ nh.LunarRange = function(year = cur.year) {
 #' solar declination for the moon to be considered a
 #' \emph{summmer} full moon. Defaults to 20 degrees,
 #' corresponding to a month before or after june solstice.
-#' @param year Year for which to calculate the obliquity.
+#' @param year Year for which to calculate the distribution.
 #' Defaults to present year as given by Sys.Date()
 #' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SolarRange}}
+#' @seealso \code{\link{sigTest}}, \code{\link{distRandom}}, \code{\link{distSolarRange}}, \code{\link{distLunarRange}}
 #' @examples
 #' \dontrun{
-#' aux <- nh.SummerFM(.99, 20, -4000)
+#' aux <- distSummerFM(.99, 20, -4000)
 #' plot(aux$dec, aux$density, type='l')
 #' }
-nh.SummerFM = function(min.phase = .99, min.sundec = 20, year = cur.year) {
+distSummerFM = function(min.phase = .99, min.sundec = 20, year = cur.year) {
   options(warn=-1)
   jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000
   xx <- seq(jd0, jd0+365*200,1)
@@ -258,15 +255,51 @@ nh.SummerFM = function(min.phase = .99, min.sundec = 20, year = cur.year) {
 
 
   out <- c()
-  out$type <- 'nh.SummerFM'
+  out$type <- 'distSummerFM'
   out$param$min.phase <- min.phase
   out$param$min.sundec <- min.sundec
   out$param$year <- year
   out$dec <- aux$x
   out$density <- aux$y
-  class(out) <- 'skyscapeR.nh'
+  class(out) <- 'skyscapeR.dist'
 
   return(out)
 }
 
 
+#' Declination distribution of the Brightest Stars
+#'
+#' This function returns the declination distribution of
+#' the brightest stars. It can be used for significance testing.
+#' @param brightest (Optional) This should be the number of
+#' bright stars to be considered. Defaults to 20.
+#' @param precision (Optional) This should be the intended
+#' precision for each declination. Defaults to 2º.
+#' @param year Year for which to calculate the distribution
+#' Defaults to present year as given by Sys.Date().
+#' @export
+#' @seealso \code{\link{sigTest}}, \code{\link{distRandom}}, \code{\link{distSolarRange}}, \code{\link{distLunarRange}}
+#' @examples
+#' aux <- distStars(10, 1, -4000)
+#' plot(aux$dec, aux$density, type='l')
+distStars = function(brightest = 20, precision = 2, year = cur.year) {
+  options(warn=-1)
+  ss <- c()
+  for (i in 1:brightest) {
+    ss[i] <- star(as.character(stars[i,]$NAME), year)$dec
+  }
+  aux <- density(ss, bw=precision)
+  options(warn=0)
+
+
+  out <- c()
+  out$type <- 'distStars'
+  out$param$brightest <- brightest
+  out$param$precision <-precision
+  out$param$year <- year
+  out$dec <- aux$x
+  out$density <- aux$y
+  class(out) <- 'skyscapeR.dist'
+
+  return(out)
+}

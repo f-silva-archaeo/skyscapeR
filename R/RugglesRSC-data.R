@@ -14,5 +14,5 @@
 #' @examples
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, 2)
-#' plotCurv(curv)
+#' plot(curv)
 "RugglesRSC"

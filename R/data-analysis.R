@@ -6,8 +6,9 @@
 #' measurements have the same associated
 #' uncertainty this function wraps \code{\link{density}} and
 #' accepts the same input for \emph{bw} in \emph{unc}.
-#' @param dec Array of declination values
-#' @param unc (Optional) Either a single value or string to be applied
+#' @param dec Array of declination values.
+#' @param unc (Optional) Uncertainty in declination values.
+#' Either a single value or string to be applied
 #' to all measurements (see \code{\link{bw.nrd}}), or an
 #' array of values of the same length as \emph{dec}. Defaults
 #' to 2 degrees.
@@ -30,7 +31,7 @@
 #' # Curvigram of Ruggles' Recumbent Stone Circle data:
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, 2)
-#' plotCurv(curv)
+#' plot(curv)
 curvigram <- function(dec, unc = 2, norm = F, cut = 4, range, n = 512) {
   if (missing(range)) { range <- c(min(dec) - cut*max(unc), max(dec) + cut*max(unc)) }
 

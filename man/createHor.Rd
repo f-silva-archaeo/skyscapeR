@@ -25,8 +25,8 @@ azimuth and altitude.
 az <- c(0,90,180,270,360)
 alt <- c(0,5,5,0,0)
 hor <- createHor(az, alt, c(40.1,-8), 'Test')
-plotHor(hor)
+plot(hor)
 }
 \seealso{
-\code{\link{plotHor}}
+\code{\link{plot.skyscape.hor}}
 }
