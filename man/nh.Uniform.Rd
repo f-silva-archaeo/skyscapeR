@@ -20,7 +20,7 @@ corresponds to a uniform distribution in azimuths (i.e. random
  orientation) for use in significance testing.
 }
 \details{
-This function is deprecated. Please use \code{\link{distRandom}} instead.
+This function is deprecated. Please see \code{\link{sigTest}} instead.
 }
 \examples{
 \dontrun{
@@ -29,5 +29,5 @@ plot(aux$dec, aux$density, type='l')
 }
 }
 \seealso{
-\code{\link{sigTest}}, \code{\link{nh.SummerFM}}, \code{\link{nh.SolarRange}}
+\code{\link{sigTest}}
 }

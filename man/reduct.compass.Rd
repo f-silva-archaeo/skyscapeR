@@ -13,7 +13,7 @@ containing the latitude and longitude of location, in this order.}
 \item{mag.az}{Array of magnetic azimuth measurements.}
 
 \item{date}{(Optional) Date of measurements as a string in the format: 'YYYY/MM/DD'.
-Only necessary is \emph{magdec} is not given.}
+Only necessary if \emph{magdec} is not given.}
 
 \item{magdec}{(Optional) Magnetic declination, if known.}
 

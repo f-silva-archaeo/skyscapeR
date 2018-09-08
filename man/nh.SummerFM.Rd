@@ -26,7 +26,7 @@ This function returns the declination distribution of
 the Summer Full Moon for use in significance testing.
 }
 \details{
-This function is deprecated. Please use \code{\link{distSummerFM}} instead.
+This function is deprecated. Please see \code{\link{sigTest}} instead.
 }
 \examples{
 \dontrun{
@@ -35,5 +35,5 @@ plot(aux$dec, aux$density, type='l')
 }
 }
 \seealso{
-\code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SolarRange}}
+\code{\link{sigTest}}
 }

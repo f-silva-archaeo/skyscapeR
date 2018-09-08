@@ -43,7 +43,7 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
   par(mar=c(4, 4, 2, 2) + 0.1)
   plotrix::polar.plot(testlen, testpos, lwd=1.2, line.col='black', start=90, clockwise=T, labels= labels, label.pos = label.pos, show.grid.labels= F, grid.col='white', ...)
   plotrix::draw.circle(0,0,1, border='grey')
-  mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' Fabio Silva (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
+  mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
 
   # objects
   if (!missing(obj) & !missing(loc)) {
@@ -90,62 +90,61 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
   options(warn=-2); par(oldpar); options(warn=0)
 }
 
-#' Plot a curvigram
+
+
+#' Plot a histogram
 #'
-#' This function creates a plot of a curvigram.
-#' @param curv Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.
+#' This function creates a plot of a histogram
+#' @param hh Object of \emph{skyscapeR.hist} format, created using \code{\link{histogram}}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the declination of celestial objects.
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
-#' the curvigram. Defaults to \emph{TRUE}.
-#' @param signif (Optional) A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}
-#' for displaying confidence envelope around the chosen null hypothesis and global p-value.
+#' the histogram Defaults to \emph{TRUE}.
+#' @param col (Optional) Colour to plot the curvigram in. Defaults to blue.
+#' @param shade (Optional) Boolean to control whether to shade the curvigram in the same colour.
+#' Defaults to true.
 #' @param xlim Array of two values restricting the horizontal range of the plot.
-#' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
+#' @param ylim Array of two values restricting the horizontal range of the plot.
 #' @import utils stats graphics
 #' @export
-#' @seealso \code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
+#' @seealso \code{\link{histogram}}, \code{\link{sky.objects}}
 #' @examples
-#' # Plot the curvigram of Recumbent Stone Circles:
+#' # Plot the histogram of Recumbent Stone Circles:
 #' data(RugglesRSC)
-#' curv <- curvigram(RugglesRSC$Dec, unc=2)
-#' plot(curv, xlim=c(-40,0))
+#' hist <- histogram(RugglesRSC$Dec, unc=2)
+#' plot(hist, xlim=c(-40,0))
 #'
 #' # Redo the plot to include lunar extreme declinations:
 #' LEx <- sky.objects('moon', -2000, col='red', lty=2)
-#' plot(curv, objects=LEx, xlim=c(-40,0))
-#'
-#' # Add significance testing information:
-#' \dontrun{
-#' sig <- sigTest(curv, nh.Uniform(c(57,2)))
-#' plot(curv, objects=LEx, signif=sig, xlim=c(-40,0))
-#' }
-plot.skyscapeR.curv = function(curv, obj, signif, obj.label=T, xlim=NULL, ...) {
-
+#' plot(hist, obj=LEx, xlim=c(-40,0))
+plot.skyscapeR.hist <- function(hh, obj, obj.label=T, col='blue', shade=T, xlim, ylim){
   par(mar=c(4, 4, 2, 2) + 0.1)
-  if (is.null(xlim)) { xlim <- c(min(curv$dec)-5, max(curv$dec)+5) }
-  plot.default(-100,-100, xlab='Declination (º)', ylab='Density', xlim=xlim, ylim=c(0,max(curv$density)), axes=F, ...)
-  axis(1); axis(2)
-  lines(curv$dec, curv$density, lwd=1.5, col='blue')
-  box()
-  mtext(paste0('skyscapeR ',packageVersion('skyscapeR'),' Fabio Silva (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
+  if (missing(xlim)) { xlim <- c(min(hh$data$dec)-5, max(hh$data$dec)+5) }
+  if (missing(ylim)) { ylim <- c(0, max(hh$data$density)) }
+  plot.default(-100,-100, xlab='Declination (º)', ylab='Density', xlim=xlim, ylim=ylim, axes=F)
+  axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
+  axis(1, at=0, labels = 0)
+  scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
+  if (scale <= 2) { axis(1, at=seq(-90,90,0.5), lwd=0.2, labels=F) }
+  if (scale <= 5 & scale > 1) { axis(1, at=seq(-90,90,1), lwd=0.5, labels=F) }
+  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,90,5), lwd=0.5, labels=F) }
+  if (scale > 10) { axis(1, at=seq(-90,90,10), lwd=0.5, labels=F) }
+  axis(2)
 
-  # significance
-  if (!missing(signif)) {
-    x.polygon <- c(signif$null.hyp[1,], rev(signif$null.hyp[1,]))
-    y.polygon <- c(signif$null.hyp[4,], rev(signif$null.hyp[2,]))
-    polygon(x.polygon, y.polygon, border=NA, col=MESS::col.alpha('grey', 0.7))
-    lines(signif$null.hyp[1,], signif$null.hyp[3,], col='grey3')
-    abline(h=0)
-
-    tail <- signif$type
-    options(scipen=5)
-    if (signif$p.value > 0) {
-      text(xlim[2], max(curv$density), labels=bquote(paste('p'[.(tail)]*' = ', .(signif$p.value))), pos=2, cex=1.2)
-    } else {
-      text(xlim[2], max(curv$density), labels=bquote(paste('p'[.(tail)]*' < ', .(1/(signif$nsims+1)))), pos=2, cex=1.2)
-    }
+  xx <- c(); yy <- c()
+  for (i in 1:NROW(hh$data$density)) {
+    xx <- c(xx, hh$data$dec[i], hh$data$dec[i+1])
+    yy <- c(yy, rep(hh$data$density[i],2))
   }
+  lines(xx, yy, lwd=1.5, col=col)
+  if (shade) {
+    xp <- c(xx, rev(xx))
+    yp <- c(yy, rep(0, length(yy)))
+    polygon(xp, yp, col=MESS::col.alpha(col,0.5), border=NA)
+  }
+
+  box()
+  mtext(paste0('skyscapeR v',packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
 
   # objects
   if (!missing(obj)) {
@@ -163,6 +162,164 @@ plot.skyscapeR.curv = function(curv, obj, signif, obj.label=T, xlim=NULL, ...) {
   }
 }
 
+
+
+
+
+#' Plot a curvigram
+#'
+#' This function creates a plot of a curvigram.
+#' @param cc Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.
+#' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
+#' for displaying the declination of celestial objects.
+#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
+#' the curvigram. Defaults to \emph{TRUE}.
+#' @param col (Optional) Colour to plot the curvigram in. Defaults to blue.
+#' @param shade (Optional) Boolean to control whether to shade the curvigram in the same colour.
+#' Defaults to true.
+#' @param xlim Array of two values restricting the horizontal range of the plot.
+#' @param ylim Array of two values restricting the horizontal range of the plot.
+#' @import utils stats graphics
+#' @export
+#' @seealso \code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
+#' @examples
+#' # Plot the curvigram of Recumbent Stone Circles:
+#' data(RugglesRSC)
+#' curv <- curvigram(RugglesRSC$Dec, unc=2)
+#' plot(curv, xlim=c(-40,0))
+#'
+#' # Redo the plot to include lunar extreme declinations:
+#' LEx <- sky.objects('moon', -2000, col='red', lty=2)
+#' plot(curv, obj=LEx, xlim=c(-40,0))
+plot.skyscapeR.curv <- function(cc, obj, obj.label=T, col='blue', shade=T, xlim, ylim) {
+  if (missing(xlim)) { xlim <- sort(cc$data$dec[c(min(which(cc$data$density >= 1e-12)), max(which(cc$data$density >= 1e-12)))]) }
+  if (missing(ylim)) { ylim <- c(0, max(cc$data$density)) }
+  plot.default(cc$data$dec, cc$data$density, type='l', main='', xlab='Declination', ylab='Density', lwd=2, col=col, xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=F); box()
+  if (shade) {
+    xp <- c(cc$data$dec, rev(cc$data$dec))
+    yp <- c(cc$data$dens, rep(0, length(cc$data$dec)))
+    polygon(xp, yp, col=MESS::col.alpha(col,0.5), border=NA)
+  }
+  axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
+  axis(1, at=0, labels = 0)
+  scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
+  if (scale <= 2) { axis(1, at=seq(-90,90,0.5), lwd=0.2, labels=F) }
+  if (scale <= 5 & scale > 1) { axis(1, at=seq(-90,90,1), lwd=0.5, labels=F) }
+  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,90,5), lwd=0.5, labels=F) }
+  if (scale > 10) { axis(1, at=seq(-90,90,10), lwd=0.5, labels=F) }
+  axis(2)
+  mtext(paste0('skyscapeR v',packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
+
+  # objects
+  if (!missing(obj)) {
+    for (i in 1:obj$n) {
+      if (length(obj$epoch)==1) {
+        abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
+        if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+      } else {
+        xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
+        yp <- c(-1,-1,2,2)
+        polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
+        if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+      }
+    }
+  }
+}
+
+
+
+#' Plot significance test results
+#'
+#' This function creates a plot of the results of significance test
+#' @param sig Object of \emph{skyscapeR.sigTest} format, created using \code{\link{sigTest}}.
+#' @param xlim (Optional) Array of two values restricting the horizontal range of the plot.
+#' @param show.pval (Optional) Boolean to control whether the global p-value is written.
+#' Default is True.
+#' @param show.local (Optional) Boolean to control whether the local regions of significance
+#' are plotted. Default is False.
+#' @import utils stats graphics
+#' @export
+#' @seealso \code{\link{sigTest}}
+#' @examples
+#' \dontrun{
+#' data(RugglesRSC)
+#' curv <- curvigram(RugglesRSC$Dec, sd=2)
+#' sig <- sigTest(curv, null.hyp=nh.Uniform(c(57,2)))
+#'
+#' plot(sig, show.local=T)
+#' }
+plot.skyscapeR.sigTest <- function(sig, xlim, show.pval=T, show.local=F) {
+  # empirical
+  emp <- sig$data$empirical
+  if (missing(xlim)) { xlim <- sort(emp$data$dec[c(min(which(emp$data$density >= 1e-12)), max(which(emp$data$density >= 1e-12)))]) }
+  if (show.local) { ylim <- c(-max(emp$data$density)*.05,max(emp$data$density)) } else { ylim <- c(0,max(emp$data$density))}
+
+  if (sig$metadata$type=='hist') {
+    xx <- c(); yy <- c()
+    for (i in 1:NROW(emp$data$density)) {
+      xx <- c(xx, emp$data$dec[i], emp$data$dec[i+1])
+      yy <- c(yy, rep(emp$data$density[i],2))
+    }
+  } else {
+    xx <- emp$data$dec
+    yy <- emp$data$density
+  }
+  plot.default(xx, yy, type='l', main='', xlab='Declination', ylab='Density', lwd=2, col='blue', xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=F); box()
+  xp <- c(xx, rev(xx))
+  yp <- c(yy, rep(0, length(xx)))
+  polygon(xp, yp, col=MESS::col.alpha('blue',0.5), border=NA)
+  axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
+  axis(1, at=0, labels = 0)
+  scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
+  if (scale <= 2) { axis(1, at=seq(-90,90,0.5), lwd=0.2, labels=F) }
+  if (scale <= 5 & scale > 1) { axis(1, at=seq(-90,90,1), lwd=0.5, labels=F) }
+  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,90,5), lwd=0.5, labels=F) }
+  if (scale > 10) { axis(1, at=seq(-90,90,10), lwd=0.5, labels=F) }
+  axis(2)
+  mtext(paste0('skyscapeR v',packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
+
+  # sigtest
+  if (sig$metadata$type=='hist') {
+    yy1 <- c(); yy2 <- c(); yy3 <- c()
+    for (i in 1:NROW(sig$CE.mean)) {
+      yy1 <- c(yy1, rep(sig$data$CE.mean[i],2))
+      yy2 <- c(yy2, rep(sig$data$CE.upper[i],2))
+      yy3 <- c(yy3, rep(sig$data$CE.lower[i],2))
+    }
+  } else {
+    yy1 <- sig$data$CE.mean
+    yy2 <- sig$data$CE.upper
+    yy3 <- sig$data$CE.lower
+  }
+  lines(xx, yy1, col='grey')
+  xp <- c(xx, rev(xx))
+  yp <- c(yy2, rev(yy3))
+  polygon(xp, yp, col=MESS::col.alpha('grey', 0.5), border=NA)
+
+  # global p-value
+  if (show.pval) {
+    if (sig$metadata$global.p.value == 0 ) {
+      pval <- paste0("global p-value < ", round(1/(sig$metadata$nsims+1),4))
+    } else {
+      pval <- paste0('global p-value = ', sig$metadata$global.p.value)
+    }
+    text(par('usr')[2], abs(diff(par('usr')[3:4]))*.90, pos=2, pval, cex=0.7)
+  }
+
+  # regions of significance
+  if (show.local) {
+    abline(0,0, lwd=1)
+    aux <- as.matrix(sig$metadata$local[,1:3])
+    for (i in 1:NROW(aux)) {
+      if (sig$metadata$local[i,4] == '+') { col <- 'darkgreen' } else { col <- 'red' }
+      xp <- c(aux[i,1], aux[i,1], aux[i,2], aux[i,2])
+      yp <- c(ylim[1], 0, 0, ylim[1])
+      polygon(xp, yp, col=MESS::col.alpha(col, .4), border=NA)
+      # arrows(aux[i,1], ylim[1]/2, aux[i,2], ylim[1]/2, col='red', pch=3, angle=90, code=3, lwd=0.7, length=0.05)
+      text(mean(aux[i,1:2]), ylim[1]/2, labels=stars.pval(aux[i,3]), col='black', cex=0.9)
+    }
+  }
+}
 
 
 #' Plot horizon data
@@ -361,5 +518,29 @@ plot.skyscapeR.starphase = function(starphase, ...) {
       polygon(x.poly, y.poly, col=MESS::col.alpha(col[4], alpha=.3), border=NA)
       text(mean(ind.i),0.5,events[i], cex=0.7, font=2)
     }
+  }
+}
+
+
+#' Prints significance test results
+#'
+#' This function prints the results of \code{\link{sigTest}}.
+#' @param x Object of \emph{skyscapeR.sigTest} format.
+#' @export
+#' @seealso \code{\link{sigTest}}
+print.skyscapeR.sigTest <- function (x) {
+  cat("\n*** Results of Significance Test ***\n\n")
+  cat(paste0('2-tailed test at ',x$metadata$conf*100,'% confidence, based on ', x$metadata$nsims, ' simulations.\n'))
+
+  if (x$metadata$global.p.value == 0) {
+    p.value <- paste0("< ", round(1/(x$metadata$nsims+1),3))
+  } else { p.value <- x$metadata$global.p.value }
+  cat(paste0('global p-value: ', p.value, ' (',stars.pval(p.value),')\n'))
+  cat('local p-values:\n')
+  for (i in 1:NROW( x$metadata$local)) {
+    if (x$metadata$local[i,]$p.value == 0) {
+      p.value <- paste0("< ", round(1/(x$metadata$nsims+1),3))
+    } else { p.value <- x$metadata$local[i,]$p.value }
+    cat(paste0('      ',x$metadata$local[i,]$type,'  dec range [',round(x$metadata$local[i,]$startDec,2), ', ',round(x$metadata$local[i,]$endDec,2),'] :: p-value: ', p.value, ' (',stars.pval(p.value),')\n'))
   }
 }

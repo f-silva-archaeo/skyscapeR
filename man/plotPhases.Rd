@@ -14,6 +14,9 @@ plotPhases(starphase, ...)
 \description{
 This function creates a plot of stellar seasonality and phases/events.
 }
+\details{
+This function is deprecated. Please see \code{\link{plot.skyscapeR.starphase}} instead.
+}
 \examples{
 # Plot the seasonality of Aldebaran for 3999 BCE:
 \dontrun{

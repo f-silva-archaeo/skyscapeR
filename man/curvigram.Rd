@@ -4,7 +4,7 @@
 \alias{curvigram}
 \title{Computes declination curvigram}
 \usage{
-curvigram(dec, unc = 2, norm = F, cut = 4, range, n = 512)
+curvigram(dec, unc = 2, norm = F, cut = 4, range, n = 1024)
 }
 \arguments{
 \item{dec}{Array of declination values.}

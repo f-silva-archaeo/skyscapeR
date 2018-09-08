@@ -7,7 +7,7 @@
 #' @param loc Location, a vector containing the latitude and longitude of
 #' the location, in this order.
 #' @param name Name of site.
-#' @seealso \code{\link{plot.skyscape.hor}}
+#' @seealso \code{\link{plot.skyscapeR.horizon}}
 #' @export
 #' @examples
 #' # Create a skyscapeR.horizon from 5 measurements:
@@ -39,7 +39,7 @@ createHor = function(az, alt, loc, name) {
 #' @param description (Optional) Description, to be included in \emph{landscape.ini} file.
 #' @param ground_col Colour of ground. Defaults to \emph{Stellarium}'s default.
 #' @param hor_col Colour of horizon line. Defaults to \emph{Stellarium}'s default.
-#' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscape.hor}}
+#' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscapeR.horizon}}
 #' @references \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
 #' @export
 #' @import utils
@@ -48,7 +48,7 @@ createHor = function(az, alt, loc, name) {
 #' hor <- download.HWT('HIFVTBGK')
 #' exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor_col) {
-  if (class(hor) != 'skyscapeR.horizon') { stop('No skyscapeR.hor object found.') }
+  if (class(hor) != 'skyscapeR.horizon') { stop('No skyscapeR.horizon object found.') }
 
   if (missing(name)) { name = hor$name }
   if (missing(description)) { description <- paste0("Horizon created using skyscapeR ", packageVersion('skyscapeR'), ".") }

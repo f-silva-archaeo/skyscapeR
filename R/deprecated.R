@@ -9,16 +9,15 @@
 #' @param alt (Optional) The horizon altitude to use in
 #' \code{\link{az2dec}} conversion. Defaults to 0 degrees.
 #' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{nh.SummerFM}}, \code{\link{nh.SolarRange}}
+#' @seealso \code{\link{sigTest}}
 #' @examples
 #' \dontrun{
 #' aux <- nh.Uniform(loc=c(52,-2), alt=2)
 #' plot(aux$dec, aux$density, type='l')
 #' }
-#' @details This function is deprecated. Please use \code{\link{distRandom}} instead.
+#' @details This function is deprecated. Please see \code{\link{sigTest}} instead.
 nh.Uniform = function(loc, alt=0) {
-  .Deprecated(distRandom)
-  distRandom(loc, alt)
+  .Defunct('sigTest')
 }
 
 
@@ -30,16 +29,15 @@ nh.Uniform = function(loc, alt=0) {
 #' @param year Year for which to calculate the distribution.
 #' Defaults to present year as given by Sys.Date()
 #' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}
+#' @seealso \code{\link{sigTest}}
 #' @examples
 #' \dontrun{
 #' aux <- nh.SolarRange(-4000)
 #' plot(aux$dec, aux$density, type='l')
 #' }
-#' @details This function is deprecated. Please use \code{\link{distSolarRange}} instead.
+#' @details This function is deprecated. Please see \code{\link{sigTest}} instead.
 nh.SolarRange = function(year = cur.year) {
-  .Deprecated(distSolarRange)
-  distSolarRange(year)
+  .Defunct('sigTest')
 }
 
 
@@ -51,16 +49,15 @@ nh.SolarRange = function(year = cur.year) {
 #' @param year Year for which to calculate the distribution.
 #' Defaults to present year as given by Sys.Date()
 #' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}
+#' @seealso \code{\link{sigTest}}
 #' @examples
 #' \dontrun{
 #' aux <- nh.SolarRange(-4000)
 #' plot(aux$dec, aux$density, type='l')
 #' }
-#' @details This function is deprecated. Please use \code{\link{distLunarRange}} instead.
+#' @details This function is deprecated. Please see \code{\link{sigTest}} instead.
 nh.LunarRange = function(year = cur.year) {
-  .Deprecated(distLunarRange)
-  distLunarRange(year)
+  .Defunct('sigTest')
 }
 
 
@@ -80,16 +77,15 @@ nh.LunarRange = function(year = cur.year) {
 #' @param year Year for which to calculate the obliquity.
 #' Defaults to present year as given by Sys.Date()
 #' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SolarRange}}
+#' @seealso \code{\link{sigTest}}
 #' @examples
 #' \dontrun{
 #' aux <- nh.SummerFM(.99, 20, -4000)
 #' plot(aux$dec, aux$density, type='l')
 #' }
-#' @details This function is deprecated. Please use \code{\link{distSummerFM}} instead.
+#' @details This function is deprecated. Please see \code{\link{sigTest}} instead.
 nh.SummerFM = function(min.phase = .99, min.sundec = 20, year = cur.year) {
-  .Deprecated(distSummerFM)
-  distSummerFM(min.phase, min.sundec, year)
+  .Defunct('sigTest')
 }
 
 
@@ -101,14 +97,13 @@ nh.SummerFM = function(min.phase = .99, min.sundec = 20, year = cur.year) {
 #' for displaying the declination of celestial objects.
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
 #' the curvigram. Defaults to \emph{TRUE}.
-#' @param signif (Optional) A \emph{skyscapeR.sig} object created with \code{\link{sigTest}}
-#' for displaying confidence envelope around the chosen null hypothesis and overall p-value.
 #' @param xlim Array of two values restricting the horizontal range of the plot.
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @import utils stats graphics
 #' @export
 #' @seealso \code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
 #' @examples
+#' \dontrun{
 #' # Plot the curvigram of Recumbent Stone Circles:
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, unc=2)
@@ -116,17 +111,14 @@ nh.SummerFM = function(min.phase = .99, min.sundec = 20, year = cur.year) {
 #'
 #' # Redo the plot to include lunar extreme declinations:
 #' LEx <- sky.objects('moon', -2000, col='red', lty=2)
-#' plotCurv(curv, objects=LEx, xlim=c(-40,0))
-#'
-#' # Add significance testing information:
-#' \dontrun{
-#' sig <- sigTest(curv, nh.Uniform(c(57,2)))
-#' plotCurv(curv, objects=LEx, signif=sig, xlim=c(-40,0))
+#' plotCurv(curv, obj=LEx, xlim=c(-40,0))
 #' }
-plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
-  .Deprecated(plot.skyscapeR.curv)
+#' @details This function is deprecated. Please see \code{\link{plot.skyscapeR.curv}} instead.
+
+plotCurv = function(curv, obj, obj.label=T, xlim=NULL, ...) {
+  .Defunct('plot.skyscapeR.curv')
   if (class(curv)!='skyscapeR.curv') { stop('No skyscapeR.curv object found.') }
-  plot(curv, obj, signif, obj.label, xlim, ...)
+  plot(curv, obj, obj.label, xlim=xlim, ...)
 }
 
 
@@ -151,6 +143,7 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
 #' @import utils stats graphics grDevices
 #' @seealso \code{\link{download.HWT}}, \code{\link{sky.objects}}
 #' @examples
+#' \dontrun{
 #' # Plot a horizon retrieved from HeyWhatsThat:
 #' hor <- download.HWT('HIFVTBGK')
 #' plotHor(hor)
@@ -158,8 +151,10 @@ plotCurv = function(curv, obj, obj.label=T, signif, xlim=NULL, ...) {
 #' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
 #' tt <- sky.objects('sun', -2000, 'blue')
 #' plotHor(hor, objects=tt)
+#' }
+#' @details This function is deprecated. Please see \code{\link{plot.skyscapeR.horizon}} instead.
 plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...) {
-  .Deprecated(plot.skyscapeR.hor)
+  .Defunct('plot.skyscapeR.horizon')
   if (class(hor)!='skyscapeR.horizon') { stop('No skyscapeR.horizon object found.') }
   plot(hor, show.az, max.alt, az0, zoom, obj, measure, ...)
 }
@@ -179,8 +174,9 @@ plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...)
 #' ss <- star.phases('Aldebaran',-4000, c(35,-8))
 #' plotPhases(ss)
 #' }
+#' @details This function is deprecated. Please see \code{\link{plot.skyscapeR.starphase}} instead.
 plotPhases = function(starphase, ...) {
-  .Deprecated(plot.skyscapeR.starphase)
+  .Defunct('plot.skyscapeR.starphase')
   if (class(starphase)!='skyscapeR.starphase') { stop('No skyscapeR.starphase object found.') }
   plot(starphase, ...)
 }
@@ -195,8 +191,8 @@ plotPhases = function(starphase, ...) {
 #' @import utils stats graphics
 #' @noRd
 plotOrb<- function(orbit, col) {
-  .Deprecated(plot.skyscapeR.orbit)
-  if (class(starphase)!='skyscapeR.orbit') { stop('No skyscapeR.orbit object found.') }
+  .Defunct('plot.skyscapeR.orbit')
+  if (class(orbit)!='skyscapeR.orbit') { stop('No skyscapeR.orbit object found.') }
   plot(orbit, col)
 }
 
@@ -221,6 +217,7 @@ plotOrb<- function(orbit, col) {
 #'
 #' plotZscore(sig)
 #' }
+#' @details This function is deprecated. Please see \code{\link{plot.skyscapeR.sigTest}} instead.
 plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
-  .Deprecated(plot.skyscapeR.curv)
+  .Defunct('plot.skyscapeR.sigTest')
 }

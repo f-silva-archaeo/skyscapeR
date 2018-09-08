@@ -28,5 +28,5 @@ hor <- createHor(az, alt, c(40.1,-8), 'Test')
 plot(hor)
 }
 \seealso{
-\code{\link{plot.skyscape.hor}}
+\code{\link{plot.skyscapeR.horizon}}
 }

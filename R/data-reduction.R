@@ -94,7 +94,7 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt, name, ID,
 #' containing the latitude and longitude of location, in this order.
 #' @param mag.az Array of magnetic azimuth measurements.
 #' @param date (Optional) Date of measurements as a string in the format: 'YYYY/MM/DD'.
-#' Only necessary is \emph{magdec} is not given.
+#' Only necessary if \emph{magdec} is not given.
 #' @param magdec (Optional) Magnetic declination, if known.
 #' @param alt (Optional) Altitude, necessary for automatic declination calculation.
 #' If missing and \emph{loc} is a \emph{skyscapeR.horizon} object then the altitude

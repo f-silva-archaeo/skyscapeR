@@ -1,305 +1,159 @@
 #' Perform a null hypothesis significance test of a given curvigram
 #'
-#' This function performs a null hypothesis significance test, for a given curvigram
-#' and null hypothesis and outputs a p-value as well as all the information needed for
-#' ancillary plotting.
-#' @param curv Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}
-#' @param null.hyp Object of \emph{skyscapeR.nh} format, created with one of the Null Hypothesis models
-#' of \emph{skyscapeR} (see See Also section below).
-#' @param level (Optional) Level of confidence for p-value calculation and output. Defaults to 0.95,
-#' i.e. a 95\% confidence envelope.
-#' @param type (Optional) Whether the test is to be '1-tailed' or '2-tailed'. Defaults to '1-tailed'.
+#' This function performs a null hypothesis significance test, for a given dataset
+#' and outputs a p-value as well as all the information needed for  plotting.
+#' @param data Data frame including latitude, azimuth and horizon altitude of sites, created
+#' using \code{\link{reduct.compass}} or \code{\link{reduct.theodolite}}.
+#' @param type (Optional) Type of data visualizarion you want to conduct the test on. Current
+#' options are 'curv' for \code{\link{curvigram}} and 'hist' for \code{\link{histogram}}. Defaults to 'curv' for curvigram.
+#' @param ncores (Optional) Number of processing cores to use for parallelisation. Defaults to the number of
+#' available cores minus 1.
 #' @param nsims (Optional) Number of simulations to run. The higher this number the slower this process will
 #' be, but the lower it is the less power the method has. Defaults to 2000 as a base minimum to test for
 #' significance at the p=0.0005 level, but the recommended value is 10,000.
-#' @param ncores (Optional) Number of processing cores to use for parallelisation. Defaults to the number of
-#' available cores minus 1.
+#' @param conf (Optional) Confidence level for p-value calculation and output. Defaults to 0.95,
+#' i.e. a 95\% confidence envelope.
+#' @param prec (Optional) Smallest possible azimuth for the random sampler, i.e. precision being considered.
+#' Defaults to 0.01º.
+#' @param range (Optional) Range of declination values to consider.
+#' @param verbose (Optional) Boolean to decide whether or not
+#' @param ... Other parameters to be passed on to \code{\link{histogram}} or \code{\link{curvigram}}, as appropriate.
 #' @export
-#' @import parallel foreach numDeriv doParallel
+#' @import parallel foreach doParallel
 #' @importFrom rootSolve uniroot.all
-#' @seealso \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}, \code{\link{plotCurv}}, \code{\link{plotZscore}}
+#' @seealso \code{\link{reduct.compass}}, \code{\link{reduct.theodolite}}
 #' @examples
 #' \dontrun{
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, sd=2)
-#' sig <- sigTest(curv, null.hyp=nh.Uniform(c(57,2)))
+#' sig <- sigTest(curv, )
 #'
-#' plot(curv, signif=sig)
+#' plot(sig)
 #' }
-sigTest = function(curv, null.hyp, level=.95, type='1-tailed', nsims=2000, ncores) {
-  requireNamespace('foreach')
-  # redo curvigram with fixed range
-  N <- length(curv$mes)
-  raw <- curv$mes; mes.unc <- curv$mes.unc
-  range <- c(min(null.hyp$dec)-10, max(null.hyp$dec)+10) ######  change number of points as well?
-  curv <- curvigram(raw, unc=mes.unc, range=range)
+sigTest <- function(data, type='curv', ncores=parallel::detectCores()-1, nsims=2000, conf=.95, prec=.01, range, verbose=T, ...) {
 
-  # monte carlo resampling
-  if (missing(ncores)) { ncores <-  parallel::detectCores()-1 }
-  cl <- parallel::makeCluster(ncores, type = "PSOCK")
-  parallel::clusterEvalQ(cl, library(skyscapeR))
+  ### TODO sort out data input bit
+  az <- data$az
+  az.unc <- data$az.unc
+  lat <- data$lat
+  alt <- data$alt
+
+  decs <- az2dec(az, lat, alt)
+  unc <- pmax(abs(az2dec(az-az.unc, lat, alt) - az2dec(az, lat, alt)) , abs(az2dec(az, lat, alt) - az2dec(az+az.unc, lat, alt)))
+
+  if (type=='hist') {
+    ff <- histogram
+    tt <- 'Histogram'
+  } else if (type=='curv') {
+    ff <- curvigram
+    tt <- 'Curvigram'
+  } else {
+    stop('Type not recognized.')
+  }
+
+  ## empirical SPD
+  if (verbose) { cat(paste0('Creating Empirical ', tt, '...')) }
+  if (!missing(range)) {
+    empirical <- ff(decs, unc, ...)
+  } else {
+    empirical <- ff(decs, unc, ...)
+    range <- empirical$metadata$range
+  }
+  norm <- empirical$metadata$norm
+  if (verbose) { cat('Done.\n') }
+
+
+  ## bootstrapping
+  cl <- parallel::makeCluster(ncores)
   doParallel::registerDoParallel(cl)
-  foreach::getDoParWorkers()
-  message(paste0('Running calculations on ', ncores, ' processing cores. This may take a while...'))
+  parallel::clusterEvalQ(cl, library(skyscapeR))
+  if (verbose) { cat(paste0('Running ', nsims,' simulations on ', ncores, ' processing cores. This may take a while...')) }
 
-  res <- foreach (i = 1:(1.2*nsims), .combine=rbind, .inorder = F, .errorhandling = 'remove') %dopar% {
-    simData <- sample(null.hyp$dec, N, prob=null.hyp$density, replace=T)
-    simCurv <- curvigram(simData, unc=mes.unc, range=range)
-
-    simCurv$density
+  res <- matrix(NA, nsims, length(empirical$y))
+  res <- foreach(i = 1:nsims, .combine=rbind, .inorder = F) %dopar% {
+    simAz <- sample(seq(0, 360, prec), length(az), replace=T)
+    simUnc <- sample(unc, replace=F)
+    simDecs <- az2dec(simAz, lat, alt)
+    # c(ks.test(decs, simDecs)$p.value, ff(simDecs, unc, ...)$density)
+    ff(simDecs, unc, norm = norm, range = range)$data$density
   }
   parallel::stopCluster(cl)
+  if (verbose) { cat('Done.\n') }
 
-  if (NROW(res) > nsims) { res <- res[1:nsims,] }
-  if (NROW(res) < nsims) { stop('oops')  }
+  # KS test p-values
+  # ks <- as.numeric(res[,1])
+  # res <- res[,-1]
 
-  # z-score transformation
-  zScore.sim <- matrix(0, nrow=nsims, ncol=length(curv$density))
+  ## confidence envelope
+  zScore.sim <- matrix(0, nrow=nsims, ncol=length(empirical$data$density))
   zMean <- colMeans(res)
   zStd <- apply(res, 2, sd)
 
-  zScore.emp <- (curv$density - zMean)/zStd
-  for (i in 1:nsims) {
-    zScore.sim[i,] <- (res[i,] - zMean)/zStd
-  }
+  zScore.emp <- (empirical$data$density - zMean)/zStd
+  zScore.sim <- apply(res, 2, scale)
 
-  # confidence interval
-  if (type=='2-tailed') {
-    lvl.up <- 1-(1-level)/2
-    lvl.dn <- (1-level)/2
-    message(paste0('Performing a 2-tailed test at the ',level*100, '% significance level.'))
-  } else if (type=='1-tailed') {
-    lvl.up <- level
-    lvl.dn <- 0
-    message(paste0('Performing a 1-tailed test at the ',level*100, '% significance level.'))
-  }
-  upper <- apply(zScore.sim, 2, quantile, lvl.up, na.rm=T)
-  lower <- apply(zScore.sim, 2, quantile, lvl.dn, na.rm=T)
+  if (verbose) { cat(paste0('Performing a 2-tailed test at the ', conf*100, '% significance level.\n')) }
+  lvl.up <- 1-(1-conf)/2; lvl.dn <- (1-conf)/2
+  upper <- apply(zScore.sim, 2, quantile, probs = lvl.up, na.rm = T)
   upCI <- zMean + upper*zStd
+  upCI[is.na(upCI)] <- 0
+  lower <- apply(zScore.sim, 2, quantile, probs = lvl.dn, na.rm = T)
   loCI <- zMean + lower*zStd
+  loCI[is.na(loCI)] <- 0
 
-  # global p-value
-  area.up <- zScore.emp - upper; area.up[area.up<0] <- NA; stat.emp <- sum(area.up, na.rm=T)
-  if (type=='2-tailed') { area.dn <- lower - zScore.emp ; area.dn[area.dn<0] <- NA; stat.emp <- stat.emp + sum(area.dn, na.rm=T)}
+  ## global p-value
+  above <- which(zScore.emp > upper); emp.stat <- sum(zScore.emp[above] - upper[above])
+  below <- which(zScore.emp < lower); emp.stat <- emp.stat + sum(lower[below] - zScore.emp[below])
 
-  np.sims <- 0
-  for (i in 1:nsims) {
-    area.up <- zScore.sim[i,] - upper; area.up[area.up<0] <- NA; stat.sim <- sum(area.up, na.rm=T)
-    if (type=='2-tailed') { area.dn <- lower - zScore.sim[i,] ; area.dn[area.dn<0] <- NA; stat.sim <- stat.sim + sum(area.dn, na.rm=T)}
-    if (stat.sim >= stat.emp) {np.sims <- np.sims + 1}
+  sim.stat <- abs(apply(zScore.sim, 1, function(x,y) { a = x-y; i = which(a>0); return(sum(a[i])) }, y = upper))
+  sim.stat <- sim.stat + abs(apply(zScore.sim, 1, function(x,y) { a = y-x; i = which(a>0); return(sum(a[i])) }, y = lower))
+  global.p <- round( 1 - ( length(sim.stat[sim.stat < emp.stat]) + 1 ) / ( nsims + 1 ), 5)
+
+  ## local p-value
+  ind <- split(above, cumsum(c(1,diff(above) > 1))); ind <- ind[which(lengths(ind) > 1)]
+  local <- data.frame(startDec=0, endDec=0, p.value=0, type=NA)
+  if (length(ind)>0) {
+    for (j in 1:NROW(ind)) {
+      emp.stat <- sum(zScore.emp[ind[[j]]] - upper[ind[[j]]])
+
+      sim.stat <- abs(apply(zScore.sim[,ind[[j]]], 1, function(x,y) { a = x-y; i = which(a>0); return(sum(a[i])) }, y = upper[ind[[j]]]))
+      # sim.stat <- sim.stat + abs(apply(zScore.sim[,ind[[j]]], 1, function(x,y) { a = y-x; i = which(a>0); return(sum(a[i])) }, y = lower[ind[[j]]]))
+
+      local[j,]$startDec <- min(empirical$data$dec[ind[[j]]])
+      local[j,]$endDec <- max(empirical$data$dec[ind[[j]]])
+      local[j,]$p.value <- round( 1 - ( length(sim.stat[sim.stat < emp.stat]) + 1 ) / ( nsims + 1 ), 5)
+      local[j,]$type <- '+'
+    }
   }
-  pval <- (np.sims + 1) / (nsims + 1)
 
-  # zScores of peaks
-  func0 <- splinefun(curv$dec, zScore.emp)
-  fd <- numDeriv::grad(func0,curv$dec); func1 <- splinefun(curv$dec,fd)
-  sd <- numDeriv::grad(func1,curv$dec); func2 <- splinefun(curv$dec,sd)
-  roots <- rootSolve::uniroot.all(func1, interval= range)
-  ind <- which(func2(roots) < 0); maxima <- roots[ind]
-  ind <- which(is.finite(zScore.emp))
-  funcZ <- splinefun(curv$dec[ind], zScore.emp[ind])
-  sigma <- funcZ(maxima)
+  ind <- split(below, cumsum(c(1,diff(below) > 1))); ind <- ind[which(lengths(ind) > 1)]
+  if (length(ind)>0) {
+    for (k in 1:NROW(ind)) {
+      emp.stat <- sum(lower[ind[[k]]] - zScore.emp[ind[[k]]])
 
-  datarange <- c(min(curv$mes) - 4*max(curv$mes.unc), max(curv$mes) + 4*max(curv$mes.unc))
-  ind <- which(maxima <= datarange[1] | maxima >= datarange[2]); if (length(ind) > 0) { maxima <- maxima[-ind]; sigma <- sigma[-ind] }
+      # sim.stat <- abs(apply(zScore.sim[,ind[[k]]], 1, function(x,y) { a = x-y; i = which(a>0); return(sum(a[i])) }, y = upper[ind[[k]]]))
+      sim.stat <- abs(apply(zScore.sim[,ind[[k]]], 1, function(x,y) { a = y-x; i = which(a>0); return(sum(a[i])) }, y = lower[ind[[k]]]))
 
-  # output
-  out <- c()
-  out$p.value <- pval
-  out$level <- level
-  out$type <- type
-  out$maxima <- rbind(maxima,sigma); rownames(out$maxima) <- c('dec','zScore')
-  out$nsims <- nsims
-  out$null.hyp <- rbind(curv$dec,loCI,zMean,upCI); rownames(out$null.hyp) <- c('dec',paste0(as.character(lvl.dn*100),'%'),'mean',paste0(as.character(lvl.up*100),'%'))
-  out$null.hyp.z <- rbind(curv$dec,lower,zScore.emp,upper); rownames(out$null.hyp.z) <- c('dec',paste0(as.character(lvl.dn*100),'%'),'zScore',paste0(as.character(lvl.up*100),'%'))
-  out$data.range <- datarange
-  class(out) <- 'skyscapeR.sig'
-  return(out)
-}
-
-
-
-
-#' Declination distribution corresponding to a uniform azimuthal
-#' distribution
-#'
-#' This function returns the declination distribution that
-#' corresponds to a uniform distribution in azimuths (i.e. random
-#'  orientation). It can be used for significance testing.
-#' @param loc This can be either the latitude of the
-#' location, or a \emph{skyscapeR.horizon} object.
-#' @param alt (Optional) The horizon altitude to use in
-#' \code{\link{az2dec}} conversion. Defaults to 0 degrees.
-#' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{distSummerFM}}, \code{\link{distSolarRange}}, \code{\link{distLunarRange}}
-#' @examples
-#' \dontrun{
-#' aux <- distRandom(loc=c(52,-2), alt=2)
-#' plot(aux$dec, aux$density, type='l')
-#' }
-distRandom = function(loc, alt=0) {
-  if (class(loc) == 'skyscapeR.horizon') { loc <- loc$georef }
-
-  xx <- seq(0, 360, .01)
-  ddd <- sapply(xx, az2dec, loc, alt)
-  aux <- density(ddd, bw=0.1)
-
-  out <- c()
-  out$type <- 'distRandom'
-  out$param$loc <- loc
-  out$param$alt <- alt
-  out$dec <- aux$x
-  out$density <- aux$y
-  class(out) <- 'skyscapeR.dist'
-
-  return(out)
-}
-
-
-#' Declination distribution of the Sun throughout the year
-#'
-#' This function returns the declination distribution of
-#' the the Sun throughout the year. It can be used for significance testing.
-#' @param year Year for which to calculate the distribution.
-#' Defaults to present year as given by Sys.Date()
-#' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{distRandom}}, \code{\link{distSummerFM}}, \code{\link{distLunarRange}}
-#' @examples
-#' \dontrun{
-#' aux <- distSolarRange(-4000)
-#' plot(aux$dec, aux$density, type='l')
-#' }
-distSolarRange = function(year = cur.year) {
-  options(warn=-1)
-  jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000
-  xx <- seq(jd0, jd0+365*50,1)
-  sundec <- astrolibR::sunpos(xx)$dec
-  aux <- density(sundec, 0.1)
-  options(warn=0)
-
-  out <- c()
-  out$type <- 'distSolarRange'
-  out$param$year <- year
-  out$dec <- aux$x
-  out$density <- aux$y
-  class(out) <- 'skyscapeR.dist'
-
-  return(out)
-}
-
-
-#' Declination distribution of the Moon throughout the year
-#'
-#' This function returns the declination distribution of
-#' the the Sun throughout the year. It can be used for significance testing.
-#' @param year Year for which to calculate the distribution.
-#' Defaults to present year as given by Sys.Date()
-#' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{distRandom}}, \code{\link{distSummerFM}}, \code{\link{distSolarRange}}
-#' @examples
-#' \dontrun{
-#' aux <- distLunarRange(-4000)
-#' plot(aux$dec, aux$density, type='l')
-#' }
-distLunarRange = function(year = cur.year) {
-  options(warn=-1)
-  jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000
-  xx <- seq(jd0, jd0+365*200,1)
-  moondec <- astrolibR::moonpos(xx)$dec
-  aux <- density(moondec)
-  options(warn=0)
-
-  out <- c()
-  out$type <- 'distMoonRange'
-  out$param$year <- year
-  out$dec <- aux$x
-  out$density <- aux$y
-  class(out) <- 'skyscapeR.dist'
-
-  return(out)
-}
-
-
-#' Declination distribution of the Summer Full Moon
-#'
-#' This function returns the declination distribution of
-#' the Summer Full Moon. It can be used for significance testing.
-#' @param min.phase (Optional) This should be the minimum
-#'  lunar phase (i.e. percentage illumination) for the moon
-#'   to be considered full. The value should range between
-#'   0 (dark moon) and 1 (full moon). Defaults to 0.99.
-#' @param min.sundec (Optional) This should be the minimum
-#' solar declination for the moon to be considered a
-#' \emph{summmer} full moon. Defaults to 20 degrees,
-#' corresponding to a month before or after june solstice.
-#' @param year Year for which to calculate the distribution.
-#' Defaults to present year as given by Sys.Date()
-#' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{distRandom}}, \code{\link{distSolarRange}}, \code{\link{distLunarRange}}
-#' @examples
-#' \dontrun{
-#' aux <- distSummerFM(.99, 20, -4000)
-#' plot(aux$dec, aux$density, type='l')
-#' }
-distSummerFM = function(min.phase = .99, min.sundec = 20, year = cur.year) {
-  options(warn=-1)
-  jd0 <- astrolibR::juldate(c(year-100,1,1,12)) + 2400000
-  xx <- seq(jd0, jd0+365*200,1)
-  mp <- astrolibR::mphase(xx)
-  sundec <- astrolibR::sunpos(xx)$dec
-  ind <- which(mp >= min.phase & sundec >= min.sundec)
-  dec <- astrolibR::moonpos(xx[ind])$dec
-  # diff <- obliquity(1900)- obliquity(year); dec <- dec + diff        # another way to time-shift
-  aux <- density(dec)
-  options(warn=0)
-
-
-  out <- c()
-  out$type <- 'distSummerFM'
-  out$param$min.phase <- min.phase
-  out$param$min.sundec <- min.sundec
-  out$param$year <- year
-  out$dec <- aux$x
-  out$density <- aux$y
-  class(out) <- 'skyscapeR.dist'
-
-  return(out)
-}
-
-
-#' Declination distribution of the Brightest Stars
-#'
-#' This function returns the declination distribution of
-#' the brightest stars. It can be used for significance testing.
-#' @param brightest (Optional) This should be the number of
-#' bright stars to be considered. Defaults to 20.
-#' @param precision (Optional) This should be the intended
-#' precision for each declination. Defaults to 2º.
-#' @param year Year for which to calculate the distribution
-#' Defaults to present year as given by Sys.Date().
-#' @export
-#' @seealso \code{\link{sigTest}}, \code{\link{distRandom}}, \code{\link{distSolarRange}}, \code{\link{distLunarRange}}
-#' @examples
-#' aux <- distStars(10, 1, -4000)
-#' plot(aux$dec, aux$density, type='l')
-distStars = function(brightest = 20, precision = 2, year = cur.year) {
-  options(warn=-1)
-  ss <- c()
-  for (i in 1:brightest) {
-    ss[i] <- star(as.character(stars[i,]$NAME), year)$dec
+      local[j+k,]$startDec <- min(empirical$data$dec[ind[[k]]])
+      local[j+k,]$endDec <- max(empirical$data$dec[ind[[k]]])
+      local[j+k,]$p.value <- round( 1 - ( length(sim.stat[sim.stat < emp.stat]) + 1 ) / ( nsims + 1 ), 5)
+      local[j+k,]$type <- '-'
+    }
   }
-  aux <- density(ss, bw=precision)
-  options(warn=0)
 
-
+  ## output
   out <- c()
-  out$type <- 'distStars'
-  out$param$brightest <- brightest
-  out$param$precision <-precision
-  out$param$year <- year
-  out$dec <- aux$x
-  out$density <- aux$y
-  class(out) <- 'skyscapeR.dist'
+  out$metadata$type <- type
+  out$metadata$nsims <- nsims
+  out$metadata$conf <- conf
+  out$metadata$global.p.value <- global.p
+  out$metadata$local <- local
+  out$data$CE.mean <- zMean
+  out$data$CE.upper <- upCI
+  out$data$CE.lower <- loCI
+  out$data$empirical <- empirical
+  # out$data$ks.p.values <- ks
+  class(out) <- 'skyscapeR.sigTest'
 
   return(out)
 }

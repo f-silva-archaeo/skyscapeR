@@ -1,4 +1,17 @@
 #' @noRd
+stars.pval <- function(p.value) {
+if (class(p.value)=='character') { p.value <- as.numeric(substr(p.value, 3,nchar(p.value))) }
+out <- symnum(p.value, corr = FALSE, na = FALSE,
+              cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+              symbols = c("***", "**", "*", "+", "ns"), legend=F)
+return(as.character(out))
+}
+
+#' @noRd
+dnorm <- function(x, mean, sd) {
+  return(exp(-(x-mean)^2/(2*sd^2)) / sqrt(2*pi*sd^2)) }  ## replaces R function (twice as fast)
+
+#' @noRd
 tWS <- function(days, year) {
   WS <- findWS(year)$ind
   aux <- days-WS

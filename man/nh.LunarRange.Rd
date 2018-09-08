@@ -16,7 +16,7 @@ This function returns the declination distribution of
 the the Sun throughout the year for use in significance testing.
 }
 \details{
-This function is deprecated. Please use \code{\link{distLunarRange}} instead.
+This function is deprecated. Please see \code{\link{sigTest}} instead.
 }
 \examples{
 \dontrun{
@@ -25,5 +25,5 @@ plot(aux$dec, aux$density, type='l')
 }
 }
 \seealso{
-\code{\link{sigTest}}, \code{\link{nh.Uniform}}, \code{\link{nh.SummerFM}}
+\code{\link{sigTest}}
 }

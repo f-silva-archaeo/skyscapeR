@@ -4,7 +4,8 @@
 \alias{plotHor}
 \title{Plot horizon data}
 \usage{
-plotHor(hor, show.az = F, max.alt, az0 = 0, zoom = F, obj, measure, ...)
+plotHor(hor, show.az = F, max.alt, az0 = 0, zoom = F, obj, measure,
+  ...)
 }
 \arguments{
 \item{hor}{Object of \emph{skyscapeR.horizon} format.}
@@ -32,7 +33,11 @@ plot all azimuths are zero degrees altitude.}
 \description{
 This function creates a plot of horizon data.
 }
+\details{
+This function is deprecated. Please see \code{\link{plot.skyscapeR.horizon}} instead.
+}
 \examples{
+\dontrun{
 # Plot a horizon retrieved from HeyWhatsThat:
 hor <- download.HWT('HIFVTBGK')
 plotHor(hor)
@@ -40,6 +45,7 @@ plotHor(hor)
 # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
 tt <- sky.objects('sun', -2000, 'blue')
 plotHor(hor, objects=tt)
+}
 }
 \seealso{
 \code{\link{download.HWT}}, \code{\link{sky.objects}}

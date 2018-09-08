@@ -21,6 +21,9 @@ the curvigram. Defaults to \emph{TRUE}.}
 This function creates a plot of a z-score transformed curvigram, which is to say the
 curvigram transformed into sigma units, based on a previously generated significance test.
 }
+\details{
+This function is deprecated. Please see \code{\link{plot.skyscapeR.sigTest}} instead.
+}
 \examples{
 \dontrun{
 data(RugglesRSC)

@@ -4,7 +4,8 @@
 \alias{exportHor}
 \title{Exports a \emph{skyscapeR.horizon} object into \emph{Stellarium} format}
 \usage{
-exportHor(hor, name, author = "skyscapeR", description, ground_col, hor_col)
+exportHor(hor, name, author = "skyscapeR", description, ground_col,
+  hor_col)
 }
 \arguments{
 \item{hor}{Horizon data in \emph{skyscapeR.horizon} format.}
@@ -33,5 +34,5 @@ exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
 }
 \seealso{
-\code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscape.hor}}
+\code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscapeR.horizon}}
 }
