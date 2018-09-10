@@ -94,7 +94,7 @@ curvigram <- function(dec, unc = 2, norm = F, cut = 4, range) {
     sd <- dens$bw
 
   } else {
-    xx <- seq(-90,90, length.out = 0.01)
+    xx <- seq(-90,90, by = 0.01)
     spd <- array(0, NROW(xx))
     for (i in 1:NROW(dec)) {
       spd <- spd + dnorm(xx, dec[i], unc[i])
