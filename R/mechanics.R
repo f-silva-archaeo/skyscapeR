@@ -160,11 +160,13 @@ orbit = function(dec, loc, res=0.5, ...) {
 #' "YYYY-MM-DD HH:MM:SS"
 #' @param timezone Timezone of input either as a known acronym (eg. "GMT", "CET") or
 #' a string with continent followed by country capital (eg. "Europe/London").
+#' @param limb (Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
+#' If missing the centre of the sun will be output.
 #' @export
 #' @seealso \code{\link{reduct.theodolite}}
 #' @examples
 #' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
-sunAz = function(loc, time, timezone) {
+sunAz = function(loc, time, timezone, limb) {
   if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
   if (is.null(dim(loc))) { dim(loc) <- c(1, NROW(loc)) }
 
@@ -176,6 +178,11 @@ sunAz = function(loc, time, timezone) {
     jd <- astrolibR::jdcnv(UT$year+1900, UT$mon+1, UT$mday, UT$hour+UT$min/60+UT$sec/3600)
     ss <- astrolibR::sunpos(jd)
     az[i] <- eq2horFS(ss$ra, ss$dec, jd, loc[i,1], loc[i,2], precess_ = F)$az
+
+    if (!missing(limb)) {
+      if (limb=="left") { az[i] <- az[i] - 32/60/2 }
+      if (limb=="right") { az[i] <- az[i] + 32/60/2 }
+    }
   }
 
   return(az)

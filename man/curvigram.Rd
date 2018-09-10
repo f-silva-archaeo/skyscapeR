@@ -4,7 +4,7 @@
 \alias{curvigram}
 \title{Computes declination curvigram}
 \usage{
-curvigram(dec, unc = 2, norm = F, cut = 4, range, n = 1024)
+curvigram(dec, unc = 2, norm = F, cut = 4, range)
 }
 \arguments{
 \item{dec}{Array of declination values.}
@@ -24,9 +24,6 @@ of the data at which to trim the curvigram. Defaults to 4. See \code{\link{densi
 \item{range}{(Optional) As an alternative to \emph{cut} you can
 stipulate the range of declination values to output as an array of two values.
 See \emph{from, to} in \code{\link{density}}.}
-
-\item{n}{(Optional) The number of equally spaced points at which the curvigram
-is to be calculated. Defaults to 512. See \emph{n} in \code{\link{density}}.}
 }
 \description{
 This function computes the curvigram of declinations,

@@ -4,7 +4,7 @@
 \alias{sunAz}
 \title{Returns the azimuth of the sun at a given time from a specific location}
 \usage{
-sunAz(loc, time, timezone)
+sunAz(loc, time, timezone, limb)
 }
 \arguments{
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
@@ -15,6 +15,9 @@ containing the latitude and longitude of location, in this order.}
 
 \item{timezone}{Timezone of input either as a known acronym (eg. "GMT", "CET") or
 a string with continent followed by country capital (eg. "Europe/London").}
+
+\item{limb}{(Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
+If missing the centre of the sun will be output.}
 }
 \description{
 This function returns the azimuth of the sun at a given time and location,
