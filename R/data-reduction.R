@@ -11,6 +11,8 @@
 #' @param tz Timezone of input wither as a known acronym (eg. "GMT", "CET") or
 #' a string with continent followed by country capital (eg. "Europe/London").
 #' @param az.sun (Optional) Measured azimuth of the sun. Defaults to zero.
+#' @param limb (Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
+#' If missing the centre of the sun will be used for calculations.
 #' @param alt (Optional) Altitude, necessary for automatic declination calculation.
 #' If missing and \emph{loc} is a \emph{skyscapeR.horizon} object then the altitude
 #' will be automatically read from the horizon profile.
@@ -38,7 +40,7 @@
 #' # Alternatively, the altitude can be automatically retrieved from a horizon profile:
 #' hor <- download.HWT('UFXERSLQ')
 #' data <- reduct.theodolite(hor, az, date, time, tz= "Europe/Malta", az.sun)
-reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt, name, ID, HWT.ID) {
+reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, limb, alt, name, ID, HWT.ID) {
   if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$georef } else { hor <- NULL }
 
   if (NROW(loc) < NROW(az)*2) { loc <- matrix(loc,NROW(az),2, byrow=T) }
@@ -55,7 +57,7 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, alt, name, ID,
   ind <- which(abs(diff)>180); if (length(ind)>0) { diff[ind] <- az[ind] - az.sun[ind]-360 }
 
   prec <- max(nchar(sub('.*\\.', '', as.character(az))))
-  az.sun.corr <- round(sunAz(loc, time, tz), prec)
+  az.sun.corr <- round(sunAz(loc, time, tz, limb), prec)
   az.corr <- az.sun.corr + diff
 
   df <- c()

@@ -4,8 +4,8 @@
 \alias{reduct.theodolite}
 \title{Data reduction for theodolite measurements using the sun-sight method}
 \usage{
-reduct.theodolite(loc, az, date, time, tz, az.sun = 0, alt, name, ID,
-  HWT.ID)
+reduct.theodolite(loc, az, date, time, tz, az.sun = 0, limb, alt, name,
+  ID, HWT.ID)
 }
 \arguments{
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
@@ -22,6 +22,9 @@ decimal point format if necessary.}
 a string with continent followed by country capital (eg. "Europe/London").}
 
 \item{az.sun}{(Optional) Measured azimuth of the sun. Defaults to zero.}
+
+\item{limb}{(Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
+If missing the centre of the sun will be used for calculations.}
 
 \item{alt}{(Optional) Altitude, necessary for automatic declination calculation.
 If missing and \emph{loc} is a \emph{skyscapeR.horizon} object then the altitude

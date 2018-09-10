@@ -141,11 +141,12 @@ az <- c( ten(298,24,10),     # Theodolite H measurements
 alt <- c( ten(1,32,10),     # Theodolite V measurements
           ten(0,2,27) )
 az.sun <- ten(327,29,50)    # The azimuth of the sun as measured at time
+limb <- "right"   # Which limb of the sun was targeted
 date <- "2016/02/20"
 time <- "11:07:17"    # Time the sun measurement was taken
 timezone <- "Europe/Malta"    # Timezone corresponding to time above
 
-data <- reduct.theodolite(loc=georef, az, date, time, timezone, az.sun, alt)
+data <- reduct.theodolite(loc=georef, az, date, time, timezone, az.sun, limb, alt)
 data
 ```
 

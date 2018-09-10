@@ -72,8 +72,6 @@ histogram <- function(dec, unc = 2, norm = F, cut = 4, range) {
 #' @param range (Optional) As an alternative to \emph{cut} you can
 #' stipulate the range of declination values to output as an array of two values.
 #' See \emph{from, to} in \code{\link{density}}.
-#' @param n (Optional) The number of equally spaced points at which the curvigram
-#'  is to be calculated. Defaults to 512. See \emph{n} in \code{\link{density}}.
 #' @seealso \code{\link{density}}
 #' @export
 #' @import stats
@@ -85,18 +83,18 @@ histogram <- function(dec, unc = 2, norm = F, cut = 4, range) {
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, 2)
 #' plot(curv)
-curvigram <- function(dec, unc = 2, norm = F, cut = 4, range, n = 1024) {
+curvigram <- function(dec, unc = 2, norm = F, cut = 4, range) {
   if (missing(range)) { range <- c(min(dec) - cut*max(unc), max(dec) + cut*max(unc)) }
 
   if (length(unc)==1) {
-    dens <- density(dec, bw=unc, from=range[1], to=range[2], n=n)
+    dens <- density(dec, bw=unc, from=range[1], to=range[2], n=1024)
 
     xx <- dens$x
     spd <- dens$y
     sd <- dens$bw
 
   } else {
-    xx <- seq(-90,90,by=0.001)
+    xx <- seq(-90,90, length.out = 0.01)
     spd <- array(0, NROW(xx))
     for (i in 1:NROW(dec)) {
       spd <- spd + dnorm(xx, dec[i], unc[i])
@@ -112,7 +110,6 @@ curvigram <- function(dec, unc = 2, norm = F, cut = 4, range, n = 1024) {
   result$metadata$unc <- unc
   result$metadata$norm <- norm
   result$metadata$range <- range
-  result$metadata$n <- n
   result$data$dec <- xx
   result$data$density <- spd
   class(result) <- "skyscapeR.curv"
