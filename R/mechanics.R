@@ -122,8 +122,8 @@ obliquity = function(year = cur.year) {
 #' plot(path$az, path$alt, ylim=c(0,90), type='l', xlab='AZ', ylab='ALT', col='red', lwd=2)
 orbit = function(dec, loc, res=0.5, ...) {
   if (class(loc)=='skyscapeR.horizon') {
-    lat <- loc$georef[1]
-    lon <- loc$georef[2]
+    lat <- loc$metadata$georef[1]
+    lon <- loc$metadata$georef[2]
   } else {
     lat <- loc[1]
     lon <- loc[2]
@@ -167,7 +167,7 @@ orbit = function(dec, loc, res=0.5, ...) {
 #' @examples
 #' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
 sunAz = function(loc, time, timezone, limb) {
-  if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
+  if (class(loc)=='skyscapeR.horizon') { loc <- loc$metadata$georef }
   if (is.null(dim(loc))) { dim(loc) <- c(1, NROW(loc)) }
 
   az <- c()

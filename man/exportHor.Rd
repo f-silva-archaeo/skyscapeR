@@ -27,12 +27,12 @@ format of \emph{Stellarium}, ready to be imported.
 }
 \examples{
 # Downloads horizon data from HeyWhatsThat and exports it into Stellarium:
-hor <- download.HWT('HIFVTBGK')
+hor <- downloadHWT('HIFVTBGK')
 exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 }
 \references{
 \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
 }
 \seealso{
-\code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscapeR.horizon}}
+\code{\link{createHor}}, \code{\link{downloadHWT}}, \code{\link{plot.skyscapeR.horizon}}
 }

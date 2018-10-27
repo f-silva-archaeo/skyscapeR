@@ -1,7 +1,7 @@
 ---
 title: "How to use _skyscapeR_"
 author: "Fabio Silva"
-date: "2017-12-11"
+date: "2018-10-27"
 output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{"How to use _skyscapeR_"}
@@ -63,26 +63,40 @@ If you want to know more about these datasets then use the helpful ```?``` comma
 In this case, if you want to know more about the _RugglesRSC_ dataset you can type in the console ```?RugglesRSC```. This opens the manual page for the dataset, or function. In _RStudio_ this opens on the bottom-right pane by default.
 
 
-## 2. Hello, Curvigram!
-Let's start by creating your first curvigram with _skyscapeR_. The function for this is aptly called ```curvigram()```. Go ahead and do ```?curvigram``` right now to learn more about it, including an example at the bottom of the manual page, which we will now do:
+## 2. Hello Curvigram!
+Let's start by creating a histogram with _skyscapeR_. The function for this is called ```histogram()```. Go ahead and do ```?curvigram``` right now to learn more about it, including an example at the bottom of the manual page, which we will now do:
 
 ```r
 data(RugglesRSC)
-curv <- curvigram(RugglesRSC$Dec, 2)
+hist <- histogram(RugglesRSC$Dec, 2)
 ```
 
-This creates a curvigram based on the declination data in the _RugglesRSC_ dataset, and using an uncertainty of 2º for all measurements. You can visualize it by typing:
+This creates a histogram based on the declination data in the _RugglesRSC_ dataset, and using an uncertainty of 2º for all measurements. You can visualize it by typing:
 
 ```r
-plot(curv)
+plot(hist)
 ```
 
 <img src="figure/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" />
 
-Be sure to check ```?curvigram``` and ```?plotCurv``` to see what other options are available.
+Be sure to check ```?histogram``` to see what other options are available.
+
+A curved histogram, also known as curvigram, can be created from the same data by using ```curvigram()``` in a similar manner to ```histogram()```. This is a more robust form of data visualization that can use different measurement uncertainties for the different measurements. In the next example a set of random uncertainties (variable ``unc``) are used to construct a curvigram:
 
 
-### Adding celestial objects to a curvigram
+```r
+data(RugglesRSC)
+unc <- runif(length(RugglesRSC$Dec),1,10)  # random values between 1 and 10
+curv <- curvigram(RugglesRSC$Dec, unc)
+plot(curv)
+```
+
+<img src="figure/unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" />
+
+Check ```?curvigram``` to see what other options are available.
+
+
+### Adding celestial objects to a curvigram or histogram
 Let's add some celestial targets to the curvigram on order to compare them with those frequency peaks. We need to create a _skyscapeR.object_ first. This is done with ```sky.objects()```:
 
 ```r
@@ -92,10 +106,10 @@ lunar <- sky.objects('moon', epoch=-2000, col='red', lty=2)
 This creates an object that includes all standard lunar targets (currently only the lunar extremes), set for the year 1999 BCE (since there is no year zero). These will be drawn in red colour with line type (```lty```) two, which is to say as dashed lines (check out other types and options in ```?par```). Then redo the curvigram with this object:
 
 ```r
-plot(curv, lunar)
+plot(curv, obj=lunar)
 ```
 
-<img src="figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" />
 
 You can now see the southern major lunar extreme (```sMjLX```) and the southern minor lunar extreme (```smnLX```) declinations for the year 1999 BCE on the same plot.
 
@@ -175,11 +189,12 @@ az <- c( ten(298,24,10),     # Theodolite H measurements
 alt <- c( ten(1,32,10),     # Theodolite V measurements
           ten(0,2,27) )
 az.sun <- ten(327,29,50)    # The azimuth of the sun as measured at time
+limb <- "right"   # Which limb of the sun was targeted
 date <- "2016/02/20"
 time <- "11:07:17"    # Time the sun measurement was taken
 timezone <- "Europe/Malta"    # Timezone corresponding to time above
 
-data <- reduct.theodolite(loc=georef, az, date, time, timezone, az.sun, alt)
+data <- reduct.theodolite(loc=georef, az, date, time, timezone, az.sun, limb, alt)
 ```
 
 ```
@@ -192,11 +207,11 @@ data
 
 ```
 ##   Latitude Longitude Uncorrected.Azimuth           Date.Time   Sun.Az
-## 1 35.84383  14.56844            298.4028 2016-02-20 11:07:17 157.7928
-## 2 35.84383  14.56844            302.3444 2016-02-20 11:07:17 157.7928
+## 1 35.84383  14.56844            298.4028 2016-02-20 11:07:17 158.0595
+## 2 35.84383  14.56844            302.3444 2016-02-20 11:07:17 158.0595
 ##   True.Azimuth   Altitude Declination
-## 1     128.6983 1.53611111   -29.64124
-## 2     132.6400 0.04083333   -33.67292
+## 1     128.9650 1.53611111   -29.83512
+## 2     132.9067 0.04083333   -33.86379
 ```
 
 Similarly to ```reduct.compass()``` if a horizon profile is given, the altitude can be automatically retrieved from it.
@@ -209,7 +224,7 @@ az <- rnorm(30, 85, 20)    # This creates 30 random azimuths
 plotAz(az)
 ```
 
-<img src="figure/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" />
 
 You can use the same _skyscapeR.object_ for this plot, but then you need to specify a single location, since azimuths are location-specific. At the moment the horizon altitude is assumed to be 0º and flat as well.
 
@@ -218,7 +233,7 @@ sunandmoon <- sky.objects(c('sun','moon'), epoch=-4000, col=c('blue','red'), lty
 plotAz(az, obj=sunandmoon, loc=c(52,0))
 ```
 
-<img src="figure/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" style="display: block; margin: auto;" />
 
 ### Converting azimuth to declination
 If you are looking for a mere horizontal to equatorial coordinate conversion, without all the extra automation that the ```reduct.``` functions provide you can use the ```az2dec()``` function:
@@ -252,19 +267,19 @@ This can be visualized by simply typing:
 plot(hor)
 ```
 
-<img src="figure/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" style="display: block; margin: auto;" />
 
 Not the prettiest horizon you've ever seen, but that's what can be interpolated from the five datapoints given...
 
-A prettier horizon profile can be downlaoded from the [HeyWhatsThat (HWT)](http://www.heywhatsthat.com) website. These profiles are based on the SRTM digital elevation models and, therefore are not always trustworthy (especially so if the horizon is near). Nevertheless they can be a great help for situations when a horizon altitude is impossible to measure on site. To do this, first create a horizon profile at the HWT website, then save the 8-digit ID code that is as the end of the permanent link given by HWT. For example, if the link is `https://www.heywhatsthat.com/?view=NML6GMSX`, save the bit after `view=` and use function ```download.HWT()```:
+A prettier horizon profile can be downlaoded from the [HeyWhatsThat (HWT)](http://www.heywhatsthat.com) website. These profiles are based on the SRTM digital elevation models and, therefore are not always trustworthy (especially so if the horizon is near). Nevertheless they can be a great help for situations when a horizon altitude is impossible to measure on site. To do this, first create a horizon profile at the HWT website, then save the 8-digit ID code that is as the end of the permanent link given by HWT. For example, if the link is `https://www.heywhatsthat.com/?view=NML6GMSX`, save the bit after `view=` and use function ```downloadHWT()```:
 
 
 ```r
-hor <- download.HWT('NML6GMSX')
+hor <- downloadHWT('NML6GMSX')
 plot(hor)
 ```
 
-<img src="figure/unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" style="display: block; margin: auto;" />
 
 ### Exporting profiles to _Stellarium_
 One can then export these profiles into a format that _Stellarium_ recognises:
@@ -281,7 +296,7 @@ hor2alt(hor, az=90)
 ```
 
 ```
-## [1] 2.06
+## [1] 1.79
 ```
 
 ```r
@@ -289,13 +304,13 @@ hor2alt(hor, az=110)
 ```
 
 ```
-## [1] 2.91
+## [1] 2.73
 ```
 
 This automation can also be used in the data reduction functions by using a _skyscapeR.horizon_ object rather than simple georeferences:
 
 ```r
-data <- reduct.compass(loc=hor, mag.az=azimuths, date="2017/06/13")
+data <- reduct.compass(loc=hor, mag.az=az, date="2017/06/13")
 ```
 
 ```
@@ -308,15 +323,17 @@ data
 
 ```
 ##   Latitude Longitude Magnetic.Azimuth       Date   Mag.Dec True.Azimuth
-## 1 40.44385 -7.938178               93 2017/06/13 -2.118487       90.882
-## 2 40.44385 -7.938178              108 2017/06/13 -2.118487      105.882
-## 3 40.44385 -7.938178              105 2017/06/13 -2.118487      102.882
-## 4 40.44385 -7.938178               98 2017/06/13 -2.118487       95.882
+## 1 40.44385 -7.938178                0 2017/06/13 -2.118487       -2.118
+## 2 40.44385 -7.938178               90 2017/06/13 -2.118487       87.882
+## 3 40.44385 -7.938178              180 2017/06/13 -2.118487      177.882
+## 4 40.44385 -7.938178              270 2017/06/13 -2.118487      267.882
+## 5 40.44385 -7.938178              360 2017/06/13 -2.118487      357.882
 ##   Altitude Declination
-## 1     2.06       0.471
-## 2     2.74     -10.366
-## 3     2.50      -8.296
-## 4     2.22      -3.215
+## 1     1.29      50.431
+## 2     1.99       2.705
+## 3     1.19     -48.698
+## 4     0.80      -1.368
+## 5     1.29      50.431
 ```
 
 ### Visualizing celestial object paths 
@@ -326,7 +343,7 @@ data
 plot(hor, obj=lunar)
 ```
 
-<img src="figure/unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" style="display: block; margin: auto;" />
 
 Or create a new one, in this case using an epoch range for cases where we might have uncertainty in the age of the site, and including both solar and a stellar target:
 
@@ -335,7 +352,7 @@ aux <- sky.objects(names=c('sun', 'Aldebaran'), epoch=c(-4300,-3700), col=c('blu
 plot(hor, obj=aux)
 ```
 
-<img src="figure/unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" style="display: block; margin: auto;" />
 
 
 ## 5. Stars
@@ -437,57 +454,61 @@ The time period for events is a range of dates where, given the parameters, it i
 plot(sp)
 ```
 
-<img src="figure/unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" style="display: block; margin: auto;" />
 
 
 ## Significance Testing for Curvigrams
-You can test the statistical significance of an empirical curvigram by comparing it with the expectattion of a given null hypothesis. This technique can be used to output a _p-value_ (either 1-tailed or 2-tailed) which is an established measure of significance. 
+You can test the statistical significance of an empirical curvigram by comparing it with the expectattion of a given null hypothesis. This technique can be used to output a _p-value_ which is an established measure of significance. 
 
-_skyscapeR_ comes with a limited set of built-in null hypothesis, namely that of a random azimuthal orientation (`distRandom()`), a random solar orientation (`distSolarRange()`), a random lunar orientation (`distLunarRange()`), a random orientation to the Summer Full Moon (`distSummerFM()`) and a random orientation to one of the brightest stars (`distStars()`). To demonstrate significance testing we will again use the Recumbent Stone Circle data. But first, one needs to choose one's null hypothesis. As usual, the help pages are essential to understand what parameters are required:
-
-```r
-nullhyp <- distRandom(c(57,2), alt=0)
-```
-
-Then one uses `sigTest()` to run the significance testing routine. This can take a while depending on your machine's resources. If it takes too long, try lowering the _nsims_ parameter (though this brings a cost of resolution, see the manual page for this function).
+To demonstrate significance testing we will again use the Recumbent Stone Circle data. To do this one uses `sigTest()` to run the significance testing routine. This can take a while depending on your machine's resources. If it takes too long, try lowering the _nsims_ parameter (though this brings a cost of resolution, see the manual page for this function).
 
 ```r
-# ncores forced to 2 for production of this document
-sg <- sigTest(curv, nullhyp, ncores=2)   
+data <- c()
+data$az <- RugglesRSC$CL_Rec_C
+data$az.unc <- rep(5, length(data$az))
+data$lat <- RugglesRSC$Latitude
+data$alt <- RugglesRSC$CL_Mean_Alt
+# ncores forced to 2 and nsims to 100 for production of this document
+sg <- sigTest(data, ncores=2, nsims=100)   
 ```
 
 ```
-## Running calculations on 2 processing cores. This may take a while...
-```
-
-```
-## Performing a 1-tailed test at the 95% significance level.
+## Creating Empirical Curvigram...Done.
+## Running 100 simulations on 2 processing cores. This may take a while...Done.
+## Performing a 2-tailed test at the 95% significance level.
 ```
 
 One can then plot the curvigram again, but now with the results of the significance testing displayed. This adds the expectation around the null hypothesis (the grey shaded area) as well as the estimated global p-value.
 
 ```r
-plot(curv,signif=sg)
+plot(sg)
 ```
 
 <img src="figure/unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" style="display: block; margin: auto;" />
 
+One can highlight the regions of significance, i.e. those that are outside the region of significance by doing:
+
+```r
+plot(sg, show.local=T)
+```
+
+<img src="figure/unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" style="display: block; margin: auto;" />
+
+
 If one is not interested in ploting the results of the significance testing, but simply getting the values then you can retrieve them from the output of `sigTest()`:
 
 ```r
-sg$p.value
+print(sg)
 ```
 
 ```
-## [1] 0.0004997501
-```
-
-```r
-sg$maxima
-```
-
-```
-##             [,1]       [,2]
-## dec    -30.03987 -17.039112
-## zScore  10.62414   1.071345
+## 
+## *** Results of Significance Test ***
+## 
+## 2-tailed test at 95% confidence, based on 100 simulations.
+## global p-value: < 0.01 (**)
+## local p-values:
+##       +  dec range [-34.28, -28.71] :: p-value: < 0.01 (**)
+##       +  dec range [-28.57, -27.77] :: p-value: 0.0198 (*)
+##       -  dec range [-8.08, -6.64] :: p-value: 0.0297 (*)
 ```

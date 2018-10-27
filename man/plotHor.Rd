@@ -39,7 +39,7 @@ This function is deprecated. Please see \code{\link{plot.skyscapeR.horizon}} ins
 \examples{
 \dontrun{
 # Plot a horizon retrieved from HeyWhatsThat:
-hor <- download.HWT('HIFVTBGK')
+hor <- downloadHWT('HIFVTBGK')
 plotHor(hor)
 
 # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
@@ -48,5 +48,5 @@ plotHor(hor, objects=tt)
 }
 }
 \seealso{
-\code{\link{download.HWT}}, \code{\link{sky.objects}}
+\code{\link{downloadHWT}}, \code{\link{sky.objects}}
 }

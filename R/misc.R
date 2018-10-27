@@ -145,3 +145,21 @@ minmaxdec = function(name, from, to) {
 
   return(mm)
 }
+
+#' Retrieves horizon altitude for a given azimuth from a given horizon profile
+#'
+#' This function retrieves the horizon altitude for a given azimuth from
+#' a previously created \emph{skyscapeR.horizon} object via spline interpolation.
+#' @param hor A \emph{skyscapeR.horizon} object from which to retrieve horizon altitude.
+#' @param az Array of azimuth(s) for which to retrieve horizon altitude(s).
+#' @export
+#' @import stats
+#' @seealso \code{\link{createHor}}, \code{\link{downloadHWT}}
+#' @examples
+#' hor <- downloadHWT('HIFVTBGK')
+#' hor2alt(hor, 90)
+hor2alt = function(hor, az) {
+  hh <- splinefun(hor$data$az, hor$data$alt)
+  alt <- round(hh(az), 2)
+  return(alt)
+}

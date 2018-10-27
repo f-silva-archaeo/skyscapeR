@@ -41,7 +41,7 @@ data <- reduct.compass(loc, mag.az, "2016/04/02")
 data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
 
 # Alternatively, the altitude can be automatically retrieved from a horizon profile:
-hor <- download.HWT('NML6GMSX')
+hor <- downloadHWT('NML6GMSX')
 data <- reduct.compass(hor, mag.az, "2016/04/02")
 }
 \seealso{

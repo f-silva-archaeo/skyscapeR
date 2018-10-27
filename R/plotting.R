@@ -326,12 +326,14 @@ plot.skyscapeR.sigTest <- function(sig, xlim, show.pval=T, show.local=F) {
 #'
 #' This function creates a plot of horizon data.
 #' @param hor Object of \emph{skyscapeR.horizon} format.
-#' @param show.az Boolean that controls whether to display azimuth values on horizontal axis.
-#'  Defaults to \emph{FALSE}.
+#' @param show.unc (Optional) Boolean that controls whether to display uncertainty in altitude.
+#'  Default is \emph{FALSE}.
+#' @param show.axes (Optional) Boolean that controls whether to display azimuth values on horizontal
+#' axis and altitude on vertical axis. Default is \emph{FALSE}.
 #' @param max.alt Maximum altitude to display. Defaults to 45 degrees.
 #' @param az0 Leftmost azimuth of plot. Defaults to 0 degrees, i.e. North at the left.
 #' @param zoom Boolean that controls whether to provide a zoomed-in view of 100 degrees in
-#' azimuth and 5 degrees of altitude above the horizon line. Defaults to \emph{FALSE}.
+#' azimuth and 5 degrees of altitude above the horizon line. Default is \emph{FALSE}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the paths of celestial objects.
 #' @param measure (Optional) A data.frame object with columns \emph{True.Azimuth} and
@@ -341,50 +343,57 @@ plot.skyscapeR.sigTest <- function(sig, xlim, show.pval=T, show.local=F) {
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @export
 #' @import utils stats graphics grDevices
-#' @seealso \code{\link{download.HWT}}, \code{\link{sky.objects}}
+#' @seealso \code{\link{downloadHWT}}, \code{\link{sky.objects}}
 #' @examples
 #' # Plot a horizon retrieved from HeyWhatsThat:
-#' hor <- download.HWT('HIFVTBGK')
+#' hor <- downloadHWT('HIFVTBGK')
 #' plot(hor)
 #'
 #' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
 #' tt <- sky.objects('sun', -2000, 'blue')
 #' plot(hor, objects=tt)
-plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...) {
+plot.skyscapeR.horizon <- function(hor, show.unc=F, show.axes=F, max.alt, az0 = 0, zoom=F, obj, measure, ...) {
 
   # rejiggle so plot starts at given start point
   if (az0 < -360) { az0 <- az0 + 360 }
-  ind <- which(hor$az < az0)
+  ind <- which(hor$data$az < az0)
   if (NROW(ind)>0) {
-    hor$az <- c(hor$az, hor$az[ind] + 360)
-    hor$alt <- c(hor$alt, hor$alt[ind])
+    hor$data$az <- c(hor$data$az, hor$data$az[ind] + 360)
+    hor$data$alt <- c(hor$data$alt, hor$data$alt[ind])
   }
 
-  yl <- floor(min(hor$alt, na.rm=T))-5
+  yl <- floor(min(hor$data$alt, na.rm=T))-5
   if (missing(max.alt)) { yl[2] <- 45 } else { yl[2] <- max.alt }
 
-  if (zoom == T) {
+  if (zoom) {
     xl <- c(az0, az0+100)
     yl <- c(-5,5)
-    show.az <- T
+    show.axes <- T
   } else {
     xl <- c(az0, az0 + 360)
   }
 
-  if (show.az == T) {
+  if (show.unc) { show.axes <- T }
+
+  if (show.axes) {
     xx <- "azimuth"
     ll <- seq(-360,720,by=10)
     at <- ll
+    yy <- 'altitude'
+    par(mar=c(4,4,1,1))
   } else {
     xx <- ""
     ll <- c("N","E","S","W","N","E","S","W","N","E","S","W","N")
     at <- seq(-360,720,by=90)
+    yy <- ''
+    par(mar=c(2,1,1,1))
   }
 
-  par(mar=c(2,1,1,1))
-  plot(-99999,-99999, xlab = xx, ylab = "", yaxs='i', xaxs='i', ylim = yl, xlim = xl, axes=F, lwd=5, ...)
-  if (show.az == T) {
+
+  plot(-99999,-99999, xlab = xx, ylab = yy, yaxs='i', xaxs='i', ylim = yl, xlim = xl, axes=F, lwd=5, ...)
+  if (show.axes == T) {
     axis(1, at = at, labels = ll)
+    axis(2)
   } else {
     axis(1, at = at, labels = ll)
     axis(1, at = seq(-495,720,by=90), labels = F, tcl=-0.25)
@@ -409,10 +418,19 @@ plot.skyscapeR.horizon <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj
   }
 
   # Horizon line
-  line(hor$az, hor$alt)
-  x <- c(hor$az, rev(hor$az))
-  y <- c(hor$alt, rep(-20,NROW(hor$az)))
-  polygon(x ,y, col=rgb(217/255,95/255,14/255,1))
+  lines(hor$data$az, hor$data$alt)
+
+  # Altitude uncertainty
+  if (show.unc) {
+    x <- c(hor$data$az, rev(hor$data$az))
+    y <- c(hor$data$alt-hor$data$alt.unc, rev(hor$data$alt+hor$data$alt.unc))
+    polygon(x, y, col='grey', border='grey')
+    lines(hor$data$az, hor$data$alt, col='black', lwd=1.2)
+  } else {
+    x <- c(hor$data$az, rev(hor$data$az))
+    y <- c(hor$data$alt, rep(-20,NROW(hor$data$az)))
+    polygon(x ,y, col=rgb(217/255,95/255,14/255,1))
+  }
 
   # measurements
   if (!missing(measure)) {

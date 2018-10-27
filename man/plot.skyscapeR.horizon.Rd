@@ -4,21 +4,24 @@
 \alias{plot.skyscapeR.horizon}
 \title{Plot horizon data}
 \usage{
-\method{plot}{skyscapeR.horizon}(hor, show.az = F, max.alt, az0 = 0,
-  zoom = F, obj, measure, ...)
+\method{plot}{skyscapeR.horizon}(hor, show.unc = F, show.axes = F,
+  max.alt, az0 = 0, zoom = F, obj, measure, ...)
 }
 \arguments{
 \item{hor}{Object of \emph{skyscapeR.horizon} format.}
 
-\item{show.az}{Boolean that controls whether to display azimuth values on horizontal axis.
-Defaults to \emph{FALSE}.}
+\item{show.unc}{(Optional) Boolean that controls whether to display uncertainty in altitude.
+Default is \emph{FALSE}.}
+
+\item{show.axes}{(Optional) Boolean that controls whether to display azimuth values on horizontal
+axis and altitude on vertical axis. Default is \emph{FALSE}.}
 
 \item{max.alt}{Maximum altitude to display. Defaults to 45 degrees.}
 
 \item{az0}{Leftmost azimuth of plot. Defaults to 0 degrees, i.e. North at the left.}
 
 \item{zoom}{Boolean that controls whether to provide a zoomed-in view of 100 degrees in
-azimuth and 5 degrees of altitude above the horizon line. Defaults to \emph{FALSE}.}
+azimuth and 5 degrees of altitude above the horizon line. Default is \emph{FALSE}.}
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the paths of celestial objects.}
@@ -35,7 +38,7 @@ This function creates a plot of horizon data.
 }
 \examples{
 # Plot a horizon retrieved from HeyWhatsThat:
-hor <- download.HWT('HIFVTBGK')
+hor <- downloadHWT('HIFVTBGK')
 plot(hor)
 
 # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
@@ -43,5 +46,5 @@ tt <- sky.objects('sun', -2000, 'blue')
 plot(hor, objects=tt)
 }
 \seealso{
-\code{\link{download.HWT}}, \code{\link{sky.objects}}
+\code{\link{downloadHWT}}, \code{\link{sky.objects}}
 }

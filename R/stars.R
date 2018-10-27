@@ -128,8 +128,8 @@ star <- function(string, year) {
 #' }
 star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600, ncores) {
   if (class(loc)=='skyscapeR.horizon') {
-    lat <- loc$georef[1]
-    lon <- loc$georef[2]
+    lat <- loc$metadata$georef[1]
+    lon <- loc$metadata$georef[2]
   } else {
     lat <- loc[1]
     lon <- loc[2]

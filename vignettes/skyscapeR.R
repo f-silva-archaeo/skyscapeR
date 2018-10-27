@@ -6,16 +6,22 @@ library(skyscapeR)
 
 ## ------------------------------------------------------------------------
 data(RugglesRSC)
-curv <- curvigram(RugglesRSC$Dec, 2)
+hist <- histogram(RugglesRSC$Dec, 2)
 
 ## ---- fig.show='hold'----------------------------------------------------
+plot(hist)
+
+## ---- fig.show='hold'----------------------------------------------------
+data(RugglesRSC)
+unc <- runif(length(RugglesRSC$Dec),1,10)  # random values between 1 and 10
+curv <- curvigram(RugglesRSC$Dec, unc)
 plot(curv)
 
 ## ------------------------------------------------------------------------
 lunar <- sky.objects('moon', epoch=-2000, col='red', lty=2)
 
 ## ---- fig.show='hold'----------------------------------------------------
-plot(curv, lunar)
+plot(curv, obj=lunar)
 
 ## ------------------------------------------------------------------------
 georef <- rbind( c(35.1, -7.1),     # GPS data
@@ -40,11 +46,12 @@ az <- c( ten(298,24,10),     # Theodolite H measurements
 alt <- c( ten(1,32,10),     # Theodolite V measurements
           ten(0,2,27) )
 az.sun <- ten(327,29,50)    # The azimuth of the sun as measured at time
+limb <- "right"   # Which limb of the sun was targeted
 date <- "2016/02/20"
 time <- "11:07:17"    # Time the sun measurement was taken
 timezone <- "Europe/Malta"    # Timezone corresponding to time above
 
-data <- reduct.theodolite(loc=georef, az, date, time, timezone, az.sun, alt)
+data <- reduct.theodolite(loc=georef, az, date, time, timezone, az.sun, limb, alt)
 data
 
 ## ---- fig.show='hold'----------------------------------------------------
@@ -69,7 +76,7 @@ hor <- createHor(az, alt, loc=georef, name= 'Horizon Profile 1')
 plot(hor)
 
 ## ---- fig.width = 7, fig.height = 3--------------------------------------
-hor <- download.HWT('NML6GMSX')
+hor <- downloadHWT('NML6GMSX')
 plot(hor)
 
 ## ------------------------------------------------------------------------
@@ -77,7 +84,7 @@ hor2alt(hor, az=90)
 hor2alt(hor, az=110)
 
 ## ------------------------------------------------------------------------
-data <- reduct.compass(loc=hor, mag.az=azimuths, date="2017/06/13")
+data <- reduct.compass(loc=hor, mag.az=az, date="2017/06/13")
 data
 
 ## ---- fig.width = 7, fig.height = 3--------------------------------------
@@ -108,16 +115,20 @@ sp$seasons
 plot(sp)
 
 ## ------------------------------------------------------------------------
-nullhyp <- distRandom(c(57,2), alt=0)
-
-## ------------------------------------------------------------------------
-# ncores forced to 2 for production of this document
-sg <- sigTest(curv, nullhyp, ncores=2)   
+data <- c()
+data$az <- RugglesRSC$CL_Rec_C
+data$az.unc <- rep(5, length(data$az))
+data$lat <- RugglesRSC$Latitude
+data$alt <- RugglesRSC$CL_Mean_Alt
+# ncores forced to 2 and nsims to 100 for production of this document
+sg <- sigTest(data, ncores=2, nsims=100)   
 
 ## ---- fig.show='hold'----------------------------------------------------
-plot(curv,signif=sg)
+plot(sg)
+
+## ---- fig.show='hold'----------------------------------------------------
+plot(sg, show.local=T)
 
 ## ------------------------------------------------------------------------
-sg$p.value
-sg$maxima
+print(sg)
 

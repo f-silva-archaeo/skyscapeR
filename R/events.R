@@ -290,7 +290,7 @@ eq = function(bh=NULL) {
 #' zenith(51.507)
 zenith = function(loc) {
   if (class(loc)=='skyscapeR.horizon') {
-    lat <- loc$georef[1]
+    lat <- loc$metadata$georef[1]
   } else { lat <- loc }
 
   if (lat > jS() | lat < dS()) {
@@ -317,7 +317,7 @@ zenith = function(loc) {
 #' antizenith(51.507)
 antizenith = function(loc) {
   if (class(loc)=='skyscapeR.horizon') {
-    lat <- loc$georef[1]
+    lat <- loc$metaata$georef[1]
   } else { lat <- loc }
 
   if (lat > jS() | lat < dS()) {
