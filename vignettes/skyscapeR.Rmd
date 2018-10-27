@@ -271,11 +271,10 @@ You can test the statistical significance of an empirical curvigram by comparing
 
 To demonstrate significance testing we will again use the Recumbent Stone Circle data. To do this one uses `sigTest()` to run the significance testing routine. This can take a while depending on your machine's resources. If it takes too long, try lowering the _nsims_ parameter (though this brings a cost of resolution, see the manual page for this function).
 ```{r}
-data <- c()
-data$az <- RugglesRSC$CL_Rec_C
-data$az.unc <- rep(5, length(data$az))
-data$lat <- RugglesRSC$Latitude
-data$alt <- RugglesRSC$CL_Mean_Alt
+data <- data.frame(True.Azimuth = RugglesRSC$CL_Rec_C)
+data$Azimuth.Uncertainty <- rep(5, length(data$True.Azimuth))
+data$Latitude <- RugglesRSC$Latitude
+data$Altitude <- RugglesRSC$CL_Mean_Alt
 # ncores forced to 2 and nsims to 100 for production of this document
 sg <- sigTest(data, ncores=2, nsims=100)   
 ```

@@ -115,11 +115,10 @@ sp$seasons
 plot(sp)
 
 ## ------------------------------------------------------------------------
-data <- c()
-data$az <- RugglesRSC$CL_Rec_C
-data$az.unc <- rep(5, length(data$az))
-data$lat <- RugglesRSC$Latitude
-data$alt <- RugglesRSC$CL_Mean_Alt
+data <- data.frame(True.Azimuth = RugglesRSC$CL_Rec_C)
+data$Azimuth.Uncertainty <- rep(5, length(data$True.Azimuth))
+data$Latitude <- RugglesRSC$Latitude
+data$Altitude <- RugglesRSC$CL_Mean_Alt
 # ncores forced to 2 and nsims to 100 for production of this document
 sg <- sigTest(data, ncores=2, nsims=100)   
 

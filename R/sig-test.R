@@ -3,7 +3,8 @@
 #' This function performs a null hypothesis significance test, for a given dataset
 #' and outputs a p-value as well as all the information needed for  plotting.
 #' @param data Data frame including latitude, azimuth and horizon altitude of sites, created
-#' using \code{\link{reduct.compass}} or \code{\link{reduct.theodolite}}.
+#' using \code{\link{reduct.compass}} or \code{\link{reduct.theodolite}}, plus the uncertainty in
+#' azimuthal measurement, which should be added into a column named \emph{Azimuth.Uncertainty}.
 #' @param type (Optional) Type of data visualizarion you want to conduct the test on. Current
 #' options are 'curv' for \code{\link{curvigram}} and 'hist' for \code{\link{histogram}}. Defaults to 'curv' for curvigram.
 #' @param ncores (Optional) Number of processing cores to use for parallelisation. Defaults to the number of
@@ -24,19 +25,20 @@
 #' @seealso \code{\link{reduct.compass}}, \code{\link{reduct.theodolite}}
 #' @examples
 #' \dontrun{
-#' data(RugglesRSC)
-#' curv <- curvigram(RugglesRSC$Dec, sd=2)
-#' sig <- sigTest(curv, )
+#' loc <- c(35,-7)
+#' mag.az <- c(89.5, 105, 109.5)
+#' data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
+#' data$Azimuth.Uncertainty <- 1  # adds the information on the preision of the azimuthal meaurement
+#' sig <- sigTest(data)
 #'
 #' plot(sig)
 #' }
 sigTest <- function(data, type='curv', ncores=parallel::detectCores()-1, nsims=2000, conf=.95, prec=.01, range, verbose=T, ...) {
 
-  ### TODO sort out data input bit
-  az <- data$az
-  az.unc <- data$az.unc
-  lat <- data$lat
-  alt <- data$alt
+  az <- data$True.Azimuth
+  az.unc <- data$Azimuth.Uncertainty
+  lat <- data$Latitude
+  alt <- data$Altitude
 
   decs <- az2dec(az, lat, alt)
   unc <- pmax(abs(az2dec(az-az.unc, lat, alt) - az2dec(az, lat, alt)) , abs(az2dec(az, lat, alt) - az2dec(az+az.unc, lat, alt)))
@@ -64,13 +66,14 @@ sigTest <- function(data, type='curv', ncores=parallel::detectCores()-1, nsims=2
 
 
   ## bootstrapping
+  requireNamespace(foreach)
   cl <- parallel::makeCluster(ncores)
   doParallel::registerDoParallel(cl)
   parallel::clusterEvalQ(cl, library(skyscapeR))
   if (verbose) { cat(paste0('Running ', nsims,' simulations on ', ncores, ' processing cores. This may take a while...')) }
 
   res <- matrix(NA, nsims, length(empirical$y))
-  res <- foreach(i = 1:nsims, .combine=rbind, .inorder = F) %dopar% {
+  res <- foreach::foreach(i = 1:nsims, .combine=rbind, .inorder = F) %dopar% {
     simAz <- sample(seq(0, 360, prec), length(az), replace=T)
     simUnc <- sample(unc, replace=F)
     simDecs <- az2dec(simAz, lat, alt)
