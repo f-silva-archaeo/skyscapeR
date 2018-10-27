@@ -296,7 +296,8 @@ hor2alt(hor, az=90)
 ```
 
 ```
-## [1] 1.79
+##    alt alt.unc
+## 1 1.79    0.02
 ```
 
 ```r
@@ -304,7 +305,8 @@ hor2alt(hor, az=110)
 ```
 
 ```
-## [1] 2.73
+##    alt alt.unc
+## 1 2.73    0.02
 ```
 
 This automation can also be used in the data reduction functions by using a _skyscapeR.horizon_ object rather than simple georeferences:
@@ -328,12 +330,12 @@ data
 ## 3 40.44385 -7.938178              180 2017/06/13 -2.118487      177.882
 ## 4 40.44385 -7.938178              270 2017/06/13 -2.118487      267.882
 ## 5 40.44385 -7.938178              360 2017/06/13 -2.118487      357.882
-##   Altitude Declination
-## 1     1.29      50.431
-## 2     1.99       2.705
-## 3     1.19     -48.698
-## 4     0.80      -1.368
-## 5     1.29      50.431
+##   Altitude.alt Altitude.alt.unc Declination
+## 1         1.29             1.37      50.431
+## 2         1.99             0.02       2.705
+## 3         1.20             0.02     -48.687
+## 4         0.81             1.50      -1.361
+## 5         1.29             1.37      50.431
 ```
 
 ### Visualizing celestial object paths 
@@ -463,17 +465,23 @@ You can test the statistical significance of an empirical curvigram by comparing
 To demonstrate significance testing we will again use the Recumbent Stone Circle data. To do this one uses `sigTest()` to run the significance testing routine. This can take a while depending on your machine's resources. If it takes too long, try lowering the _nsims_ parameter (though this brings a cost of resolution, see the manual page for this function).
 
 ```r
-data <- c()
-data$az <- RugglesRSC$CL_Rec_C
-data$az.unc <- rep(5, length(data$az))
-data$lat <- RugglesRSC$Latitude
-data$alt <- RugglesRSC$CL_Mean_Alt
+data <- data.frame(True.Azimuth = RugglesRSC$CL_Rec_C)
+data$Azimuth.Uncertainty <- rep(5, length(data$True.Azimuth))
+data$Latitude <- RugglesRSC$Latitude
+data$Altitude <- RugglesRSC$CL_Mean_Alt
 # ncores forced to 2 and nsims to 100 for production of this document
 sg <- sigTest(data, ncores=2, nsims=100)   
 ```
 
 ```
 ## Creating Empirical Curvigram...Done.
+```
+
+```
+## Loading required package: foreach
+```
+
+```
 ## Running 100 simulations on 2 processing cores. This may take a while...Done.
 ## Performing a 2-tailed test at the 95% significance level.
 ```
@@ -508,7 +516,8 @@ print(sg)
 ## 2-tailed test at 95% confidence, based on 100 simulations.
 ## global p-value: < 0.01 (**)
 ## local p-values:
-##       +  dec range [-34.28, -28.71] :: p-value: < 0.01 (**)
-##       +  dec range [-28.57, -27.77] :: p-value: 0.0198 (*)
-##       -  dec range [-8.08, -6.64] :: p-value: 0.0297 (*)
+##       +  dec range [-34.33, -28.59] :: p-value: < 0.01 (**)
+##       +  dec range [-28, -27.21] :: p-value: 0.0297 (*)
+##       -  dec range [-9.25, -9.03] :: p-value: 0.0198 (*)
+##       -  dec range [-8.88, -6.64] :: p-value: 0.0198 (*)
 ```

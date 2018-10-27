@@ -9,7 +9,8 @@ sigTest(data, type = "curv", ncores = parallel::detectCores() - 1,
 }
 \arguments{
 \item{data}{Data frame including latitude, azimuth and horizon altitude of sites, created
-using \code{\link{reduct.compass}} or \code{\link{reduct.theodolite}}.}
+using \code{\link{reduct.compass}} or \code{\link{reduct.theodolite}}, plus the uncertainty in
+azimuthal measurement, which should be added into a column named \emph{Azimuth.Uncertainty}.}
 
 \item{type}{(Optional) Type of data visualizarion you want to conduct the test on. Current
 options are 'curv' for \code{\link{curvigram}} and 'hist' for \code{\link{histogram}}. Defaults to 'curv' for curvigram.}
@@ -39,9 +40,11 @@ and outputs a p-value as well as all the information needed for  plotting.
 }
 \examples{
 \dontrun{
-data(RugglesRSC)
-curv <- curvigram(RugglesRSC$Dec, sd=2)
-sig <- sigTest(curv, )
+loc <- c(35,-7)
+mag.az <- c(89.5, 105, 109.5)
+data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
+data$Azimuth.Uncertainty <- 1  # adds the information on the preision of the azimuthal meaurement
+sig <- sigTest(data)
 
 plot(sig)
 }

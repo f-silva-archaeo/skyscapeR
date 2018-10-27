@@ -26,12 +26,12 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 #' # Can also be used for an array of azimuths:
 #' decs <- az2dec( c(87,92,110), hor )
 az2dec = function(az, loc, alt, ...){
+  if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az)[,1] }
   if (class(loc) != 'skyscapeR.horizon') {
     hor <- c()
     if (length(loc) == length(az)) { hor$metadata$georef <- cbind(loc, 0) }
     if (length(loc) == 2*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),2) }
   } else { hor <- loc }
-  if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az) }
 
   prec <- max(nchar(sub('.*\\.', '', as.character(az))))
   dec <- round( astrolibR::hor2eq(alt, az, jd, hor$metadata$georef[,1], hor$metadata$georef[,2], precess_ = F, ...)$dec, prec)
