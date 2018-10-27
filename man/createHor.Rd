@@ -4,12 +4,15 @@
 \alias{createHor}
 \title{Create .\emph{skyscapeR.horizon} object from Az/Alt data}
 \usage{
-createHor(az, alt, loc, name)
+createHor(az, alt, alt.unc, loc, name)
 }
 \arguments{
 \item{az}{Array of azimuth values}
 
 \item{alt}{Array of altitude values.}
+
+\item{alt.unc}{(Optional) Either a single value or an array of altitude
+uncertainty.}
 
 \item{loc}{Location, a vector containing the latitude and longitude of
 the location, in this order.}
@@ -24,9 +27,11 @@ azimuth and altitude.
 # Create a skyscapeR.horizon from 5 measurements:
 az <- c(0,90,180,270,360)
 alt <- c(0,5,5,0,0)
-hor <- createHor(az, alt, c(40.1,-8), 'Test')
+hor <- createHor(az, alt, 0.1, c(40.1,-8), 'Test')
 plot(hor)
 }
 \seealso{
 \code{\link{plot.skyscapeR.horizon}}
+
+\code{\link{createHWT}}, \code{\link{downloadHWT}}
 }

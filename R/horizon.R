@@ -1,27 +1,39 @@
+
 #' Create .\emph{skyscapeR.horizon} object from Az/Alt data
 #'
 #' This function creates a \emph{skyscapeR.horizon} object from measurements of
 #' azimuth and altitude.
 #' @param az Array of azimuth values
 #' @param alt Array of altitude values.
+#' @param alt.unc (Optional) Either a single value or an array of altitude
+#' uncertainty.
 #' @param loc Location, a vector containing the latitude and longitude of
 #' the location, in this order.
 #' @param name Name of site.
 #' @seealso \code{\link{plot.skyscapeR.horizon}}
 #' @export
+#' @seealso \code{\link{createHWT}}, \code{\link{downloadHWT}}
 #' @examples
 #' # Create a skyscapeR.horizon from 5 measurements:
 #' az <- c(0,90,180,270,360)
 #' alt <- c(0,5,5,0,0)
-#' hor <- createHor(az, alt, c(40.1,-8), 'Test')
+#' hor <- createHor(az, alt, 0.1, c(40.1,-8), 'Test')
 #' plot(hor)
-createHor = function(az, alt, loc, name) {
+createHor = function(az, alt, alt.unc, loc, name) {
   # return result
   hor <- c()
-  hor$alt <- alt
-  hor$az <- az
-  hor$georef <- loc; names(hor$georef) <- c('Lat','Lon'); dim(hor$georef) <- c(1,2)
-  hor$name <- name
+  hor$metadata$name <- name
+  hor$metadata$georef <- loc; names(hor$metadata$georef) <- c('Lat','Lon'); dim(hor$metadata$georef) <- c(1,2)
+
+  hor$data <- data.frame(az = az, alt = alt)
+  if (!missing(alt.unc)) {
+    if (length(alt.unc) > 1 & length(alt.unc) < length(az)) {
+      stop('Altitude uncertainty must be either a single value or have the same length as "az"')
+    } else {
+      if (length(alt.unc) == 1 ) { alt.unc <- rep(alt.unc, length(az)) }
+      hor$data$alt.unc <- alt.unc
+    }
+  }
   class(hor) <- "skyscapeR.horizon"
   return(hor)
 }
@@ -39,13 +51,13 @@ createHor = function(az, alt, loc, name) {
 #' @param description (Optional) Description, to be included in \emph{landscape.ini} file.
 #' @param ground_col Colour of ground. Defaults to \emph{Stellarium}'s default.
 #' @param hor_col Colour of horizon line. Defaults to \emph{Stellarium}'s default.
-#' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}, \code{\link{plot.skyscapeR.horizon}}
+#' @seealso \code{\link{createHor}}, \code{\link{downloadHWT}}, \code{\link{plot.skyscapeR.horizon}}
 #' @references \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
 #' @export
 #' @import utils
 #' @examples
 #' # Downloads horizon data from HeyWhatsThat and exports it into Stellarium:
-#' hor <- download.HWT('HIFVTBGK')
+#' hor <- downloadHWT('HIFVTBGK')
 #' exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor_col) {
   if (class(hor) != 'skyscapeR.horizon') { stop('No skyscapeR.horizon object found.') }
@@ -57,7 +69,7 @@ exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor
   if (missing(hor_col)) {hor_col = ".75,.45,.45"}
 
   # Horizon data
-  data <- data.frame(x = hor$az, y = hor$alt)
+  data <- data.frame(x = hor$data$az, y = hor$data$alt)
   write.table(data, file="horizon.txt", sep = " ", row.names=F, col.names=F)
 
   # Landscape.ini file
@@ -80,17 +92,19 @@ exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor
 
 #' Download horizon data from \emph{HeyWhatsThat}
 #'
-#' This function downloads horizon data from \emph{HeyWhatsThat},
-#' given its ID, and saves it as a \emph{skyscapeR.horizon} object.
+#' This function downloads previously created horizon data
+#' from \emph{HeyWhatsThat}, given its ID, and saves it as
+#' a \emph{skyscapeR.horizon} object.
 #' @param HWTID This is the 8 character ID attributed by
 #' \emph{HeyWhatsThat.com}
 #' @export
 #' @import utils
 #' @references \href{http://heywhatsthat.com/}{HeyWhatsThat.com}
+#' @seealso \code{\link{createHWT}}
 #' @examples
 #' # Retrieve horizon data for \href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:
-#' hor <- download.HWT('HIFVTBGK')
-download.HWT = function(HWTID) {
+#' hor <- downloadHWT('HIFVTBGK')
+downloadHWT <- function(HWTID) {
   if (nchar(HWTID) != 8) { stop('Incorrect HeyWhatsThat ID.') }
 
   ## Horizon metadata
@@ -107,12 +121,12 @@ download.HWT = function(HWTID) {
   names(result) = NULL
   result[c(1,2,4)]
 
-  hor$Lat <- as.numeric(strtrim(result[1],regexpr("&deg", result[1])[1]-1))
-  if (substr(result[1],nchar(result[1]),nchar(result[2])) == "S") {hor$Lat <- -hor$Lat}
-  hor$Lon <- as.numeric(strtrim(result[2],regexpr("&deg", result[2])[1]-1))
-  if (substr(result[2],nchar(result[2]),nchar(result[2])) == "W") {hor$Lon <- -hor$Lon}
+  Lat <- as.numeric(strtrim(result[1],regexpr("&deg", result[1])[1]-1))
+  if (substr(result[1],nchar(result[1]),nchar(result[2])) == "S") { Lat <- -Lat }
+  Lon <- as.numeric(strtrim(result[2],regexpr("&deg", result[2])[1]-1))
+  if (substr(result[2],nchar(result[2]),nchar(result[2])) == "W") { Lon <- -Lon }
   aux <- strtrim(result[4],regexpr("&nbsp;", result[4])[1]-1)
-  hor$Elev <- as.numeric(substr(aux,2,nchar(aux)))
+  Elev <- as.numeric(substr(aux,2,nchar(aux)))
 
   # Site Name
   grep("pan_top_title", test)
@@ -123,11 +137,10 @@ download.HWT = function(HWTID) {
   matches = mapply(getexpr,datalines,gg)
   result = gsub(mypattern,'\\1',matches)
   names(result) = NULL
-  hor$Name <- result
+  Name <- result
 
   ## Horizon data
   hor.ex <- unique(substr(list.files(tempdir()),1,8)) # check if already downloaded
-
 
   if (sum(HWTID == hor.ex) == 0) {
     if (NROW(hor.ex) > 500) {
@@ -142,61 +155,80 @@ download.HWT = function(HWTID) {
     # download new one
     curdir <- getwd()
     setwd(tempdir())
-    download.file(paste0('http://www.heywhatsthat.com/results/',HWTID,'/image_north.png'), mode ='wb', destfile=paste0(HWTID,'.png'), quiet = T)
-    download.file(paste0('http://www.heywhatsthat.com/bin/image-north-with-alts.png?alts=0%201&id=',HWTID), mode ='wb', destfile=paste0(HWTID,'-0-1.png'), quiet = T)
+    download.file(paste0('http://www.heywhatsthat.com/api/horizon.csv?id=',HWTID,'&resolution=.125'), mode ='wb', destfile=paste0(HWTID,'.csv'), quiet=T)
     setwd(curdir)
   }
 
-  horizon <- png::readPNG(file.path(tempdir(), paste0(HWTID,'.png')))
-  horizon.alt <- png::readPNG(file.path(tempdir(), paste0(HWTID,'-0-1.png')))
+  horizon <- read.csv(file.path(tempdir(), paste0(HWTID, '.csv')))
 
-  # clean-up : removal of triangles and cardinals
-  ind <- which(round(horizon[,,1]*256) == 199, arr.ind = T)
-  if (NROW(ind)>0) {
-    for (i in 1:NROW(ind)) {
-      horizon[ind[i,1],ind[i,2],1:3] <- c(251,251,251)/256
-    }
-  }
-  ind <- which(round(horizon[,,1]*256) == 0 & round(horizon[,,2]*256) == 0 & round(horizon[,,3]*256) == 0, arr.ind = T)
-  if (NROW(ind)>0) {
-    for (i in 1:NROW(ind)) {
-      horizon[ind[i,1],ind[i,2],1:3] <- c(251,251,251)/256
-    }
-  }
-
-  # get altitude values
-  ind <- which(round(horizon.alt[,,1]*256)==140, arr.ind=T);
-  lines <- ind[1:2,1]
-  altitude <- array(NA, dim=dim(horizon)[1:2]);
-  if (diff(lines)==0) { lines[2] <- dim(altitude)[1] }
-  altitude[lines[2],] = 0; altitude[lines[1],] = 1;
-
-  # linear extrapolation of altitude
-  m <- 1./(lines[1]-lines[2]);
-  b <- 1 - m*lines[1];
-  for (k in 1:dim(altitude)[1]) {
-    altitude[k,] <- m*k + b;
-  }
-
-  # identification of altitude
-  alt <- array(NA,c(1,dim(altitude)[2]))
-  for (l in 1:dim(altitude)[2]) {
-    for (k in 1:dim(altitude)[1]) {
-      if (round(horizon[k,l,1]*256) != 251) {
-        alt[l] <- altitude[k,l]
-        break
-      }
-    }
+  ## Altitude Error
+  delta <- 9.73  # 9.73m for SRTM data
+  horizon$error <- rep(NA,NROW(data))
+  for (i in 1:NROW(horizon)) {
+    hor.alt <- horizon$altitude[i]
+    delta.elev <- horizon$distance..m.[i] * tan( hor.alt * pi/180)
+    aux0 <- atan( delta.elev / horizon$distance..m.[i]  ) * 180/pi
+    aux1 <- atan( (delta.elev + delta) / horizon$distance..m.[i]  ) * 180/pi
+    aux2 <- atan( (delta.elev - delta) / horizon$distance..m.[i]  ) * 180/pi
+    horizon$error[i] <- mean(abs(c(aux1,aux2)-aux0))
   }
 
   # return result
-  hor$alt <- as.vector(alt)
-  hor$az <- seq(0,359,length.out = NCOL(horizon))-180
-  ind <- which(hor$az<0)
-  hor$az <- c(hor$az,hor$az[ind]+360); hor$az <- hor$az[-ind]
-  hor$alt <- c(hor$alt,hor$alt[ind]); hor$alt <- hor$alt[-ind]
-  hor$georef <- c(hor$Lat,hor$Lon); names(hor$georef) <- c('Lat','Lon'); dim(hor$georef) <- c(1,2)
-  hor$ID <- HWTID
+  hor$metadata <- c()
+  hor$metadata$ID <- HWTID
+  hor$metadata$name <- Name
+  hor$metadata$georef <- c(Lat, Lon); names(hor$metadata$georef) <- c('Lat','Lon'); dim(hor$metadata$georef) <- c(1,2)
+  hor$metadata$elevation <- Elev
+
+  hor$data <- data.frame(az = horizon$bin.bottom, alt = horizon$altitude, alt.unc = horizon$error)
+
   class(hor) <- "skyscapeR.horizon"
+  return(hor)
+}
+
+
+#' Create and download horizon data from \emph{HeyWhatsThat}
+#'
+#' This function send a data request to \emph{HeyWhatsThat}, for the
+#' creation of a horizon profile for a give Lat/Lon and elevation. It
+#'  then downloads the data and saves it as a \emph{skyscapeR.horizon}
+#'   object.
+#' @param lat The latitude of the location.
+#' @param lon The longitude of the location.
+#' @param elevation (Optional) The elevation of the observer above
+#' ground level in metres. Default is 1.6 metres (eye level).
+#' @param name (Optional) Name for horizon.
+#' @param src (Optional) Request source ID for \emph{HeyWhatsThat}. Default is
+#'  'skyscapeR'. Only change this if you have ben given a source ID by the
+#'  creator of \emph{HeyWhatsThat}.
+#' @param verbose (Optional) Boolean switch to control output. Default is \emph{TRUE}.
+#' @export
+#' @import utils httr
+#' @references \href{http://heywhatsthat.com/}{HeyWhatsThat.com}
+#' @seealso \code{\link{downloadHWT}}
+#' @examples
+#' \dontrun{
+#' # Create and retrive horizon data for the London Mithraeum:
+#' hor <- createHWT(lat=ten(51,30,45), lon=ten(0,5,26.1), name='London Mithraeum')
+#' }
+createHWT <- function(lat, lon, elevation=1.6, name, src='skyscapeR', verbose=T) {
+  if (verbose) { cat('Sending request to HeyWhatsThat servers...') }
+  test <- httr::GET(url=paste0('http://www.heywhatsthat.com/api/query?src=',src,'&lat=',lat,'&lon=',lon,'&elev_agl=',elevation))
+  if (test$headers$`x-app-status` == '200 OK') {
+    if (verbose) { cat('Done.\nWaiting for computation to finish...') }
+  } else { stop(test$headers$`x-app-status`) }
+  HWT.ID <- substr(httr::content(test),1,8)
+  Sys.sleep(30)
+
+  t <- 0
+  while (t==0) {
+    test <- httr::GET(url=paste0('http://www.heywhatsthat.com/api/ready?src=',src,'&id=',HWT.ID))
+    t <- as.numeric(substr(httr::content(test),1,1))
+    Sys.sleep(60)
+  }
+  if (verbose) { cat('Done.\nDownloading data...') }
+  hor <- downloadHWT(HWT.ID)
+  hor$metadata$name <- name
+  if (verbose) { cat('Done.\n') }
   return(hor)
 }

@@ -55,7 +55,7 @@ data <- reduct.theodolite(c(lat,lon), az, date , time, tz= "Europe/Malta", az.su
 data <- reduct.theodolite(c(lat,lon), az, date , time, tz= "Europe/Malta", az.sun, alt=c(2,5))
 
 # Alternatively, the altitude can be automatically retrieved from a horizon profile:
-hor <- download.HWT('UFXERSLQ')
+hor <- downloadHWT('UFXERSLQ')
 data <- reduct.theodolite(hor, az, date, time, tz= "Europe/Malta", az.sun)
 }
 \references{

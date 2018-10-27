@@ -18,7 +18,7 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 #' @export
 #' @seealso \code{\link[astrolibR]{hor2eq}}, \code{\link{hor2alt}}
 #' @examples
-#' hor <- download.HWT('HIFVTBGK')
+#' hor <- downloadHWT('HIFVTBGK')
 #'
 #' dec <- az2dec(92, hor)
 #' dec <- az2dec(92, hor, alt=4)
@@ -28,32 +28,14 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 az2dec = function(az, loc, alt, ...){
   if (class(loc) != 'skyscapeR.horizon') {
     hor <- c()
-    if (length(loc) == length(az)) { hor$georef <- cbind(loc, 0) }
-    if (length(loc) == 2*NROW(az)) { hor$georef <- loc; dim(hor$georef) <- c(NROW(az),2) }
+    if (length(loc) == length(az)) { hor$metadata$georef <- cbind(loc, 0) }
+    if (length(loc) == 2*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),2) }
   } else { hor <- loc }
   if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az) }
 
   prec <- max(nchar(sub('.*\\.', '', as.character(az))))
-  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$georef[,1], hor$georef[,2], precess_ = F, ...)$dec, prec)
+  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$metadata$georef[,1], hor$metadata$georef[,2], precess_ = F, ...)$dec, prec)
   return(dec)
-}
-
-#' Retrieves horizon altitude for a given azimuth from a given horizon profile
-#'
-#' This function retrieves the horizon altitude for a given azimuth from
-#' a previously created \emph{skyscapeR.horizon} object via spline interpolation.
-#' @param hor A \emph{skyscapeR.horizon} object from which to retrieve horizon altitude.
-#' @param az Array of azimuth(s) for which to retrieve horizon altitude(s).
-#' @export
-#' @import stats
-#' @seealso \code{\link{createHor}}, \code{\link{download.HWT}}
-#' @examples
-#' hor <- download.HWT('HIFVTBGK')
-#' hor2alt(hor, 90)
-hor2alt = function(hor, az) {
-  hh <- splinefun(hor$az, hor$alt)
-  alt <- round(hh(az), 2)
-  return(alt)
 }
 
 #' Estimates magnetics declination (diff. between true and magnetic
@@ -75,7 +57,7 @@ hor2alt = function(hor, az) {
 #' loc <- c( london.lat, london.lon )
 #' mag.dec( loc, "2016/04/01" )
 mag.dec = function(loc, date) {
-  if (class(loc) == 'skyscapeR.horizon') { loc <- loc$georef }
+  if (class(loc) == 'skyscapeR.horizon') { loc <- loc$metadata$georef }
   if (is.null(dim(loc))) { dim(loc) <- c(1,NROW(loc)) }
   aux <- oce::magneticField(loc[,2], loc[,1], as.POSIXlt(date, format="%Y/%m/%d"))$declination
   return(aux)

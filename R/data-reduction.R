@@ -38,10 +38,10 @@
 #' data <- reduct.theodolite(c(lat,lon), az, date , time, tz= "Europe/Malta", az.sun, alt=c(2,5))
 #'
 #' # Alternatively, the altitude can be automatically retrieved from a horizon profile:
-#' hor <- download.HWT('UFXERSLQ')
+#' hor <- downloadHWT('UFXERSLQ')
 #' data <- reduct.theodolite(hor, az, date, time, tz= "Europe/Malta", az.sun)
 reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, limb, alt, name, ID, HWT.ID) {
-  if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$georef } else { hor <- NULL }
+  if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$metadata$georef } else { hor <- NULL }
 
   if (NROW(loc) < NROW(az)*2) { loc <- matrix(loc,NROW(az),2, byrow=T) }
   if (NROW(date) < NROW(az)) { date <- matrix(date,NROW(az),1, byrow=T) }
@@ -116,10 +116,10 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, limb, alt, nam
 #' data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
 #'
 #' # Alternatively, the altitude can be automatically retrieved from a horizon profile:
-#' hor <- download.HWT('NML6GMSX')
+#' hor <- downloadHWT('NML6GMSX')
 #' data <- reduct.compass(hor, mag.az, "2016/04/02")
 reduct.compass = function(loc, mag.az, date, magdec, alt, name, ID, HWT.ID) {
-  if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$georef } else { hor <- NULL }
+  if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$metadata$georef } else { hor <- NULL }
 
   if (length(loc) < length(mag.az)*2) { loc <- matrix(loc,NROW(mag.az),2, byrow=T) }
   if (!missing(date) & (NROW(date) < NROW(mag.az))) { date <- matrix(date,NROW(mag.az),1, byrow=T) }

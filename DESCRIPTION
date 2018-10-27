@@ -1,8 +1,8 @@
 Package: skyscapeR
 Type: Package
 Title: Skyscape Archaeology Data Reduction, Visualization and Analysis
-Version: 0.2.6.9000
-Date: 2018-09-10
+Version: 0.2.7.9000
+Date: 2018-10-27
 Authors@R: c(person("Silva", "Fabio", email = "f.silva@uwtsd.ac.uk", role = c("aut", "cre")),person("Reijs", "Victor", role = "ctb"))
 Description: A toolset for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy.
 Depends: R (>= 2.10), astrolibR
@@ -18,7 +18,8 @@ Imports: pracma, png, plotrix,
     parallel,
     foreach,
     doParallel,
-    rootSolve
+    rootSolve,
+    httr
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true

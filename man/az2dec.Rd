@@ -26,7 +26,7 @@ This function is a wrapper for function \code{\link[astrolibR]{hor2eq}}
 of package \emph{astrolibR}.
 }
 \examples{
-hor <- download.HWT('HIFVTBGK')
+hor <- downloadHWT('HIFVTBGK')
 
 dec <- az2dec(92, hor)
 dec <- az2dec(92, hor, alt=4)

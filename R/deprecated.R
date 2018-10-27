@@ -141,11 +141,11 @@ plotCurv = function(curv, obj, obj.label=T, xlim=NULL, ...) {
 #' @param ... Any other parameters to be passed unto \code{\link{plot.default}}.
 #' @export
 #' @import utils stats graphics grDevices
-#' @seealso \code{\link{download.HWT}}, \code{\link{sky.objects}}
+#' @seealso \code{\link{downloadHWT}}, \code{\link{sky.objects}}
 #' @examples
 #' \dontrun{
 #' # Plot a horizon retrieved from HeyWhatsThat:
-#' hor <- download.HWT('HIFVTBGK')
+#' hor <- downloadHWT('HIFVTBGK')
 #' plotHor(hor)
 #'
 #' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
@@ -156,7 +156,7 @@ plotCurv = function(curv, obj, obj.label=T, xlim=NULL, ...) {
 plotHor <- function(hor, show.az=F, max.alt, az0 = 0, zoom=F, obj, measure, ...) {
   .Defunct('plot.skyscapeR.horizon')
   if (class(hor)!='skyscapeR.horizon') { stop('No skyscapeR.horizon object found.') }
-  plot(hor, show.az, max.alt, az0, zoom, obj, measure, ...)
+  plot(hor, show.unc=F, show.az, max.alt, az0, zoom, obj, measure, ...)
 }
 
 
@@ -220,4 +220,25 @@ plotOrb<- function(orbit, col) {
 #' @details This function is deprecated. Please see \code{\link{plot.skyscapeR.sigTest}} instead.
 plotZscore = function(signif, obj, obj.label=T, xlim=NULL) {
   .Defunct('plot.skyscapeR.sigTest')
+}
+
+
+#' Download horizon data from \emph{HeyWhatsThat}
+#'
+#' This function downloads previously created horizon data
+#' from \emph{HeyWhatsThat}, given its ID, and saves it as
+#' a \emph{skyscapeR.horizon} object.
+#' @param HWTID This is the 8 character ID attributed by
+#' \emph{HeyWhatsThat.com}
+#' @export
+#' @import utils
+#' @references \href{http://heywhatsthat.com/}{HeyWhatsThat.com}
+#' @seealso \code{\link{createHWT}}
+#' @examples
+#' \dontrun{
+#' # Retrieve horizon data for \href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:
+#' hor <- download.HWT('HIFVTBGK')
+#' }
+download.HWT <- function(HWTID) {
+  .Defunct('downloadHWT')
 }

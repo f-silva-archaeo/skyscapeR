@@ -192,10 +192,10 @@ plot(hor)
 
 Not the prettiest horizon you've ever seen, but that's what can be interpolated from the five datapoints given...
 
-A prettier horizon profile can be downlaoded from the [HeyWhatsThat (HWT)](http://www.heywhatsthat.com) website. These profiles are based on the SRTM digital elevation models and, therefore are not always trustworthy (especially so if the horizon is near). Nevertheless they can be a great help for situations when a horizon altitude is impossible to measure on site. To do this, first create a horizon profile at the HWT website, then save the 8-digit ID code that is as the end of the permanent link given by HWT. For example, if the link is `https://www.heywhatsthat.com/?view=NML6GMSX`, save the bit after `view=` and use function ```download.HWT()```:
+A prettier horizon profile can be downlaoded from the [HeyWhatsThat (HWT)](http://www.heywhatsthat.com) website. These profiles are based on the SRTM digital elevation models and, therefore are not always trustworthy (especially so if the horizon is near). Nevertheless they can be a great help for situations when a horizon altitude is impossible to measure on site. To do this, first create a horizon profile at the HWT website, then save the 8-digit ID code that is as the end of the permanent link given by HWT. For example, if the link is `https://www.heywhatsthat.com/?view=NML6GMSX`, save the bit after `view=` and use function ```downloadHWT()```:
 
 ```{r, fig.width = 7, fig.height = 3}
-hor <- download.HWT('NML6GMSX')
+hor <- downloadHWT('NML6GMSX')
 plot(hor)
 ```
 
@@ -215,7 +215,7 @@ hor2alt(hor, az=110)
 
 This automation can also be used in the data reduction functions by using a _skyscapeR.horizon_ object rather than simple georeferences:
 ```{r}
-data <- reduct.compass(loc=hor, mag.az=azimuths, date="2017/06/13")
+data <- reduct.compass(loc=hor, mag.az=az, date="2017/06/13")
 data
 ```
 
