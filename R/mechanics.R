@@ -1,5 +1,7 @@
-jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
+jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
+swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
+
 
 #' Compute astronomical parameters in the past or future based
 #' on \emph{Laskar et al (2004)} tables
@@ -71,32 +73,28 @@ Laskar04 = function(t, degree=TRUE) {
 
 
 
-#' Computes obliquity based on \emph{Laskar et al (2004)} tables
+#' Computes obliquity of the ecliptic
 #'
-#' This function calculates the obliquity for a given year,
-#' by interpolating the tables provided by \emph{Laskar et al.
-#'  (2004)}. It is a modified version of function
-#'  \code{\link[palinsol]{la04}} of package \emph{palinsol}.
+#' This function calculates the obliquity for a given epoch. It is a
+#' wrapper for function \code{\link[swephR]{swe_calc}} of package \emph{swephR}.
 #' @param year Year for which to calculate the obliquity.
 #' Defaults to present year as given by Sys.Date()
 #' @references Laskar, J. et al. (2004), A long-term numerical
 #' solution for the insolation quantities of the Earth, \emph{Astron.
 #'  Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
+#' @import swephR
 #' @export
-#' @seealso \code{\link[palinsol]{la04}}
+#' @seealso \code{\link[swephR]{swe_calc}}
 #' @references Laskar, J. et al. (2004), A long-term numerical
 #' solution for the insolation quantities of the Earth, \emph{Astron.
 #'  Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
-#' @references Michel Crucifix (2016). palinsol: Insolation for
-#'  Palaeoclimate Studies. R package version 0.93.
-#'  [CRAN page](https://CRAN.R-project.org/package=palinsol)
 #' @examples
 #' #' # Obliquity for year 3999 BC:
 #' obliquity(-4000)
 obliquity = function(year = cur.year) {
-  aux <- Laskar04(year-1950)
-  names(aux) <- NULL
-  return(aux[1])
+  jd <- swephR::swe_julday(year,1,1,12,1) # J2000.0
+  aux <- swephR::swe_calc(jd, -1, 0)$xx[1]
+  return(aux)
 }
 
 
@@ -110,7 +108,10 @@ obliquity = function(year = cur.year) {
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude and longitude of location, in this order.
 #' @param res The resolution (in degrees of RA) with which to calculate the path.
-#' @param ...  Any other parameters to be passed unto \code{\link[astrolibR]{eq2hor}}.
+#' @param refraction (Optional) If set to TRUE it will calculate apparent rather
+#' than true altitudes. Default is TRUE.
+#' @param ...  Any other parameters to be passed unto \code{\link[swephR]{swe_azalt}}.
+#' @import swephR
 #' @export
 #' @examples
 #' # Visible path of sun on June Solstice on year 3999 BC from London:
@@ -120,20 +121,15 @@ obliquity = function(year = cur.year) {
 #' loc <- c( london.lat, london.lon )
 #' path <- orbit(sun.dec, loc)
 #' plot(path$az, path$alt, ylim=c(0,90), type='l', xlab='AZ', ylab='ALT', col='red', lwd=2)
-orbit = function(dec, loc, res=0.5, ...) {
-  if (class(loc)=='skyscapeR.horizon') {
-    lat <- loc$metadata$georef[1]
-    lon <- loc$metadata$georef[2]
-  } else {
-    lat <- loc[1]
-    lon <- loc[2]
-  }
+orbit = function(dec, loc, res=0.5, refraction=T, ...) {
+  if (class(loc)=='skyscapeR.horizon') { loc <- loc$metadata$georef }
 
   ra <- seq(0, 360, by=res)
   aux <- array(NA, c(NROW(ra),2))
 
   for (i in 1:NROW(ra)) {
-    tmp <- eq2horFS(ra[i], dec, jd, lat, lon, precess_=F, ...)
+    tmp <- eq2horFS(ra[i], dec, jd, loc, refraction, ...)
+
     aux[i,] <- c(tmp$az,tmp$alt)
   }
 
@@ -142,7 +138,7 @@ orbit = function(dec, loc, res=0.5, ...) {
   orbit$az <- aux[,1]
   orbit$alt <- aux[,2]
   orbit$dec <- dec
-  orbit$georef <- c(lat,lon)
+  orbit$georef <- loc
   class(orbit) <- "skyscapeR.orbit"
   return(orbit)
 }
@@ -162,6 +158,7 @@ orbit = function(dec, loc, res=0.5, ...) {
 #' a string with continent followed by country capital (eg. "Europe/London").
 #' @param limb (Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
 #' If missing the centre of the sun will be output.
+#' @import swephR
 #' @export
 #' @seealso \code{\link{reduct.theodolite}}
 #' @examples
@@ -175,9 +172,13 @@ sunAz = function(loc, time, timezone, limb) {
     pb.date <- as.POSIXct(time[i], timezone[i])
     UT <- format(pb.date, tz="UTC",usetz=TRUE)
     UT <- as.POSIXlt(UT, 'UTC')
-    jd <- astrolibR::jdcnv(UT$year+1900, UT$mon+1, UT$mday, UT$hour+UT$min/60+UT$sec/3600)
-    ss <- astrolibR::sunpos(jd)
-    az[i] <- eq2horFS(ss$ra, ss$dec, jd, loc[i,1], loc[i,2], precess_ = F)$az
+
+    swephR::swe_set_topo(loc[i,1], loc[i,2], 0)
+    jd <- swephR::swe_julday(UT$year+1900, UT$mon+1, UT$mday, UT$hour+UT$min/60+UT$sec/3600,1)
+    ss <- swephR::swe_calc_ut(jd, 0, 32*1024+2048)
+    xin <- ss$xx[1:2]
+    az[i] <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],0), 1013.25, 15, xin)$xaz[1]+180
+    if (az[i] > 360) { az[i] <- az[i]-360 }
 
     if (!missing(limb)) {
       if (limb=="left") { az[i] <- az[i] - 32/60/2 }

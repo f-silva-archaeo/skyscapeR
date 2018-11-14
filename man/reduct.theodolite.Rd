@@ -11,7 +11,7 @@ reduct.theodolite(loc, az, date, time, tz, az.sun = 0, limb, alt, name,
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
 containing the latitude and longitude of location, in this order.}
 
-\item{az}{Array of azimuths. Use \code{\link[astrolibR]{ten}} to convert to
+\item{az}{Array of azimuths. Use \code{\link{ten}} to convert to
 decimal point format if necessary.}
 
 \item{date}{Date of measurements as a string in the format: 'YYYY/MM/DD'}
@@ -63,5 +63,5 @@ Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}.
 Yale University Press.
 }
 \seealso{
-\code{\link{sunAz}}, \code{\link[astrolibR]{ten}}, \code{\link{sixty}}
+\code{\link{sunAz}}, \code{\link{ten}}
 }

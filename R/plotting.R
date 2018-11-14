@@ -7,7 +7,7 @@
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the azimuths of celestial objects. Beware that this assumes a single
 #' location (given by parameter loc) and a flat horizon of zero degrees.
-#' @param loc (Optional) This can be either the latitude of the
+#' @param loc (Optional) This can be either a vector with the latitude and longitude of the
 #' location, or a \emph{skyscapeR.horizon} object. Only necessary for plotting potential
 #' celestial targets.
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
@@ -46,29 +46,33 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
   mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
 
   # objects
+  if (!missing(obj) & missing(loc)) { warning('No location given for plotting of celestial objects.') }
+
+
   if (!missing(obj) & !missing(loc)) {
+    if (class(loc)=='numeric' & length(loc) != 2) { stop('Location should be either a vector with latitude and longitude or a skyscapeR.horizon object.') }
 
     for (i in 1:obj$n) {
       if (length(obj$epoch)==1) {
         rise <- c(); set <- c();
-        orb <- orbit(obj$decs[i], loc, nutate_=F, refract_=F, aberration_=F)
+        orb <- orbit(obj$decs[i], loc)
         forb <- splinefun(orb$az, orb$alt)
         rise <- uniroot(forb, interval=c(0, 180))$root
         set <- uniroot(forb, interval=c(180, 360))$root
         tt <- c(rise, set)
         plotrix::polar.plot(c(0.01,rep(1,NROW(tt))), c(0,tt), lwd=c(0,rep(obj$lwd[i],2)), line.col=c(0,rep(obj$col[i],2)), lty=c(1,rep(obj$lty[i],2)), start=90, clockwise=T, add=T)
         if (obj.label) {
-          plotrix::radial.plot.labels(c(0.01,1), c(0,rise), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black',obj$col[i]), pos=4, offset=0.5)
-          plotrix::radial.plot.labels(c(0.01,1), c(0,set), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black',obj$col[i]), pos=2, offset=0.5)
+          plotrix::radial.plot.labels(c(0.01,1.1), c(0,rise), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black',obj$col[i]), pos=4, offset=0.5)
+          plotrix::radial.plot.labels(c(0.01,1.1), c(0,set), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black',obj$col[i]), pos=2, offset=0.5)
         }
       } else {
         rise1 <- c(); rise2 <- c(); set1 <- c(); set2 <- c()
-        orb1 <- orbit(obj$decs[3,i], loc, nutate_=F, refract_=F, aberration_=F)
+        orb1 <- orbit(obj$decs[3,i], loc)
         forb <- splinefun(orb1$az, orb1$alt)
         rise1 <- uniroot(forb, interval=c(0, 180))$root
         set1 <- uniroot(forb, interval=c(180, 360))$root
 
-        orb2 <- orbit(obj$decs[4,i], loc, nutate_=F, refract_=F, aberration_=F)
+        orb2 <- orbit(obj$decs[4,i], loc)
         forb <- splinefun(orb2$az, orb2$alt)
         rise2 <- uniroot(forb, interval=c(0, 180))$root
         set2 <- uniroot(forb, interval=c(180, 360))$root
@@ -80,14 +84,64 @@ plotAz = function(az, obj, loc, obj.label=T, ...) {
 
         plotrix::polar.plot(dd, polar.pos=tt, rp.type='p', poly.col=c(0,rep(MESS::col.alpha(obj$col[i],0.3),2)), line.col=c(0,rep(obj$col[i],2)), start=90, clockwise=T, add=T)
         if (obj.label) {
-          plotrix::radial.plot.labels(c(0.01,1), c(0,mean(c(rise1,rise2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black', obj$col[i]), pos=4, offset=0.5)
-          plotrix::radial.plot.labels(c(0.01,1), c(0,mean(c(set1,set2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black', obj$col[i]), pos=2, offset=0.5)
+          plotrix::radial.plot.labels(c(0.01,1.1), c(0,mean(c(rise1,rise2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black', obj$col[i]), pos=4, offset=0.5)
+          plotrix::radial.plot.labels(c(0.01,1.1), c(0,mean(c(set1,set2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black', obj$col[i]), pos=2, offset=0.5)
         }
       }
     }
     plotrix::polar.plot(testlen, testpos, lwd=1.2, line.col='black', start=90, clockwise=T, add = T)
   }
   options(warn=-2); par(oldpar); options(warn=0)
+}
+
+plotBars <- function(val, unc, names, obj, obj.label=T, col='blue', shade=T, mark=F, sort=F, xlim, ylim) {
+  if (NROW(unc)==1) { unc <- rep(unc, NROW(val)) }
+  if (sort) {
+    ind <- sort(val, decreasing=T, index.return=T)$ix
+    val <- val[ind]
+    unc <- unc[ind]
+    if (!missing(names)) { names <- names[ind] }
+  }
+
+  if (!missing(names)) { par(mar=c(4, 9, 2, 2) + 0.1) } else { par(mar=c(4, 2, 2, 2) + 0.1) }
+  if (missing(xlim)) { xlim <- c(min(val-unc)-5, max(val+unc)+5) }
+  if (missing(ylim)) { ylim <- c(0.5, NROW(val)+0.5) }
+  plot.default(-100,-100, xlab='Orientation (º)', ylab='', xlim=xlim, ylim=ylim, axes=F, yaxs='i')
+  axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
+  axis(1, at=0, labels = 0)
+  scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
+  if (scale <= 2) { axis(1, at=seq(-90,360,0.5), lwd=0.2, labels=F) }
+  if (scale <= 5 & scale > 1) { axis(1, at=seq(-90,360,1), lwd=0.5, labels=F) }
+  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,360,5), lwd=0.5, labels=F) }
+  if (scale > 10) { axis(1, at=seq(-90,360,10), lwd=0.5, labels=F) }
+  if (!missing(names)) { axis(2, at=1:NROW(names), labels=names, las=2, cex=0.7) } else { axis(2, at=1:NROW(val), las=2) }
+
+  box()
+  mtext(paste0('skyscapeR v',packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
+
+  if (shade) { border <- NA } else { border <- col; col <- NA  }
+
+  for (i in 1:NROW(val)) {
+    xp <- c(val[i]-unc[i], val[i]+unc[i], val[i]+unc[i], val[i]-unc[i])
+    yp <- c(i-0.4,i-0.4,i+0.4,i+0.4)
+    polygon(xp, yp, col=MESS::col.alpha(col,0.5), border=border)
+    if (mark) { lines(c(val[i],val[i]), c(i-0.4,i+0.4), col=col, lwd=2) }
+  }
+
+  # objects
+  if (!missing(obj)) {
+    for (i in 1:obj$n) {
+      if (length(obj$epoch)==1) {
+        abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
+        if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+      } else {
+        xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
+        yp <- c(-1,-1,2,2)
+        polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
+        if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+      }
+    }
+  }
 }
 
 

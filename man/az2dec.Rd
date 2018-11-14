@@ -4,7 +4,7 @@
 \alias{az2dec}
 \title{Calculates declination from azimuth and altitude measurements}
 \usage{
-az2dec(az, loc, alt, ...)
+az2dec(az, loc, alt)
 }
 \arguments{
 \item{az}{Azimuth(s) for which to calculate declination(s). See examples below.}
@@ -14,16 +14,14 @@ an array of latitude values.}
 
 \item{alt}{Altitude of orientation. Optional, if left empty and a skyscapeR.object
 is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}}
-
-\item{...}{Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.}
 }
 \description{
 This function calculates the declination corresponding to an
 orientation , i.e. an azimuth. The altitude can either be given
  or, alternatively, if a \emph{skyscapeR.horizon} object is provided,
  the corresponding horizon altitude will be automatically retrieved.
-This function is a wrapper for function \code{\link[astrolibR]{hor2eq}}
-of package \emph{astrolibR}.
+This function is a wrapper for function \code{\link[swephR]{swe_azalt_rev}}
+of package \emph{swephR}.
 }
 \examples{
 hor <- downloadHWT('HIFVTBGK')
@@ -35,5 +33,5 @@ dec <- az2dec(92, hor, alt=4)
 decs <- az2dec( c(87,92,110), hor )
 }
 \seealso{
-\code{\link[astrolibR]{hor2eq}}, \code{\link{hor2alt}}
+\code{\link[swephR]{swe_azalt_rev}}, \code{\link{hor2alt}}
 }

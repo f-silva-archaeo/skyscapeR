@@ -1,4 +1,5 @@
-jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
+swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
+jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 
 #' Calculates declination from azimuth and altitude measurements
 #'
@@ -6,17 +7,16 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 #' orientation , i.e. an azimuth. The altitude can either be given
 #'  or, alternatively, if a \emph{skyscapeR.horizon} object is provided,
 #'  the corresponding horizon altitude will be automatically retrieved.
-#' This function is a wrapper for function \code{\link[astrolibR]{hor2eq}}
-#' of package \emph{astrolibR}.
+#' This function is a wrapper for function \code{\link[swephR]{swe_azalt_rev}}
+#' of package \emph{swephR}.
 #' @param az Azimuth(s) for which to calculate declination(s). See examples below.
 #' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 #' an array of latitude values.
 #' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
 #' is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}
-#' @param ... Any other parameters to be passed unto  \code{\link[astrolibR]{hor2eq}}.
-#' @import astrolibR
+#' @import swephR
 #' @export
-#' @seealso \code{\link[astrolibR]{hor2eq}}, \code{\link{hor2alt}}
+#' @seealso \code{\link[swephR]{swe_azalt_rev}}, \code{\link{hor2alt}}
 #' @examples
 #' hor <- downloadHWT('HIFVTBGK')
 #'
@@ -25,16 +25,25 @@ jd <- astrolibR::jdcnv(2000, 1, 1, 0.)  # J2000.0
 #'
 #' # Can also be used for an array of azimuths:
 #' decs <- az2dec( c(87,92,110), hor )
-az2dec = function(az, loc, alt, ...){
+az2dec = function(az, loc, alt){
   if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az)[,1] }
   if (class(loc) != 'skyscapeR.horizon') {
     hor <- c()
+    if (length(loc) < length(az) & length(loc)==2) { hor$metadata$georef <- matrix(rep(loc,NROW(az)), ncol=2, byrow=T)}
+    if (length(loc) < length(az) & length(loc)==1) { hor$metadata$georef <- matrix(rep(c(loc,0),NROW(az)), ncol=2, byrow=T)}
     if (length(loc) == length(az)) { hor$metadata$georef <- cbind(loc, 0) }
     if (length(loc) == 2*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),2) }
   } else { hor <- loc }
 
+  if (length(alt) == 1) { alt <- rep(alt, NROW(az)) }
+
   prec <- max(nchar(sub('.*\\.', '', as.character(az))))
-  dec <- round( astrolibR::hor2eq(alt, az, jd, hor$metadata$georef[,1], hor$metadata$georef[,2], precess_ = F, ...)$dec, prec)
+
+  dec <- c()
+  for (i in 1:NROW(az)) {
+    dec[i] <- round( swephR::swe_azalt_rev(jd, 1, c(hor$metadata$georef[2],hor$metadata$georef[1],0), c(az[i]-180, alt[i]))$xout[2], prec)
+  }
+
   return(dec)
 }
 
