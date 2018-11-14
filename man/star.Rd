@@ -4,7 +4,7 @@
 \alias{star}
 \title{Create \emph{skyscapeR.star} object}
 \usage{
-star(string, year)
+star(string, year = 2000)
 }
 \arguments{
 \item{string}{This can be either: 1) the common name for the star,
@@ -34,6 +34,5 @@ P2 <- star('M45')
 ss <- star('Sirius', -3000)
 }
 \seealso{
-\code{\link[astrolibR]{precess}}, \code{\link[astrolibR]{co_nutate}},
-\code{\link[astrolibR]{co_aberration}}
+\code{\link[swephR]{swe_fixstar2_ut}}, \code{\link[swephR]{swe_fixstar2_mag}}
 }

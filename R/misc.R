@@ -1,3 +1,5 @@
+swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
+
 #' @noRd
 stars.pval <- function(p.value) {
 if (class(p.value)=='character') { p.value <- as.numeric(substr(p.value, 3,nchar(p.value))) }
@@ -21,15 +23,15 @@ tWS <- function(days, year) {
 
 #' @noRd
 eq.to.Hor <- function(xx,lat,lon) {
-  rr <- eq2horFS(xx[1],xx[2],xx[3],lat,lon, precess_=F)$alt
+  rr <- eq2horFS(xx[1],xx[2],xx[3],cbind(lat,lon))$alt
   return(rr)
 }
 
 #' @noRd
 findWS <- function(year) {
-  jd0 <- astrolibR::juldate(c(year,1,1,12)) + 2400000
+  jd0 <- swephR::swe_julday(year, 1, 1, 12, 12)
   yy <- seq(jd0, length.out = 365)
-  ss <- astrolibR::sunpos(yy)$dec
+  ss <- swephR::swe_calc_ut(yy, 0, 2048)$xx[,2]
   ind <- which.min(ss)
 
   return(list(ind=ind, month=dd.to.DD(ind)[1], day=dd.to.DD(ind)[2]))
@@ -64,62 +66,18 @@ dd.to.DD <- function(day, char=F) {
   }
 }
 
-#' Fixed eq2hor function from astrolibR package
+#' Fixed eq2hor function
 #' @noRd
-eq2horFS = function (ra, dec, jd, lat = 43.0783, lon = -89.865, ws = F,
-                     obsname, b1950, precess_ = TRUE, nutate_ = TRUE, refract_ = TRUE,
-                     aberration_ = TRUE, altitude = 0, ...)
-{
-  d2r = pi/180
-  h2r = pi/12
-  h2e = 15
-  if (!missing(b1950))
-    s_now = "   (j1950)"
-  else s_now = "   (j2000)"
-  j_now = (jd - 2451545)/365.25 + 2000
-  if (precess_) {
-    if (!missing(b1950)) {
-      for (i in 1:length(jd)) {
-        tmp = astrolibR::precess(ra[i], dec[i], 1950, j_now[i],
-                                 fk4 = TRUE)
-        ra[i] = tmp$ra
-        dec[i] = tmp$dec
-      }
-    }
-    else {
-      for (i in 1:length(jd)) {
-        tmp = astrolibR::precess(ra[i], dec[i], 2000, j_now[i])
-        ra[i] = tmp$ra
-        dec[i] = tmp$dec
-      }
-    }
-  }
-  tmp = astrolibR::co_nutate(jd, ra, dec)
-  dra1 = tmp$d_ra
-  ddec1 = tmp$d_dec
-  eps = tmp$eps
-  d_psi = tmp$d_psi
-  tmp = astrolibR::co_aberration(jd, ra, dec, eps)
-  dra2 = tmp$d_ra
-  ddec2 = tmp$d_dec
-  eps = tmp$eps
-  ra = ra + (dra1 * nutate_ + dra2 * aberration_)/3600
-  dec = dec + (ddec1 * nutate_ + ddec2 * aberration_)/3600
-  lmst = astrolibR::ct2lst(lon, 0, jd)
-  lmst = lmst * h2e
-  last = lmst + d_psi * cos(eps)/3600
-  ha = last - ra
-  w = (ha < 0)
-  ha[w] = ha[w] + 360
-  ha = ha%%360
-  tmp = astrolibR::hadec2altaz(ha, dec, lat, ws = ws)
-  alt = tmp$alt
-  az = tmp$az
-  if (refract_)
-    alt = astrolibR::co_refract(alt, altitude = altitude, ..., to_observed = TRUE)
+eq2horFS <- function(ra, dec, jd=jd, loc, refraction=F, atm=1013.25, temp=15) {
+  xx <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],0), atm, temp, c(ra,dec))$xaz
 
-  return(list(alt = alt, az = az, ha = ha))
+  if (refraction) { alt <- xx[3] } else { alt <- xx[2] }
+  az <- xx[1]-180
+  if (az < 0) { az <- az + 360 }
+  if (az > 360) { az <- az - 360 }
+  return(list(alt = alt, az = az))
 }
+
 
 #' @noRd
 minmaxdec = function(name, from, to) {
@@ -169,4 +127,33 @@ hor2alt = function(hor, az) {
     alt <- data.frame(alt=alt, alt.unc=alt.unc)
   }
   return(alt)
+}
+
+#' Converts degree measurements in deg-min-sec (º ' ") format into decimal-point degree format.
+#'
+#' @param dd Degree
+#' @param mm (Optional) Arcminutes
+#' @param ss (Optional) Arcseconds
+#' @export
+#' @examples
+#' deg <- ten(24, 52, 16)
+ten <- function (dd, mm = 0, ss = 0) {
+  np = nargs()
+  testneg = NULL
+  sign = 1
+  if ((np == 1 && is.character(dd))) {
+    temp = gsub(":", " ", dd)
+    testneg = grep("-", temp)
+    if (length(testneg) == 1)
+      temp = sub("-", "", temp)
+    if (length(testneg) == 1)
+      sign = -1
+    vector = as.double(strsplit(temp, " ")[[1]])
+  }
+  else {
+    vector = as.double(c(dd, mm, ss))
+  }
+  fac = c(1, 60, 3600)
+  vector = abs(vector)
+  return(sign * sum(vector/fac))
 }

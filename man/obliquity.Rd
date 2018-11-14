@@ -2,7 +2,7 @@
 % Please edit documentation in R/mechanics.R
 \name{obliquity}
 \alias{obliquity}
-\title{Computes obliquity based on \emph{Laskar et al (2004)} tables}
+\title{Computes obliquity of the ecliptic}
 \usage{
 obliquity(year = cur.year)
 }
@@ -11,10 +11,8 @@ obliquity(year = cur.year)
 Defaults to present year as given by Sys.Date()}
 }
 \description{
-This function calculates the obliquity for a given year,
-by interpolating the tables provided by \emph{Laskar et al.
- (2004)}. It is a modified version of function
- \code{\link[palinsol]{la04}} of package \emph{palinsol}.
+This function calculates the obliquity for a given epoch. It is a
+wrapper for function \code{\link[swephR]{swe_calc}} of package \emph{swephR}.
 }
 \examples{
 #' # Obliquity for year 3999 BC:
@@ -28,11 +26,7 @@ solution for the insolation quantities of the Earth, \emph{Astron.
 Laskar, J. et al. (2004), A long-term numerical
 solution for the insolation quantities of the Earth, \emph{Astron.
  Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
-
-Michel Crucifix (2016). palinsol: Insolation for
- Palaeoclimate Studies. R package version 0.93.
- [CRAN page](https://CRAN.R-project.org/package=palinsol)
 }
 \seealso{
-\code{\link[palinsol]{la04}}
+\code{\link[swephR]{swe_calc}}
 }

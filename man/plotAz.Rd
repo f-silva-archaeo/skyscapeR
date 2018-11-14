@@ -14,7 +14,7 @@ outside the [0, 360] range will be ignored.}
 for displaying the azimuths of celestial objects. Beware that this assumes a single
 location (given by parameter loc) and a flat horizon of zero degrees.}
 
-\item{loc}{(Optional) This can be either the latitude of the
+\item{loc}{(Optional) This can be either a vector with the latitude and longitude of the
 location, or a \emph{skyscapeR.horizon} object. Only necessary for plotting potential
 celestial targets.}
 

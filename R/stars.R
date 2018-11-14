@@ -1,3 +1,4 @@
+swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
 cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 
 #' Create \emph{skyscapeR.star} object
@@ -13,9 +14,9 @@ cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 #'   the second of which is a space).
 #' @param year Year for which to calculate the coordinates.
 #' Defaults to J2000.0 epoch.
+#' @import swephR
 #' @export
-#' @seealso \code{\link[astrolibR]{precess}}, \code{\link[astrolibR]{co_nutate}},
-#' \code{\link[astrolibR]{co_aberration}}
+#' @seealso \code{\link[swephR]{swe_fixstar2_ut}}, \code{\link[swephR]{swe_fixstar2_mag}}
 #' @examples
 #' # Retrieve data for Aldebaran:
 #' Aldeb <- star('Aldebaran')
@@ -26,52 +27,18 @@ cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 #'
 #' # Retrieve data for Sirius on 2999 BC:
 #' ss <- star('Sirius', -3000)
-star <- function(string, year) {
-  data(stars, envir = environment())
-  ind <- which(stars$NAME == string)
-  if (substr(string,1,3)=="HIP") { ind <- which(stars$HIP.ID == string)}
-  if (substr(string,1,2)=="HR") { ind <- which(stars$HR.ID == string)}
-  if (substr(string,1,1)=="M" & nchar(string)==3) { ind <- which(stars$MESSIER.ID == string)}
-  if (nchar(string)==5 & substr(string,2,2)==" ") { ind <- which(stars$BAYER.DESIGNATION == string)}
+star <- function(string, year=2000) {
 
-  if (length(ind) == 0) { stop('No star with that name or designation has been found.') }
+  info <- swephR::swe_fixstar2_ut(paste(string), swephR::swe_julday(year, 1, 1, 12.,1), 2048+16384+16)
 
   star <- c()
-  star$name <- as.character(stars$NAME[ind])
-  star$constellation <- as.character(stars$CONSTELLATION[ind])
-  star$colour <- as.character(stars$COLOUR[ind])
-  star$app.mag <- stars$VMAG[ind]
-  star$ra <- stars$RA[ind]
-  star$dec <- stars$DEC[ind]
-  star$proper.motion <- c(stars$PM_RA[ind],stars$PM_DEC[ind])
-  star$epoch <- "J2000.0"
+  star$name <- strsplit(info$star,',')[[1]][1]
+  star$constellation <- strsplit(info$star,',')[[1]][2]
+  star$app.mag <- swephR::swe_fixstar2_mag(paste(string))$mag
+  star$ra <- info$xx[1]
+  star$dec <- info$xx[2]
+  star$epoch <- year
   class(star) <- "skyscapeR.star"
-
-  # Time shift
-  if (!missing(year)) {
-    # precession
-    trash <- capture.output(coor <- astrolibR::precess(star$ra,star$dec, 2000, year), file=NULL)
-
-    # proper motion
-    adj.pm <- star$proper.motion*(year-2000)/1000
-    coor$ra <- coor$ra + astrolibR::ten(0,0,adj.pm[1])*sign(adj.pm[1])
-    coor$dec <- coor$dec + astrolibR::ten(0,0,adj.pm[2])*sign(adj.pm[2])
-
-    # nutation
-    adj.nu <- astrolibR::co_nutate(astrolibR::jdcnv(year,1,1,0), star$ra, star$dec)
-    coor$ra <- coor$ra + astrolibR::ten(0,0,adj.nu$d_ra)*sign(adj.nu$d_ra)
-    coor$dec <- coor$dec + astrolibR::ten(0,0,adj.nu$d_dec)*sign(adj.nu$d_dec)
-
-    # aberration
-    adj.ab <- astrolibR::co_aberration(astrolibR::jdcnv(year,1,1,0), star$ra, star$dec, pracma::deg2rad(obliquity(year)))
-    coor$ra <- coor$ra + astrolibR::ten(0,0,adj.ab$d_ra)*sign(adj.ab$d_ra)
-    coor$dec <- coor$dec + astrolibR::ten(0,0,adj.ab$d_dec)*sign(adj.ab$d_dec)
-
-    # output
-    star$ra <- coor$ra
-    star$dec <- coor$dec
-    star$epoch <- as.character(year)
-  }
 
   return(star)
 }
@@ -97,7 +64,7 @@ star <- function(string, year) {
 #' @param ncores (Optional) Number of processing cores to use for parallelisation.
 #' Defaults to the number of available cores minus 1.
 #' @export
-#' @import parallel numDeriv
+#' @import parallel numDeriv swephR
 #' @seealso \code{\link{plotPhases}}
 #' @references Purrington, Robert D. (1988) Heliacal Rising and Setting:
 #' Quantitative Aspects, \emph{Journal for the History of Astronomy
@@ -134,6 +101,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
     lat <- loc[1]
     lon <- loc[2]
   }
+  swephR::swe_set_topo(lon, lat, 0)
 
   # load star data
   if (class(star)!='skyscapeR.star') { star <- star(star, year) }
@@ -147,12 +115,12 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
   message(paste0('Running calculations on ', ncores, ' processing cores. This may take a while...'))
 
   # calculations
-  jd0 <- astrolibR::juldate(c(year,1,1,0)) + 2400000
+  jd0 <- swephR::swe_julday(year,1,1,12,1)
   jd.t <- seq(jd0, jd0+365, res)
   tx <- jd.t - jd0+1
 
   # Sun
-  Sun <- astrolibR::sunpos(jd.t)
+  Sun <- as.data.frame(swephR::swe_calc_ut(jd.t, 0, 32*1024+2048)$xx[,1:2]); colnames(Sun) <- c('ra','dec')
   X <- cbind(Sun$ra,Sun$dec); X <- cbind(X,jd.t)
   Sun.alt <- parallel::parApply(cl, X, 1, eq.to.Hor, lat=lat, lon=lon)
 

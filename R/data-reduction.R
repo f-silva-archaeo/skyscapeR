@@ -4,7 +4,7 @@
 #' a theodolite using the sunsight technique.
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude and longitude of location, in this order.
-#' @param az Array of azimuths. Use \code{\link[astrolibR]{ten}} to convert to
+#' @param az Array of azimuths. Use \code{\link{ten}} to convert to
 #' decimal point format if necessary.
 #' @param date Date of measurements as a string in the format: 'YYYY/MM/DD'
 #' @param time Time of sun-sight measurement in the format: 'HH:MM:SS'
@@ -21,7 +21,7 @@
 #' @param HWT.ID (Optional) HeyWhatsThat IDs relating to a previously generated
 #' horizon profile for measurement.
 #' @export
-#' @seealso \code{\link{sunAz}}, \code{\link[astrolibR]{ten}}, \code{\link{sixty}}
+#' @seealso \code{\link{sunAz}}, \code{\link{ten}}
 #' @references Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}.
 #' Yale University Press.
 #' @examples
