@@ -5,7 +5,7 @@
 # skyscapeR
 _skyscapeR_ is a open source R package for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy. It is intended to become a fully-fledged, transparent and peer-reviewed package offering a robust set of quantitative methods while retaining simplicity of use.
 
-For information on how to use _skyscapeR_ download [the official vignette](https://github.com/f-silva-archaeo/skyscapeR/blob/master/vignette.html). This is slightly out of date though, so watch this space.
+For information on how to use _skyscapeR_ download [the official vignette](https://github.com/f-silva-archaeo/skyscapeR/blob/master/doc/vignette.html). This is slightly out of date though, so watch this space.
 
 
 ## Release Notes
