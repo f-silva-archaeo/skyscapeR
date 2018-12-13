@@ -40,6 +40,6 @@ tt <- sky.objects(c('Sirius', 'Betelgeuse', 'Antares'), c(-4000,-2000),
 col=c('white', 'red', 'orange'))
 
 # Create an object with solstices and a custom declination value:
-tt <- sky.objects(c('dS','jS', -13), c(-4000,-2000))
+tt <- sky.objects(c('December Solstice','June Solstice', -13), c(-4000,-2000))
 }
 }

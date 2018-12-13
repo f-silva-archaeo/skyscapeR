@@ -4,8 +4,8 @@
 \alias{plot.skyscapeR.hist}
 \title{Plot a histogram}
 \usage{
-\method{plot}{skyscapeR.hist}(hh, obj, obj.label = T, col = "blue",
-  shade = T, xlim, ylim)
+\method{plot}{skyscapeR.hist}(hh, obj, col = "blue", xrange,
+  legend = F)
 }
 \arguments{
 \item{hh}{Object of \emph{skyscapeR.hist} format, created using \code{\link{histogram}}.}
@@ -13,17 +13,11 @@
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the declination of celestial objects.}
 
-\item{obj.label}{(Optional) Boolean to control whether to label the celestial objects in
-the histogram Defaults to \emph{TRUE}.}
+\item{col}{(Optional) Colour to plot the histogram in. Defaults to blue.}
 
-\item{col}{(Optional) Colour to plot the curvigram in. Defaults to blue.}
+\item{xrange}{Array of two values restricting the horizontal range of the plot.}
 
-\item{shade}{(Optional) Boolean to control whether to shade the curvigram in the same colour.
-Defaults to true.}
-
-\item{xlim}{Array of two values restricting the horizontal range of the plot.}
-
-\item{ylim}{Array of two values restricting the horizontal range of the plot.}
+\item{legend}{(Optional) Show legend. Defaults to FALSE.}
 }
 \description{
 This function creates a plot of a histogram
@@ -32,12 +26,12 @@ This function creates a plot of a histogram
 # Plot the histogram of Recumbent Stone Circles:
 data(RugglesRSC)
 hist <- histogram(RugglesRSC$Dec, unc=2)
-plot(hist, xlim=c(-40,0))
+plot(hist, xrange=c(-40,0))
 
 # Redo the plot to include lunar extreme declinations:
 LEx <- sky.objects('moon', -2000, col='red', lty=2)
-plot(hist, obj=LEx, xlim=c(-40,0))
+plot(hist, obj=LEx, xrange=c(-40,0))
 }
 \seealso{
-\code{\link{histogram}}, \code{\link{sky.objects}}
+\code{\link{histogram}}, \code{\link{curvigram}}, \code{\link{sky.objects}}
 }

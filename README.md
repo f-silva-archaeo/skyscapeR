@@ -6,6 +6,9 @@
 _skyscapeR_ is a open source R package for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy. It is intended to become a fully-fledged, transparent and peer-reviewed package offering a robust set of quantitative methods while retaining simplicity of use.
 
 
+
+
+
 Currently it includes functions to:
 
 * transform horizontal (Az/Alt) to equatorial (Dec/RA) coordinates;

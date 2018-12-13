@@ -86,7 +86,7 @@ minmaxdec = function(name, from, to) {
 
   # Stars
   data(stars, envir=environment())
-  if (sum(sapply(as.character(stars$NAME), pracma::strcmp, s2=name))) {
+  if (sum(as.character(stars$NAME) == name)) {
     for (i in 1: NROW(xx)) {
       dd[i] <- star(name, xx[i])$dec
     }
@@ -156,4 +156,32 @@ ten <- function (dd, mm = 0, ss = 0) {
   fac = c(1, 60, 3600)
   vector = abs(vector)
   return(sign * sum(vector/fac))
+}
+
+#' @noRd
+lty2dash <- function(lty){
+  if (lty==1) { return('solid') }
+  if (lty==2) { return('dash') }
+  if (lty==3) { return('dot') }
+  if (lty==4) { return('dashdot') }
+  if (lty==5) { return('longdash') }
+  if (lty==6) { return('longdashdot') }
+}
+
+#' @noRd
+yr2epoch <- function(year){
+  aux <- as.character(abs(year))
+  if (year > 0) { aux <- paste(aux, 'CE') }
+  if (year < 0)  { aux <- paste(aux, 'BCE') }
+  if (year == 0) { aux <- '1 CE' }
+
+  return(aux)
+}
+
+#' @noRd
+epoch2yr <- function(epoch){
+  aux <- as.numeric(sub(" .*", "", epoch))
+  sign <- sub(".* ", "", epoch)
+  if (sign=='BCE') { aux <- -aux}
+  return(aux)
 }

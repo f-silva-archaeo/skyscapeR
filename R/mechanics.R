@@ -32,33 +32,33 @@ Laskar04 = function(t, degree=TRUE) {
   tka = t/1000.
   if (tka>0)
   {
-      F <-  floor(tka)
-      ORB <- Laskar04$la04future[F+1, ]
-      if (! (tka == F)) {
-        D  <- tka - floor(tka)
-        diff <- Laskar04$la04future[F+2, ] - ORB
-        # note : if the diff in varpi is greater than pi,
-        # this probably means that we have skipped 2*pi,
-        # so we need to correct accordingly
-        if (diff$varpi > pi) diff$varpi = diff$varpi - 2*pi
-        if (diff$varpi < -pi) diff$varpi = diff$varpi + 2*pi
-        #
-        ORB <- ORB + D*diff
-      }
+    F <-  floor(tka)
+    ORB <- Laskar04$la04future[F+1, ]
+    if (! (tka == F)) {
+      D  <- tka - floor(tka)
+      diff <- Laskar04$la04future[F+2, ] - ORB
+      # note : if the diff in varpi is greater than pi,
+      # this probably means that we have skipped 2*pi,
+      # so we need to correct accordingly
+      if (diff$varpi > pi) diff$varpi = diff$varpi - 2*pi
+      if (diff$varpi < -pi) diff$varpi = diff$varpi + 2*pi
+      #
+      ORB <- ORB + D*diff
+    }
   } else {
-      F <-  floor(tka)
-      ORB <- Laskar04$la04past[-F+1, ]
-      if (! (tka == F)) {
-        D  <- tka - F
-        diff <- Laskar04$la04past[-F, ] - ORB
-        # note : if the diff in varpi is greater than pi,
-        # this probably means that we have skipped 2*pi,
-        # so we need to correct accordingly
-        if (diff$varpi > pi) diff$varpi = diff$varpi - 2*pi
-        if (diff$varpi < -pi) diff$varpi = diff$varpi + 2*pi
-        #
-        ORB <- ORB + D*diff
-      }
+    F <-  floor(tka)
+    ORB <- Laskar04$la04past[-F+1, ]
+    if (! (tka == F)) {
+      D  <- tka - F
+      diff <- Laskar04$la04past[-F, ] - ORB
+      # note : if the diff in varpi is greater than pi,
+      # this probably means that we have skipped 2*pi,
+      # so we need to correct accordingly
+      if (diff$varpi > pi) diff$varpi = diff$varpi - 2*pi
+      if (diff$varpi < -pi) diff$varpi = diff$varpi + 2*pi
+      #
+      ORB <- ORB + D*diff
+    }
   }
   if (degree) {rad2deg <- 180/pi
   ORB['eps'] <- ORB['eps']*rad2deg
@@ -158,16 +158,18 @@ orbit = function(dec, loc, res=0.5, refraction=T, ...) {
 #' a string with continent followed by country capital (eg. "Europe/London").
 #' @param limb (Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
 #' If missing the centre of the sun will be output.
+#' @param alt (Optional) Boolean that triggers output of altitude of the sun at exact time.
+#' Default is FALSE.
 #' @import swephR
 #' @export
 #' @seealso \code{\link{reduct.theodolite}}
 #' @examples
 #' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
-sunAz = function(loc, time, timezone, limb) {
+sunAz = function(loc, time, timezone, limb, alt=F) {
   if (class(loc)=='skyscapeR.horizon') { loc <- loc$metadata$georef }
   if (is.null(dim(loc))) { dim(loc) <- c(1, NROW(loc)) }
 
-  az <- c()
+  az <- c(); at <- c()
   for (i in 1:NROW(loc)) {
     pb.date <- as.POSIXct(time[i], timezone[i])
     UT <- format(pb.date, tz="UTC",usetz=TRUE)
@@ -177,14 +179,20 @@ sunAz = function(loc, time, timezone, limb) {
     jd <- swephR::swe_julday(UT$year+1900, UT$mon+1, UT$mday, UT$hour+UT$min/60+UT$sec/3600,1)
     ss <- swephR::swe_calc_ut(jd, 0, 32*1024+2048)
     xin <- ss$xx[1:2]
-    az[i] <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],0), 1013.25, 15, xin)$xaz[1]+180
+    aux <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],0), 1013.25, 15, xin)
+    az[i] <- aux$xaz[1]+180
     if (az[i] > 360) { az[i] <- az[i]-360 }
 
     if (!missing(limb)) {
       if (limb=="left") { az[i] <- az[i] - 32/60/2 }
       if (limb=="right") { az[i] <- az[i] + 32/60/2 }
     }
+    if (alt) { at[i] <- aux$xaz[2] }
   }
-
-  return(az)
+  if (alt) {
+    df <- data.frame(az = az, alt = at)
+    return(df)
+  } else {
+    return(az)
+  }
 }

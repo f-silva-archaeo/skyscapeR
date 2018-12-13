@@ -4,7 +4,8 @@
 \alias{plotAz}
 \title{Polar plot of orientations (azimuths)}
 \usage{
-plotAz(az, obj, loc, obj.label = T, ...)
+plotAz(az, obj, loc, col = "blue", lwd = 1, lty = 1, len = 1,
+  legend = F)
 }
 \arguments{
 \item{az}{Array of azimuths or data frame with column named \emph{True.Azimuth}. Values
@@ -18,24 +19,31 @@ location (given by parameter loc) and a flat horizon of zero degrees.}
 location, or a \emph{skyscapeR.horizon} object. Only necessary for plotting potential
 celestial targets.}
 
-\item{obj.label}{(Optional) Boolean to control whether to label the celestial objects in
-the polar plot. Defaults to \emph{TRUE}.}
+\item{col}{(Optional) Single colour or colour pallete to use for plotting measurements.}
 
-\item{...}{Any other parameters to be passed unto \code{\link[plotrix]{polar.plot}}}
+\item{lwd}{(Optional) Line width to plot measurements. Defaults to 1.}
+
+\item{lty}{(Optional) Line type to plot measurements. Defaults to 1.}
+
+\item{len}{(Optional) Length of line to plot measurements.}
+
+\item{legend}{(Optional) Show legend. Defaults to FALSE.}
 }
 \description{
-This function creates a polar plot of azimuthal data. It is a wrapper for
-\code{\link[plotrix]{polar.plot}}
+This function creates a polar plot of azimuthal data using \emph{plotly}.
 }
 \examples{
 # Plot some azimuth data:
 az <- c(120, 100, 93, 97, 88, 115, 112, 67)
 plotAz(az)
 
-# To visualize this data against the common solar and lunar targets:
-tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
-plotAz(az, tt, loc=c(35,-8))
-}
-\seealso{
-\code{\link[plotrix]{polar.plot}}, \code{\link{sky.objects}}
+# To visualise this data against the common solar and lunar targets:
+tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=1, lwd=1.5, col=c('black','red'))
+plotAz(az, obj=tt, loc=c(35,-8), legend=T)
+
+# To visualise the same data with shorter lines
+plotAz(az, obj=tt, loc=c(35,-8), len=0.2)
+
+# To display only celestial objects
+plotAz(az=NULL, obj=tt, loc=c(35,-8), legend=T)
 }
