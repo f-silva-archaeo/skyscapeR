@@ -5,12 +5,12 @@
 # skyscapeR
 _skyscapeR_ is a open source R package for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy. It is intended to become a fully-fledged, transparent and peer-reviewed package offering a robust set of quantitative methods while retaining simplicity of use.
 
-For information on how to use _skyscapeR_ download [the official vignette](https://github.com/f-silva-archaeo/skyscapeR/blob/master/vignette.html). This is slightly out of date though, so watch this space.
+For information on how to use _skyscapeR_ download [the official vignette](https://github.com/f-silva-archaeo/skyscapeR/blob/master/doc/vignette.html). This is slightly out of date though, so watch this space.
 
 
 ## Release Notes
 ### v0.3.0.9000 notes
-This version begins the _plotly_ implementation process for the plotting functions, which has other side-effects of changing other functions. It's not considerable stable yet, though it run hrough the vignette without a hitch. Some new functions, however, are not finalised yet (avoid anything in the plotting_plotly.R file for now).
+This version opnes the implementation of _plotly_ for all plotting functions, bringing the much requested interactive functionalities. The implementation involves considerable tinkering, which has had side-effects in other functions. The package is therefore not ready for another release yet -- though it runs through the vignette without a hitch. Some new functions, however, are not finalised yet and best to be avoided (e.g. anything in the plotting_plotly.R file for now).
 
 
 ### v0.2.9 notes
