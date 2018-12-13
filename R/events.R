@@ -1,3 +1,17 @@
+#' @noRd
+events <- function(name) {
+  return(switch(name,
+         'December Solstice' = 'dS',
+         'June Solstice' = 'jS',
+         'Equinox' = 'eq',
+         'Major Lunar Extreme (southern)' = 'sMjLX',
+         'Minor Lunar Extreme (southern)' = 'smnLX',
+         'Minor Lunar Extreme (northern)' = 'nMjLX',
+         'Major Lunar Extreme (northern)' = 'nmnLX',
+          name))
+}
+
+
 #' Creates a \emph{skyscapeR.object} for plotting of celestial objects at given epoch
 #'
 #' This function creates an object containing all the necessary information to
@@ -27,9 +41,27 @@
 #' col=c('white', 'red', 'orange'))
 #'
 #' # Create an object with solstices and a custom declination value:
-#' tt <- sky.objects(c('dS','jS', -13), c(-4000,-2000))
+#' tt <- sky.objects(c('December Solstice','June Solstice', -13), c(-4000,-2000))
 #' }
 sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
+
+  if (sum(names=='sun')) {
+    i <- which(names=='sun')
+    names <- names[-i]
+    names <- c('December Solstice','June Solstice','Equinox',names)
+    aux <- col[i]; col <- col[-i]; col <- c(rep(aux,3),col)
+    aux <- lty[i]; lty <- lty[-i]; lty <- c(rep(aux,3),lty)
+    aux <- lwd[i]; lwd <- lwd[-i]; lwd <- c(rep(aux,3),lwd)
+  }
+  if (sum(names=='moon')) {
+    i <- which(names=='moon')
+    names <- names[-i]
+    names <- c('Major Lunar Extreme (southern)', 'Minor Lunar Extreme (southern)', 'Minor Lunar Extreme (northern)', 'Major Lunar Extreme (northern)',names)
+    aux <- col[i]; col <- col[-i]; col <- c(rep(aux,4),col)
+    aux <- lty[i]; lty <- lty[-i]; lty <- c(rep(aux,4),lty)
+    aux <- lwd[i]; lwd <- lwd[-i]; lwd <- c(rep(aux,4),lwd)
+  }
+
   N <- NROW(names)
 
   if (NROW(col)==1) { col <- rep(col,N) }
@@ -43,84 +75,43 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 
   options(warn=-2)
   for (i in 1:N) {
-    if (is.na(as.numeric(names[i]))) {
-      # sun and moon shorthand
-      if (pracma::strcmp(names[i], 'sun')) {
-        aux <- array(NA, c(NROW(epoch),3))
-        for (j in 1:NROW(epoch)) {
-          aux[j,] <- c(dS(epoch[j]), jS(epoch[j]), eq(epoch[j]))
-        }
-        colnames(aux) <- c('dS','jS','eq')
-        tt <- cbind(tt, aux)
-        tt.col <- c(tt.col, rep(col[i], 3))
-        tt.lty <- c(tt.lty, rep(lty[i], 3))
-        tt.lwd <- c(tt.lwd, rep(lwd[i], 3))
-        next
-      }
-
-      if (pracma::strcmp(names[i], 'moon')) {
-        aux <- array(NA, c(NROW(epoch),4))
-        for (j in 1:NROW(epoch)) {
-          aux[j,] <- c(sMjLX(epoch[j]), smnLX(epoch[j]), nmnLX(epoch[j]), nMjLX(epoch[j]))
-        }
-        colnames(aux) <- c('sMjLX', 'smnLX', 'nmnLX', 'nMjLX')
-        tt <- cbind(tt, aux)
-        tt.col <- c(tt.col, rep(col[i], 4))
-        tt.lty <- c(tt.lty, rep(lty[i], 4))
-        tt.lwd <- c(tt.lwd, rep(lwd[i], 4))
-        next
-      }
-
-      if (pracma::strcmp(names[i], 'sunandmoon')) {
-        aux <- array(NA, c(NROW(epoch),7))
-        for (j in 1:NROW(epoch)) {
-          aux[j,] <- c(dS(epoch[j]), jS(epoch[j]), eq(epoch[j]), sMjLX(epoch[j]), smnLX(epoch[j]), nmnLX(epoch[j]), nMjLX(epoch[j]))
-        }
-        colnames(aux) <- c('dS','jS','eq','sMjLX', 'smnLX', 'nmnLX', 'nMjLX')
-        tt <- cbind(tt, aux)
-        tt.col <- c(tt.col, rep(col[i], 7))
-        tt.lty <- c(tt.lty, rep(lty[i], 7))
-        tt.lwd <- c(tt.lwd, rep(lwd[i], 7))
-        next
-      }
-
-      # stars
-      data(stars, envir=environment())
-      if (sum(sapply(as.character(stars$NAME), pracma::strcmp, s2=names[i]))) {
-        aux <- array(NA, c(NROW(epoch),1))
-        for (j in 1:NROW(epoch)) {
-          aux[j,] <- star(names[i], epoch[j])$dec
-        }
-        colnames(aux) <- names[i]
-        tt <- cbind(tt, aux)
-        tt.col <- c(tt.col, col[i])
-        tt.lty <- c(tt.lty, lty[i])
-        tt.lwd <- c(tt.lwd, lwd[i])
-        next
-      }
-
-      # if none of the above fit the bill try calling the functions
+    # stars
+    data(stars, envir=environment())
+    if (sum(as.character(stars$NAME) == names[i])) {
       aux <- array(NA, c(NROW(epoch),1))
       for (j in 1:NROW(epoch)) {
-        aux[j,] <- do.call(names[i], list(epoch[j]))
+        aux[j,] <- star(names[i], epoch[j])$dec
       }
       colnames(aux) <- names[i]
       tt <- cbind(tt, aux)
       tt.col <- c(tt.col, col[i])
       tt.lty <- c(tt.lty, lty[i])
       tt.lwd <- c(tt.lwd, lwd[i])
-    }
+      next
+    } else
 
     # custom dec
     if (!is.na(as.numeric(names[i]))) {
       aux <- array(NA, c(NROW(epoch),1))
       aux[,1] <- rep(as.numeric(names[i]),NROW(epoch))
-      colnames(aux) <- paste0('Custom Dec:',names[i])
+      colnames(aux) <- 'Custom Dec'
       tt <- cbind(tt, aux)
       tt.col <- c(tt.col, col[i])
       tt.lty <- c(tt.lty, lty[i])
       tt.lwd <- c(tt.lwd, lwd[i])
       next
+    } else {
+
+    # try calling the functions
+    aux <- array(NA, c(NROW(epoch),1))
+    for (j in 1:NROW(epoch)) {
+      aux[j,] <- do.call(events(names[i]), list(epoch[j]))
+    }
+    colnames(aux) <- names[i]
+    tt <- cbind(tt, aux)
+    tt.col <- c(tt.col, col[i])
+    tt.lty <- c(tt.lty, lty[i])
+    tt.lwd <- c(tt.lwd, lwd[i])
     }
 
   }
@@ -129,10 +120,9 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 
   # check min and max decs
   if (NROW(epoch)==2) {
-    ind <- which(substr(colnames(tt),1,6) != 'Custom')
-    dec.range <- sapply(colnames(tt[,ind]), minmaxdec, from=min(epoch), to=max(epoch))
-    aux <- matrix(NA, 2, NCOL(tt)); aux[,ind] <- dec.range; aux[,-ind] <- tt[,-ind]; rownames(aux) <- c('min','max')
-    tt <- rbind(tt,aux)
+    ind <- which(colnames(tt) != 'Custom Dec')
+    for (i in ind) { tt[,i] <- minmaxdec(events(colnames(tt)[i]), from=min(epoch), to=max(epoch)) }
+    rownames(tt) <- c('min','max')
   }
 
   # return result

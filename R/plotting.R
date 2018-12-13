@@ -1,7 +1,20 @@
+# copyright for plots
+cp <- list(
+  x = -0.05,
+  y = 1.05,
+  text = paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),
+  font = list ( size = 7 ),
+  xref = "paper",
+  xanchor = "left",
+  yref = "paper",
+  yanchor = "top",
+  showarrow = FALSE
+)
+
+
 #' Polar plot of orientations (azimuths)
 #'
-#' This function creates a polar plot of azimuthal data. It is a wrapper for
-#' \code{\link[plotrix]{polar.plot}}
+#' This function creates a polar plot of azimuthal data using \emph{plotly}.
 #' @param az Array of azimuths or data frame with column named \emph{True.Azimuth}. Values
 #' outside the [0, 360] range will be ignored.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
@@ -10,91 +23,142 @@
 #' @param loc (Optional) This can be either a vector with the latitude and longitude of the
 #' location, or a \emph{skyscapeR.horizon} object. Only necessary for plotting potential
 #' celestial targets.
-#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
-#' the polar plot. Defaults to \emph{TRUE}.
-#' @param ... Any other parameters to be passed unto \code{\link[plotrix]{polar.plot}}
+#' @param col (Optional) Single colour or colour pallete to use for plotting measurements.
+#' @param lwd (Optional) Line width to plot measurements. Defaults to 1.
+#' @param lty (Optional) Line type to plot measurements. Defaults to 1.
+#' @param len (Optional) Length of line to plot measurements.
+#' @param legend (Optional) Show legend. Defaults to FALSE.
 #' @export
-#' @import utils stats graphics
-#' @seealso \code{\link[plotrix]{polar.plot}}, \code{\link{sky.objects}}
+#' @import utils stats plotly
 #' @examples
 #' # Plot some azimuth data:
 #' az <- c(120, 100, 93, 97, 88, 115, 112, 67)
 #' plotAz(az)
 #'
-#' # To visualize this data against the common solar and lunar targets:
-#' tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
-#' plotAz(az, tt, loc=c(35,-8))
-plotAz = function(az, obj, loc, obj.label=T, ...) {
-  if (class(az)=='data.frame') { az <- az$True.Azimuth }
-
-  ind <- which(az > 360 | az < 0)
-  if (length(ind) > 0) {
-    az <- az[-ind]
-    warning('Ignoring values outside of azimuth range [0, 360]')
+#' # To visualise this data against the common solar and lunar targets:
+#' tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=1, lwd=1.5, col=c('black','red'))
+#' plotAz(az, obj=tt, loc=c(35,-8), legend=T)
+#'
+#' # To visualise the same data with shorter lines
+#' plotAz(az, obj=tt, loc=c(35,-8), len=0.2)
+#'
+#' # To display only celestial objects
+#' plotAz(az=NULL, obj=tt, loc=c(35,-8), legend=T)
+plotAz = function(az, obj, loc, col='blue', lwd=1, lty=1, len=1, legend=F) {
+  if (class(az)=='data.frame') {
+    az <- az$True.Azimuth
+    names <- az$Name
+  } else {
+    names <- as.character(1:NROW(az))
   }
+  if (length(col)==1) { col <- rep(col, length(az)) }
+  len <- 1-len
 
-  n <- NROW(az)
+  # Setup
+  p <- plotly::plot_ly(
+    type = 'scatterpolar',
+    mode = 'lines'
+  )
 
-  oldpar <- par()
-  testlen <- c(0.01,rep(1,n))
-  testpos <- c(0,az)
-  label.pos <- c(0,45,90,135,180,225,270,315)
-  labels <- c("N","","E","","S","","W","")
-  par(mar=c(4, 4, 2, 2) + 0.1)
-  plotrix::polar.plot(testlen, testpos, lwd=1.2, line.col='black', start=90, clockwise=T, labels= labels, label.pos = label.pos, show.grid.labels= F, grid.col='white', ...)
-  plotrix::draw.circle(0,0,1, border='grey')
-  mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
-
-  # objects
-  if (!missing(obj) & missing(loc)) { warning('No location given for plotting of celestial objects.') }
-
-
-  if (!missing(obj) & !missing(loc)) {
-    if (class(loc)=='numeric' & length(loc) != 2) { stop('Location should be either a vector with latitude and longitude or a skyscapeR.horizon object.') }
-
+  if (!missing(obj)) {
+    # Add celestial objects
     for (i in 1:obj$n) {
-      if (length(obj$epoch)==1) {
-        rise <- c(); set <- c();
-        orb <- orbit(obj$decs[i], loc)
-        forb <- splinefun(orb$az, orb$alt)
-        rise <- uniroot(forb, interval=c(0, 180))$root
-        set <- uniroot(forb, interval=c(180, 360))$root
-        tt <- c(rise, set)
-        plotrix::polar.plot(c(0.01,rep(1,NROW(tt))), c(0,tt), lwd=c(0,rep(obj$lwd[i],2)), line.col=c(0,rep(obj$col[i],2)), lty=c(1,rep(obj$lty[i],2)), start=90, clockwise=T, add=T)
-        if (obj.label) {
-          plotrix::radial.plot.labels(c(0.01,1.1), c(0,rise), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black',obj$col[i]), pos=4, offset=0.5)
-          plotrix::radial.plot.labels(c(0.01,1.1), c(0,set), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black',obj$col[i]), pos=2, offset=0.5)
-        }
-      } else {
-        rise1 <- c(); rise2 <- c(); set1 <- c(); set2 <- c()
-        orb1 <- orbit(obj$decs[3,i], loc)
-        forb <- splinefun(orb1$az, orb1$alt)
-        rise1 <- uniroot(forb, interval=c(0, 180))$root
-        set1 <- uniroot(forb, interval=c(180, 360))$root
+      rise <- c(); set <- c();
+      orb <- orbit(obj$decs[i], loc, refraction=F)
+      forb <- splinefun(orb$az, orb$alt)
+      rise <- uniroot(forb, interval=c(0, 180))$root
+      set <- uniroot(forb, interval=c(180, 360))$root
+      tt <- round(c(rise, set),1)
 
-        orb2 <- orbit(obj$decs[4,i], loc)
-        forb <- splinefun(orb2$az, orb2$alt)
-        rise2 <- uniroot(forb, interval=c(0, 180))$root
-        set2 <- uniroot(forb, interval=c(180, 360))$root
-
-        rise <- seq(min(c(rise1,rise2)), max(c(rise1,rise2)), by=0.1)
-        set <- seq(min(c(set1,set2)), max(c(set1,set2)), length.out=NROW(rise))
-        tt <- rbind(rep(0,NROW(rise)), rise, set)
-        dd <- cbind(rbind(rep(0.01,NROW(rise)),rep(0,NROW(rise)),rep(0,NROW(rise))), rbind(rep(0.01,NROW(rise)),rep(1,NROW(rise)),rep(1,NROW(rise))))
-
-        plotrix::polar.plot(dd, polar.pos=tt, rp.type='p', poly.col=c(0,rep(MESS::col.alpha(obj$col[i],0.3),2)), line.col=c(0,rep(obj$col[i],2)), start=90, clockwise=T, add=T)
-        if (obj.label) {
-          plotrix::radial.plot.labels(c(0.01,1.1), c(0,mean(c(rise1,rise2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black', obj$col[i]), pos=4, offset=0.5)
-          plotrix::radial.plot.labels(c(0.01,1.1), c(0,mean(c(set1,set2))), units='polar', start=pi*90/180, clockwise=T, labels=c('', colnames(obj$decs)[i]), cex=0.6, col=c('black', obj$col[i]), pos=2, offset=0.5)
-        }
+      sl <- T
+      for (j in 1:length(tt)) {
+        p <- plotly::add_trace(p,
+                               r = seq(len,1,by=.2),
+                               theta = rep(tt[j],length(seq(len,1,by=.2))),
+                               line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
+                               text = paste0(colnames(obj$decs)[i],'\nAzimuth: ',round(tt[j],2),'º\nEpoch: ', yr2epoch(obj$epoch)),
+                               hoverinfo = 'text',
+                               name = colnames(obj$decs)[i],
+                               showlegend = sl
+        )
+        sl <- F
       }
     }
-    plotrix::polar.plot(testlen, testpos, lwd=1.2, line.col='black', start=90, clockwise=T, add = T)
   }
-  options(warn=-2); par(oldpar); options(warn=0)
+
+  # Add measurements
+  sl <- T
+  for (i in 1:length(az)) {
+    p <- plotly::add_trace(p,
+                           r = seq(len,1,by=.2),
+                           theta = rep(az[i],length(seq(len,1,by=.2))),
+                           line = list( color = col[i], width = lwd, dash = lty2dash(lty) ),
+                           text = paste0('Site: ',names[i],'\nAzimuth: ',round(az[i],2),'º'),
+                           hoverinfo = 'text',
+                           name='Data',
+                           showlegend = sl
+    )
+    sl <- F
+  }
+
+  # Layout
+  p <- plotly::layout(p,
+                      polar = list(
+                        radialaxis = list( visible = F ),
+                        angularaxis = list(
+                          direction = 'clockwise',
+                          tickmode = 'array',
+                          tickvals = seq(0,359,45),
+                          ticktext = c('N','NE','E','SE','S','SW','W','NW'),
+                          tickfont = list( size = 14 )
+                        )
+                      ),
+                      font = list(
+                        family = 'Arial',
+                        size = 11,
+                        color = '#000'
+                      ),
+                      annotations = cp,
+                      showlegend = legend
+  )
+
+
+  p
 }
 
-plotBars <- function(val, unc, names, obj, obj.label=T, col='blue', shade=T, mark=F, sort=F, xlim, ylim) {
+
+#' Bar plot of orientations (declinations)
+#'
+#' This function creates a bar plot of orientation data.
+#' @param val Array of declinations.
+#' @param unc Single value or array of declination uncertainty
+#' @param names (Optional) Array of names of measurements in \emph{val}
+#' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
+#' for displaying the declinations of celestial objects.
+#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
+#' the polar plot. Defaults to \emph{TRUE}.
+#' @param col (Optional) Colour to plot measurments in. Defaults to \emph{blue}.
+#' @param shade (Optional) Boolean to control whether to shade a polygon of measurements. Defaults
+#' to \emph{TRUE}
+#' @param mark (Optional) Boolean to control whether to mark the declination value. Defaults to
+#' \emph{TRUE}
+#' @param sort (Optional) Boolean to control whether to sort the measurements by their declination
+#' value. Defaults to \emph{FALSE}
+#' @param xlim (Optional) Array of limits for x-axis.
+#' @param ylim (Optional) Array of limits for y-axis.
+#' @export
+#' @import utils stats graphics
+#' @seealso \code{\link{sky.objects}}
+#' @examples
+#' # Plot some declination data:
+#' decs <- c(10, 12, -5, 4)
+#' plotBars(decs, unc=5)
+#'
+#' # To visualize this data against the common solar and lunar targets:
+#' tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
+#' plotBars(decs, unc=5, obj=tt)
+plotBars <- function(val, unc, names, obj, obj.label=T, col='blue', shade=T, mark=T, sort=F, xlim, ylim) {
+  if (min(val)< -90 | max(val)>90) { stop('It appears that val includes azimuth values This function can only be used for declination values.')}
   if (NROW(unc)==1) { unc <- rep(unc, NROW(val)) }
   if (sort) {
     ind <- sort(val, decreasing=T, index.return=T)$ix
@@ -106,7 +170,7 @@ plotBars <- function(val, unc, names, obj, obj.label=T, col='blue', shade=T, mar
   if (!missing(names)) { par(mar=c(4, 9, 2, 2) + 0.1) } else { par(mar=c(4, 2, 2, 2) + 0.1) }
   if (missing(xlim)) { xlim <- c(min(val-unc)-5, max(val+unc)+5) }
   if (missing(ylim)) { ylim <- c(0.5, NROW(val)+0.5) }
-  plot.default(-100,-100, xlab='Orientation (º)', ylab='', xlim=xlim, ylim=ylim, axes=F, yaxs='i')
+  plot.default(-100,-100, xlab='Declination (º)', ylab='', xlim=xlim, ylim=ylim, axes=F, yaxs='i')
   axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
   axis(1, at=0, labels = 0)
   scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
@@ -152,68 +216,71 @@ plotBars <- function(val, unc, names, obj, obj.label=T, col='blue', shade=T, mar
 #' @param hh Object of \emph{skyscapeR.hist} format, created using \code{\link{histogram}}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the declination of celestial objects.
-#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
-#' the histogram Defaults to \emph{TRUE}.
-#' @param col (Optional) Colour to plot the curvigram in. Defaults to blue.
-#' @param shade (Optional) Boolean to control whether to shade the curvigram in the same colour.
-#' Defaults to true.
-#' @param xlim Array of two values restricting the horizontal range of the plot.
-#' @param ylim Array of two values restricting the horizontal range of the plot.
+#' @param col (Optional) Colour to plot the histogram in. Defaults to blue.
+#' @param xrange Array of two values restricting the horizontal range of the plot.
+#' @param legend (Optional) Show legend. Defaults to FALSE.
 #' @import utils stats graphics
 #' @export
-#' @seealso \code{\link{histogram}}, \code{\link{sky.objects}}
+#' @seealso \code{\link{histogram}}, \code{\link{curvigram}}, \code{\link{sky.objects}}
 #' @examples
 #' # Plot the histogram of Recumbent Stone Circles:
 #' data(RugglesRSC)
 #' hist <- histogram(RugglesRSC$Dec, unc=2)
-#' plot(hist, xlim=c(-40,0))
+#' plot(hist, xrange=c(-40,0))
 #'
 #' # Redo the plot to include lunar extreme declinations:
 #' LEx <- sky.objects('moon', -2000, col='red', lty=2)
-#' plot(hist, obj=LEx, xlim=c(-40,0))
-plot.skyscapeR.hist <- function(hh, obj, obj.label=T, col='blue', shade=T, xlim, ylim){
-  par(mar=c(4, 4, 2, 2) + 0.1)
-  if (missing(xlim)) { xlim <- c(min(hh$data$dec)-5, max(hh$data$dec)+5) }
-  if (missing(ylim)) { ylim <- c(0, max(hh$data$density)) }
-  plot.default(-100,-100, xlab='Declination (º)', ylab='Density', xlim=xlim, ylim=ylim, axes=F)
-  axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
-  axis(1, at=0, labels = 0)
-  scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
-  if (scale <= 2) { axis(1, at=seq(-90,90,0.5), lwd=0.2, labels=F) }
-  if (scale <= 5 & scale > 1) { axis(1, at=seq(-90,90,1), lwd=0.5, labels=F) }
-  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,90,5), lwd=0.5, labels=F) }
-  if (scale > 10) { axis(1, at=seq(-90,90,10), lwd=0.5, labels=F) }
-  axis(2)
+#' plot(hist, obj=LEx, xrange=c(-40,0))
+plot.skyscapeR.hist <- function(hh, obj, col='blue', xrange, legend=F){
 
   xx <- c(); yy <- c()
   for (i in 1:NROW(hh$data$density)) {
     xx <- c(xx, hh$data$dec[i], hh$data$dec[i+1])
     yy <- c(yy, rep(hh$data$density[i],2))
   }
-  lines(xx, yy, lwd=1.5, col=col)
-  if (shade) {
-    xp <- c(xx, rev(xx))
-    yp <- c(yy, rep(0, length(yy)))
-    polygon(xp, yp, col=MESS::col.alpha(col,0.5), border=NA)
-  }
 
-  box()
-  mtext(paste0('skyscapeR v',packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
+  p <- plotly::plot_ly(type = 'scatter', mode = 'lines')
+  p <- plotly::add_trace(p, x = ~xx, y = ~yy, fill = 'tozeroy',
+                         hoverinfo='skip',
+                         name='Data',
+                         line = list( color = MESS::col.alpha(col, 0.7)),
+                         fillcolor = MESS::col.alpha(col, 0.5))
+  p <- plotly::add_markers(p, x = ~(hh$data$dec+diff(hh$data$dec)[1]/2)[1:NROW(hh$data$density)], y = ~hh$data$density,
+                           text = paste0('Dec Range: [', hh$data$dec[1:NROW(hh$data$density)], 'º;', hh$data$dec[2:NROW(hh$data$dec)],'º]\nDensity: ',hh$data$density),
+                           hoverinfo = 'text',
+                           marker = list(size=2, color=MESS::col.alpha(col, 0.7)),
+                           showlegend=F)
+
+
+  if (missing(xrange)) { xrange <- range(hh$data$dec) }
 
   # objects
   if (!missing(obj)) {
     for (i in 1:obj$n) {
-      if (length(obj$epoch)==1) {
-        abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
-        if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
-      } else {
-        xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
-        yp <- c(-1,-1,2,2)
-        polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
-        if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+      if (sum(obj$decs[,i] >= xrange[1] & obj$decs[,i] <= xrange[2])) {
+        p <- plotly::add_trace(p, x = rep(obj$decs[1,i],NROW(seq(0,max(hh$data$density), length.out = 20))), y = seq(0,max(hh$data$density), length.out = 20),
+                               line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
+                               text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', yr2epoch(obj$epoch[1])),
+                               hoverinfo = 'text',
+                               name = colnames(obj$decs)[i] )
+        if (length(obj$epoch)==2) {
+          p <- plotly::add_trace(p, x = rep(obj$decs[2,i],NROW(seq(0,max(hh$data$density), length.out = 20))), y = seq(0,max(hh$data$density), length.out = 20),
+                                 line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
+                                 text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[2,i],1),'º\nEpoch: ', yr2epoch(obj$epoch[2])),
+                                 hoverinfo = 'text',
+                                 showlegend = F,
+                                 fill = 'tonexty')
+        }
       }
     }
   }
+
+  p <- plotly::layout(p,
+                      xaxis = list(title = 'Declination (º)', range = xrange),
+                      yaxis = list(title = 'Density'),
+                      annotations = cp,
+                      showlegend = legend)
+  p
 }
 
 
@@ -222,62 +289,67 @@ plot.skyscapeR.hist <- function(hh, obj, obj.label=T, col='blue', shade=T, xlim,
 
 #' Plot a curvigram
 #'
-#' This function creates a plot of a curvigram.
+#' This function creates a plot of a curvigram
 #' @param cc Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the declination of celestial objects.
-#' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
-#' the curvigram. Defaults to \emph{TRUE}.
-#' @param col (Optional) Colour to plot the curvigram in. Defaults to blue.
-#' @param shade (Optional) Boolean to control whether to shade the curvigram in the same colour.
-#' Defaults to true.
+#' @param col (Optional) Colour to plot the curvigram in. Defaults to blue..
 #' @param xlim Array of two values restricting the horizontal range of the plot.
-#' @param ylim Array of two values restricting the horizontal range of the plot.
+#' @param legend (Optional) Show legend. Defaults to FALSE.
 #' @import utils stats graphics
 #' @export
-#' @seealso \code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
+#' @seealso \code{\link{curvigram}}, \code{\link{histogram}}, \code{\link{sky.objects}}
 #' @examples
 #' # Plot the curvigram of Recumbent Stone Circles:
 #' data(RugglesRSC)
 #' curv <- curvigram(RugglesRSC$Dec, unc=2)
-#' plot(curv, xlim=c(-40,0))
+#' plot(curv)
 #'
 #' # Redo the plot to include lunar extreme declinations:
 #' LEx <- sky.objects('moon', -2000, col='red', lty=2)
-#' plot(curv, obj=LEx, xlim=c(-40,0))
-plot.skyscapeR.curv <- function(cc, obj, obj.label=T, col='blue', shade=T, xlim, ylim) {
-  if (missing(xlim)) { xlim <- sort(cc$data$dec[c(min(which(cc$data$density >= 1e-12)), max(which(cc$data$density >= 1e-12)))]) }
-  if (missing(ylim)) { ylim <- c(0, max(cc$data$density)) }
-  plot.default(cc$data$dec, cc$data$density, type='l', main='', xlab='Declination', ylab='Density', lwd=2, col=col, xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=F); box()
-  if (shade) {
-    xp <- c(cc$data$dec, rev(cc$data$dec))
-    yp <- c(cc$data$dens, rep(0, length(cc$data$dec)))
-    polygon(xp, yp, col=MESS::col.alpha(col,0.5), border=NA)
-  }
-  axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
-  axis(1, at=0, labels = 0)
-  scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
-  if (scale <= 2) { axis(1, at=seq(-90,90,0.5), lwd=0.2, labels=F) }
-  if (scale <= 5 & scale > 1) { axis(1, at=seq(-90,90,1), lwd=0.5, labels=F) }
-  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,90,5), lwd=0.5, labels=F) }
-  if (scale > 10) { axis(1, at=seq(-90,90,10), lwd=0.5, labels=F) }
-  axis(2)
-  mtext(paste0('skyscapeR v',packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'),3, adj=0, cex=0.5)
+#' plot(curv, obj=LEx, legend=T)
+plot.skyscapeR.curv <- function(cc, obj, col='blue', xlim, legend=F){
+
+  xx <- cc$data$dec
+  yy <- cc$data$density
+
+  p <- plotly::plot_ly(type = 'scatter', mode = 'lines')
+  p <- plotly::add_trace(p, x = ~xx, y = ~yy, fill = 'tozeroy',
+                         line = list( color = MESS::col.alpha(col, 0.7)),
+                         fillcolor = MESS::col.alpha(col, 0.5),
+                         text = paste0('Dec: ', round(cc$data$dec,1), 'º\nDensity: ',round(cc$data$density,3)),
+                         hoverinfo = 'text',
+                         name = 'Data')
+
+  if (missing(xlim)) { xlim <- range(cc$data$dec) }
 
   # objects
   if (!missing(obj)) {
     for (i in 1:obj$n) {
-      if (length(obj$epoch)==1) {
-        abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
-        if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
-      } else {
-        xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
-        yp <- c(-1,-1,2,2)
-        polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
-        if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+      if (sum(obj$decs[,i] >= xlim[1] & obj$decs[,i] <= xlim[2])) {
+        p <- plotly::add_trace(p, x = rep(obj$decs[1,i],NROW(seq(0,max(cc$data$density), length.out = 20))), y = seq(0,max(cc$data$density), length.out = 20),
+                               line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
+                               text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', yr2epoch(obj$epoch[1])),
+                               hoverinfo = 'text',
+                               name = colnames(obj$decs)[i] )
+        if (length(obj$epoch)==2) {
+          p <- plotly::add_trace(p, x = rep(obj$decs[2,i],NROW(seq(0,max(cc$data$density), length.out = 20))), y = seq(0,max(cc$data$density), length.out = 20),
+                                 line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
+                                 text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[2,i],1),'º\nEpoch: ', yr2epoch(obj$epoch[2])),
+                                 hoverinfo = 'text',
+                                 showlegend = F,
+                                 fill = 'tonexty')
+        }
       }
     }
   }
+
+  p <- plotly::layout(p,
+                      xaxis = list(title = 'Declination (º)', range = xlim),
+                      yaxis = list(title = 'Density'),
+                      annotations = cp,
+                      showlegend = legend)
+  p
 }
 
 
@@ -463,8 +535,8 @@ plot.skyscapeR.horizon <- function(hor, show.unc=F, show.axes=F, max.alt, az0 = 
         orb <- orbit(obj$decs[i], hor, res=0.5)
         plot(orb, obj$col[i])
       } else {
-        orb1 <- orbit(obj$decs[3,i], hor, res=0.5)
-        orb2 <- orbit(obj$decs[4,i], hor, res=0.5)
+        orb1 <- orbit(obj$decs[1,i], hor, res=0.5)
+        orb2 <- orbit(obj$decs[2,i], hor, res=0.5)
         plot(orb1, obj$col[i])
         plot(orb2, obj$col[i])
       }

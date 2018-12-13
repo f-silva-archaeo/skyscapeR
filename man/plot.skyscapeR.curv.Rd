@@ -4,8 +4,7 @@
 \alias{plot.skyscapeR.curv}
 \title{Plot a curvigram}
 \usage{
-\method{plot}{skyscapeR.curv}(cc, obj, obj.label = T, col = "blue",
-  shade = T, xlim, ylim)
+\method{plot}{skyscapeR.curv}(cc, obj, col = "blue", xlim, legend = F)
 }
 \arguments{
 \item{cc}{Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.}
@@ -13,31 +12,25 @@
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the declination of celestial objects.}
 
-\item{obj.label}{(Optional) Boolean to control whether to label the celestial objects in
-the curvigram. Defaults to \emph{TRUE}.}
-
-\item{col}{(Optional) Colour to plot the curvigram in. Defaults to blue.}
-
-\item{shade}{(Optional) Boolean to control whether to shade the curvigram in the same colour.
-Defaults to true.}
+\item{col}{(Optional) Colour to plot the curvigram in. Defaults to blue..}
 
 \item{xlim}{Array of two values restricting the horizontal range of the plot.}
 
-\item{ylim}{Array of two values restricting the horizontal range of the plot.}
+\item{legend}{(Optional) Show legend. Defaults to FALSE.}
 }
 \description{
-This function creates a plot of a curvigram.
+This function creates a plot of a curvigram
 }
 \examples{
 # Plot the curvigram of Recumbent Stone Circles:
 data(RugglesRSC)
 curv <- curvigram(RugglesRSC$Dec, unc=2)
-plot(curv, xlim=c(-40,0))
+plot(curv)
 
 # Redo the plot to include lunar extreme declinations:
 LEx <- sky.objects('moon', -2000, col='red', lty=2)
-plot(curv, obj=LEx, xlim=c(-40,0))
+plot(curv, obj=LEx, legend=T)
 }
 \seealso{
-\code{\link{curvigram}}, \code{\link{sky.objects}}, \code{\link{sigTest}}
+\code{\link{curvigram}}, \code{\link{histogram}}, \code{\link{sky.objects}}
 }
