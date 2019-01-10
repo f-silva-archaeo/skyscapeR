@@ -66,7 +66,6 @@ sigTest <- function(data, type='curv', ncores=parallel::detectCores()-1, nsims=2
 
 
   ## bootstrapping
-  require(foreach)
   cl <- parallel::makeCluster(ncores)
   doParallel::registerDoParallel(cl)
   parallel::clusterEvalQ(cl, library(skyscapeR))

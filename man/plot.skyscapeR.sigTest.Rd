@@ -4,28 +4,36 @@
 \alias{plot.skyscapeR.sigTest}
 \title{Plot significance test results}
 \usage{
-\method{plot}{skyscapeR.sigTest}(sig, xlim, show.pval = T,
-  show.local = F)
+\method{plot}{skyscapeR.sigTest}(sig, obj, col = "blue", xrange,
+  show.pval = T, show.local = F, legend = F)
 }
 \arguments{
 \item{sig}{Object of \emph{skyscapeR.sigTest} format, created using \code{\link{sigTest}}.}
 
-\item{xlim}{(Optional) Array of two values restricting the horizontal range of the plot.}
+\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
+for displaying the declination of celestial objects.}
+
+\item{col}{(Optional) Colour to plot the curvigram in. Defaults to blue.}
+
+\item{xrange}{(Optional) Array of two values restricting the horizontal range of the plot.}
 
 \item{show.pval}{(Optional) Boolean to control whether the global p-value is written.
 Default is True.}
 
 \item{show.local}{(Optional) Boolean to control whether the local regions of significance
 are plotted. Default is False.}
+
+\item{legend}{(Optional) Show legend. Defaults to FALSE.}
 }
 \description{
 This function creates a plot of the results of significance test
 }
 \examples{
 \dontrun{
-data(RugglesRSC)
-curv <- curvigram(RugglesRSC$Dec, sd=2)
-sig <- sigTest(curv, null.hyp=nh.Uniform(c(57,2)))
+mag.az <- c(89.5, 105, 109.5)
+data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
+data$Azimuth.Uncertainty <- 2  # adds the information on the preision of the azimuthal meaurement
+sig <- sigTest(data)
 
 plot(sig, show.local=T)
 }

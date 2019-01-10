@@ -185,3 +185,123 @@ epoch2yr <- function(epoch){
   if (sign=='BCE') { aux <- -aux}
   return(aux)
 }
+
+
+#' @noRd
+checkbody <- function(body){
+  body <- toupper(body)
+  data(SE, package='swephR', envir = environment()); nn <- names(SE[3:13]); nn[1] <- 'ECLIPTIC'
+  ind <- which(nn==body)+2
+  if (length(ind)==0) { stop('Solar System body name not recognised. Please recheck.')}
+  body <- as.numeric(SE[ind])
+  return(body)
+}
+
+
+#' Converts date and time (in any timezone) to Julian date
+#'
+#' @param time String containing the date and time in the format "YYYY-MM-DD HH:MM:SS".
+#' Use \code{\link{timestring}} if needed.
+#' @param timezone (Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
+#' a string with continent followed by country capital (eg. "Europe/London"). See
+#' \code{\link{timezones}} for details. Default is GMT.
+#' @param cal (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
+#' Defaults to Gregorian.
+#' @import swephR
+#' @export
+#' @seealso \code{\link[swephR]{swe_julday}}, \code{\link{as.POSIXlt}}, \code{\link{timezones}},
+#' \code{\link{timestring}}
+#' @examples
+#' # Julian date at noon GMT on Christmas day 2018
+#' time2jd('2018-12-25 12:00:00', 'GMT')
+time2jd <- function(time, timezone = 'GMT', cal='G') {
+  pb.date <- as.POSIXct(time, timezone)
+  UT <- format(pb.date, tz="UTC",usetz=TRUE)
+  UT <- as.POSIXlt(UT, 'UTC')
+
+  if (cal=='G') { cal <- 1 }
+  if (cal=='J') { cal <- 0 }
+
+  jd <- swephR::swe_julday(UT$year+1900, UT$mon+1, UT$mday, UT$hour+UT$min/60+UT$sec/3600, cal)
+  return(jd)
+}
+
+#' Converts Julian date and time (in any timezone) to julian date
+#'
+#' @param jd Julian date in numeric format
+#' @param timezone (Optional) Desired timezone for output either as a known acronym (eg. "GMT", "CET") or
+#' a string with continent followed by country capital (eg. "Europe/London"). See
+#' \code{\link{timezones}} for details. Default is GMT.
+#' @param cal (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
+#' Only needed if \emph{time} is a string. Defaults to Gregorian.
+#' @import swephR
+#' @export
+#' @seealso \code{\link[swephR]{swe_julday}}, \code{\link{as.POSIXlt}}, \code{\link{timezones}}
+#' @examples
+#' jd <- time2jd('2018-12-25 12:00:00', 'GMT') # Julian date at noon GMT on Christmas day 2018
+#' jd2time(jd, 'CET') # converts julian date to Central European timezone
+#'
+jd2time <- function(jd, timezone='GMT', cal='G') {
+  if (cal=='G') { cal <- 1 }
+  if (cal=='J') { cal <- 0 }
+
+  time <- swe_revjul(jd, cal)
+
+  ts <- timestring(time$year, time$month, time$day, floor(time$hour), floor((time$hour %% 1)*60), floor(((((time$hour %% 1)*60)) %% 1) *60))
+  ts <- as.POSIXct(ts, 'UTC')
+  ts <- format(ts, tz=timezone, usetz=TRUE)
+
+  return(substr(ts,1, 19))
+}
+
+#' Converts date and time numeric values to a single string
+#'
+#' @param year Year
+#' @param month Month
+#' @param day Day
+#' @param hour Hour
+#' @param minute Minute
+#' @param second Second
+#' @export
+#' @examples
+#' timestring(2018, 12, 25, 2, 34)
+timestring <- function(year, month, day, hour=12, minute=0, second=0) {
+  month <- as.character(month); if (nchar(month) < 2) { month <- paste0('0', month) }
+  day <- as.character(day); if (nchar(day) < 2) { day <- paste0('0', day) }
+  hour <- as.character(hour); if (nchar(hour) < 2) { hour <- paste0('0', hour) }
+  minute <- as.character(minute); if (nchar(minute) < 2) { minute <- paste0('0', minute) }
+  second <- as.character(second); if (nchar(second) < 2) { second <- paste0('0', second) }
+
+  ts <- paste(paste(year, month, day, sep='-'), paste(hour, minute, second, sep=':'))
+  return(ts)
+}
+
+
+#' Converts day-month in 'MM-DD' format to a more readable format
+#'
+#' @param date date in 'MM-DD' format
+#' @export
+#' @examples
+#' long.date('01-01')
+#' long.date('08-23')
+long.date <- function(date){
+  day <- as.numeric(substr(date,4,5))
+  month <- month.abb[as.numeric(substr(date,1,2))]
+
+  return( paste(day, month) )
+}
+
+
+#' @noRd
+mag2size <- function(mag) {
+  if (mag == 0 | is.na(mag) | mag > 6) { size <- 0 }
+  if (mag <= 6) { size <- .1 }
+  if (mag <= 5) { size <- .2 }
+  if (mag <= 4) { size <- .3 }
+  if (mag <= 3) { size <- .4 }
+  if (mag <= 2) { size <- .5 }
+  if (mag <= 1) { size <- .6 }
+  if (mag < 0) { size <- .7 }
+  return(size)
+}
+

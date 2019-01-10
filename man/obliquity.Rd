@@ -22,10 +22,6 @@ obliquity(-4000)
 Laskar, J. et al. (2004), A long-term numerical
 solution for the insolation quantities of the Earth, \emph{Astron.
  Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
-
-Laskar, J. et al. (2004), A long-term numerical
-solution for the insolation quantities of the Earth, \emph{Astron.
- Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
 }
 \seealso{
 \code{\link[swephR]{swe_calc}}

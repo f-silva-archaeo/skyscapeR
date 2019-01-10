@@ -5,7 +5,7 @@
 \title{Bar plot of orientations (declinations)}
 \usage{
 plotBars(val, unc, names, obj, obj.label = T, col = "blue",
-  shade = T, mark = T, sort = F, xlim, ylim)
+  shade = T, mark = T, sort = F, xrange, yrange)
 }
 \arguments{
 \item{val}{Array of declinations.}
@@ -31,9 +31,9 @@ to \emph{TRUE}}
 \item{sort}{(Optional) Boolean to control whether to sort the measurements by their declination
 value. Defaults to \emph{FALSE}}
 
-\item{xlim}{(Optional) Array of limits for x-axis.}
+\item{xrange}{(Optional) Array of limits for x-axis.}
 
-\item{ylim}{(Optional) Array of limits for y-axis.}
+\item{yrange}{(Optional) Array of limits for y-axis.}
 }
 \description{
 This function creates a bar plot of orientation data.

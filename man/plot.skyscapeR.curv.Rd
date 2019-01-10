@@ -4,7 +4,8 @@
 \alias{plot.skyscapeR.curv}
 \title{Plot a curvigram}
 \usage{
-\method{plot}{skyscapeR.curv}(cc, obj, col = "blue", xlim, legend = F)
+\method{plot}{skyscapeR.curv}(cc, obj, col = "blue", xrange,
+  legend = F)
 }
 \arguments{
 \item{cc}{Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.}
@@ -14,7 +15,7 @@ for displaying the declination of celestial objects.}
 
 \item{col}{(Optional) Colour to plot the curvigram in. Defaults to blue..}
 
-\item{xlim}{Array of two values restricting the horizontal range of the plot.}
+\item{xrange}{(Optional) Array of two values restricting the horizontal range of the plot.}
 
 \item{legend}{(Optional) Show legend. Defaults to FALSE.}
 }

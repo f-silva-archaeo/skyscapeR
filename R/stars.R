@@ -35,8 +35,8 @@ star <- function(string, year=2000) {
   star$name <- strsplit(info$star,',')[[1]][1]
   star$constellation <- strsplit(info$star,',')[[1]][2]
   star$app.mag <- swephR::swe_fixstar2_mag(paste(string))$mag
-  star$ra <- info$xx[1]
-  star$dec <- info$xx[2]
+  star$RA <- info$xx[1]
+  star$Dec <- info$xx[2]
   star$epoch <- year
   class(star) <- "skyscapeR.star"
 

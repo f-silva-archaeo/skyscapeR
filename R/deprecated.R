@@ -21,6 +21,19 @@ nh.Uniform = function(loc, alt=0) {
 }
 
 
+#' Plot visible path of celestial object on horizon
+#'
+#' This function adds the visible path of a celestial object to a horizon plot.
+#' @param orbit Object of \emph{skyscapeR.orbit} format.
+#' @param col String with colour to plot path in. Defaults to red.
+#' @seealso \code{\link{plot.skyscapeR.horizon}}, \code{\link{orbit}}
+#' @import utils stats graphics
+#' @noRd
+plot.skyscapeR.orbit<- function(orbit, col) {
+  .Defunct('plot.skyscapeR.horizon')
+}
+
+
 #' Declination distribution of the Sun throughout the year
 #'  for null hypothesis significance testing
 #'

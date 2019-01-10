@@ -4,7 +4,7 @@
 \alias{sunAz}
 \title{Returns the azimuth of the sun at a given time from a specific location}
 \usage{
-sunAz(loc, time, timezone, limb, alt = F)
+sunAz(loc, time, timezone = "Europe/London", limb, alt = F)
 }
 \arguments{
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector

@@ -4,34 +4,30 @@
 \alias{plot.skyscapeR.horizon}
 \title{Plot horizon data}
 \usage{
-\method{plot}{skyscapeR.horizon}(hor, show.unc = F, show.axes = F,
-  max.alt, az0 = 0, zoom = F, obj, measure, ...)
+\method{plot}{skyscapeR.horizon}(hor, obj, data, show.unc = F,
+  show.ground = T, show.axes = F, xrange, yrange, legend = F)
 }
 \arguments{
 \item{hor}{Object of \emph{skyscapeR.horizon} format.}
 
+\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
+for displaying the paths of celestial objects.}
+
+\item{data}{(Optional) A data.frame object with columns \emph{True.Azimuth} and}
+
 \item{show.unc}{(Optional) Boolean that controls whether to display uncertainty in altitude.
 Default is \emph{FALSE}.}
+
+\item{show.ground}{(Optional) Boolean that controls whether to dispaly the ground. Default is \emph{TRUE}.}
 
 \item{show.axes}{(Optional) Boolean that controls whether to display azimuth values on horizontal
 axis and altitude on vertical axis. Default is \emph{FALSE}.}
 
-\item{max.alt}{Maximum altitude to display. Defaults to 45 degrees.}
+\item{xrange}{Range of azimuth axis. Defaults to c(0, 360).}
 
-\item{az0}{Leftmost azimuth of plot. Defaults to 0 degrees, i.e. North at the left.}
+\item{yrange}{Range of altitude axis. Defaults to c(-10, 45).}
 
-\item{zoom}{Boolean that controls whether to provide a zoomed-in view of 100 degrees in
-azimuth and 5 degrees of altitude above the horizon line. Default is \emph{FALSE}.}
-
-\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-for displaying the paths of celestial objects.}
-
-\item{measure}{(Optional) A data.frame object with columns \emph{True.Azimuth} and
-\emph{Altitude} such as the ones produced by \code{\link{reduct.compass}} or
-\code{\link{reduct.theodolite}}. If no column named \emph{Altitude} is found then it will
-plot all azimuths are zero degrees altitude.}
-
-\item{...}{Any other parameters to be passed unto \code{\link{plot.default}}.}
+\item{legend}{(Optional) Show legend. Defaults to FALSE.}
 }
 \description{
 This function creates a plot of horizon data.
@@ -43,7 +39,7 @@ plot(hor)
 
 # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
 tt <- sky.objects('sun', -2000, 'blue')
-plot(hor, objects=tt)
+plot(hor, obj=tt)
 }
 \seealso{
 \code{\link{downloadHWT}}, \code{\link{sky.objects}}
