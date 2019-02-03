@@ -187,7 +187,7 @@ jS = function(year = cur.year) {
 #' # Northern minor Lunar Extreme declination for year 2499 BC:
 #' nmnLX(-2500)
 nmnLX = function(year = cur.year) {
-  aux <- obliquity(year) - 5.145
+  aux <- obliquity(year) - 5.145 - 0.85
   return(aux)
 }
 
@@ -205,7 +205,7 @@ nmnLX = function(year = cur.year) {
 #' # Southern minor Lunar Extreme declination for year 2499 BC:
 #' smnLX(-2500)
 smnLX = function(year = cur.year) {
-  aux <- obliquity(year) - 5.145
+  aux <- obliquity(year) - 5.145 - 0.85
   return(-aux)
 }
 
@@ -223,7 +223,7 @@ smnLX = function(year = cur.year) {
 #' # Northern major Lunar Extreme declination for year 2499 BC:
 #' nMjLX(-2500)
 nMjLX = function(year = cur.year) {
-  aux <- obliquity(year) + 5.145
+  aux <- obliquity(year) + 5.145 - 0.85
   return(aux)
 }
 
@@ -241,7 +241,7 @@ nMjLX = function(year = cur.year) {
 #' # Southern major Lunar Extreme declination for year 2499 BC:
 #' sMjLX(-2500)
 sMjLX = function(year = cur.year) {
-  aux <- obliquity(year) + 5.145
+  aux <- obliquity(year) + 5.145 - 0.85
   return(-aux)
 }
 
