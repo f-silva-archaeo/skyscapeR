@@ -76,7 +76,7 @@ plotAz = function(az, obj, loc, col='blue', lwd=1, lty=1, len=1, legend=F) {
                                r = seq(len,1,by=.2),
                                theta = rep(tt[j],length(seq(len,1,by=.2))),
                                line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
-                               text = paste0(colnames(obj$decs)[i],'\nAzimuth: ',round(tt[j],2),'º\nEpoch: ', yr2epoch(obj$epoch)),
+                               text = paste0(colnames(obj$decs)[i],'\nAzimuth: ',round(tt[j],2),'º\nEpoch: ', BCE(obj$epoch)),
                                hoverinfo = 'text',
                                name = colnames(obj$decs)[i],
                                showlegend = sl
@@ -246,7 +246,7 @@ plot.skyscapeR.hist <- function(hh, obj, col='blue', xrange, legend=F){
                          line = list( color = MESS::col.alpha(col, 0.7)),
                          fillcolor = MESS::col.alpha(col, 0.5))
   p <- plotly::add_markers(p, x = ~(hh$data$dec+diff(hh$data$dec)[1]/2)[1:NROW(hh$data$density)], y = ~hh$data$density,
-                           text = paste0('Dec Range: [', hh$data$dec[1:NROW(hh$data$density)], 'º;', hh$data$dec[2:NROW(hh$data$dec)],'º]\nDensity: ',hh$data$density),
+                           text = paste0('Declination Range: [', round(hh$data$dec[1:NROW(hh$data$density)],2), 'º ; ', round(hh$data$dec[2:NROW(hh$data$dec)],2),'º]\nDensity: ',hh$data$density),
                            hoverinfo = 'text',
                            marker = list(size=2, color=MESS::col.alpha(col, 0.7)),
                            showlegend=F)
@@ -261,7 +261,7 @@ plot.skyscapeR.hist <- function(hh, obj, col='blue', xrange, legend=F){
         if (length(obj$epoch)==1) {
           p <- plotly::add_trace(p, x = rep(obj$decs[1,i],NROW(seq(0,max(hh$data$density), length.out = 20))), y = seq(0,max(hh$data$density), length.out = 20),
                                  line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
-                                 text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', yr2epoch(obj$epoch[1])),
+                                 text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch[1])),
                                  hoverinfo = 'text',
                                  name = colnames(obj$decs)[i] )
         } else {
@@ -270,7 +270,7 @@ plot.skyscapeR.hist <- function(hh, obj, col='blue', xrange, legend=F){
                                     line = list(color = MESS::col.alpha(obj$col[i],0.7)),
                                     fillcolor = MESS::col.alpha(obj$col[i],0.5),
                                     name = colnames(obj$decs)[i],
-                                    text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', yr2epoch(obj$epoch[1]),' - ',yr2epoch(obj$epoch[2])),
+                                    text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch[1]),' - ',BCE(obj$epoch[2])),
                                     hoverinfo = 'text',
                                     showlegend=T)
         }
@@ -279,7 +279,7 @@ plot.skyscapeR.hist <- function(hh, obj, col='blue', xrange, legend=F){
   }
 
   p <- plotly::layout(p,
-                      xaxis = list(title = 'Declination (º)', range = xrange),
+                      xaxis = list(title = 'Declination (º)', range = xrange, zeroline = F),
                       yaxis = list(title = 'Density'),
                       annotations = cp,
                       showlegend = as.logical(legend))
@@ -320,7 +320,7 @@ plot.skyscapeR.curv <- function(cc, obj, col='blue', xrange, legend=F){
   p <- plotly::add_trace(p, x = ~xx, y = ~yy, fill = 'tozeroy',
                          line = list( color = MESS::col.alpha(col, 0.7)),
                          fillcolor = MESS::col.alpha(col, 0.5),
-                         text = paste0('Dec: ', round(cc$data$dec,2), 'º\nDensity: ',round(cc$data$density,3)),
+                         text = paste0('Declination: ', round(cc$data$dec,2), 'º\nDensity: ',round(cc$data$density,3)),
                          hoverinfo = 'text',
                          name = 'Data')
 
@@ -333,7 +333,7 @@ plot.skyscapeR.curv <- function(cc, obj, col='blue', xrange, legend=F){
         if (length(obj$epoch)==1) {
           p <- plotly::add_trace(p, x = rep(obj$decs[1,i],NROW(seq(0,max(cc$data$density), length.out = 20))), y = seq(0,max(cc$data$density), length.out = 20),
                                  line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
-                                 text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', yr2epoch(obj$epoch[1])),
+                                 text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch[1])),
                                  hoverinfo = 'text',
                                  name = colnames(obj$decs)[i] )
         } else {
@@ -342,7 +342,7 @@ plot.skyscapeR.curv <- function(cc, obj, col='blue', xrange, legend=F){
                                     line = list(color = MESS::col.alpha(obj$col[i],0.7)),
                                     fillcolor = MESS::col.alpha(obj$col[i],0.5),
                                     name = colnames(obj$decs)[i],
-                                    text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', yr2epoch(obj$epoch[1]),' - ',yr2epoch(obj$epoch[2])),
+                                    text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch[1]),' - ',BCE(obj$epoch[2])),
                                     hoverinfo = 'text',
                                     showlegend=T)
         }
@@ -351,7 +351,7 @@ plot.skyscapeR.curv <- function(cc, obj, col='blue', xrange, legend=F){
   }
 
   p <- plotly::layout(p,
-                      xaxis = list(title = 'Declination (º)', range = xrange),
+                      xaxis = list(title = 'Declination (º)', range = xrange, zeroline = F),
                       yaxis = list(title = 'Density'),
                       annotations = cp,
                       showlegend = as.logical(legend))
@@ -403,7 +403,7 @@ plot.skyscapeR.sigTest <- function(sig, obj, col='blue', xrange, show.pval=T, sh
   p <- plotly::add_trace(p, x = ~xx, y = ~yy, fill = 'tozeroy',
                          line = list( color = MESS::col.alpha(col, 0.7)),
                          fillcolor = MESS::col.alpha(col, 0.5),
-                         text = paste0('Empirical\nDec: ', round(xx,2), 'º\nDensity: ',round(yy,3)),
+                         text = paste0('Empirical\nDeclination: ', round(xx,2), 'º\nDensity: ',round(yy,3)),
                          hoverinfo = 'text',
                          name = 'Empirical')
 
@@ -427,7 +427,7 @@ plot.skyscapeR.sigTest <- function(sig, obj, col='blue', xrange, show.pval=T, sh
   p <- plotly::add_trace(p, x = ~xx, y = ~yy1,
                          line = list(color = 'grey'),
                          fillcolor = NA,
-                         text = paste0('Null Hypothesis (mean)\nDec: ', round(xx,2), 'º\nDensity: ',round(yy,3)),
+                         text = paste0('Null Hypothesis (mean)\nDeclination: ', round(xx,2), 'º\nDensity: ',round(yy,3)),
                          hoverinfo = 'text',
                          name = 'Null Hypothesis (mean)')
   p <- plotly::add_ribbons(p, x = ~xx,
@@ -436,7 +436,7 @@ plot.skyscapeR.sigTest <- function(sig, obj, col='blue', xrange, show.pval=T, sh
                            line = list(color = MESS::col.alpha('grey',0.5)),
                            fillcolor = MESS::col.alpha('grey',0.5),
                            name = "Null Hypothesis (CE)",
-                           text = paste0('Null Hypothesis (CE)\nDec: ', round(xx,2), 'º\nDensity Range: [',round(yy3,3), ' ; ', round(yy2,3),']'),
+                           text = paste0('Null Hypothesis (CE)\nDeclination: ', round(xx,2), 'º\nDensity Range: [',round(yy3,3), ' ; ', round(yy2,3),']'),
                            hoverinfo = 'text',
                            showlegend=T)
 
@@ -483,7 +483,7 @@ plot.skyscapeR.sigTest <- function(sig, obj, col='blue', xrange, show.pval=T, sh
                                 y = yp,
                                 line = list(width=0),
                                 fillcolor = MESS::col.alpha(col,0.4),
-                                text = paste0('Significance: ',stars.pval(aux[i,3]),'\n Dec Range: [', round(aux[i,1],2), 'º ; ', round(aux[i,2],2), 'º]'),
+                                text = paste0('Significance: ',stars.pval(aux[i,3]),'\n Declination Range: [', round(aux[i,1],2), 'º ; ', round(aux[i,2],2), 'º]'),
                                 hoverinfo = 'text',
                                 showlegend=F)
     }
@@ -497,7 +497,7 @@ plot.skyscapeR.sigTest <- function(sig, obj, col='blue', xrange, show.pval=T, sh
         if (length(obj$epoch)==1) {
           p <- plotly::add_trace(p, x = rep(obj$decs[1,i],NROW(seq(0,max(sig$data$empirical$data$density), length.out = 20))), y = seq(0,max(sig$data$empirical$data$density), length.out = 20),
                                  line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
-                                 text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', yr2epoch(obj$epoch[1])),
+                                 text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch[1])),
                                  hoverinfo = 'text',
                                  name = colnames(obj$decs)[i] )
         } else {
@@ -506,7 +506,7 @@ plot.skyscapeR.sigTest <- function(sig, obj, col='blue', xrange, show.pval=T, sh
                                     line = list(color = MESS::col.alpha(obj$col[i],0.7)),
                                     fillcolor = MESS::col.alpha(obj$col[i],0.5),
                                     name = colnames(obj$decs)[i],
-                                    text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', yr2epoch(obj$epoch[1]),' - ',yr2epoch(obj$epoch[2])),
+                                    text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch[1]),' - ',BCE(obj$epoch[2])),
                                     hoverinfo = 'text',
                                     showlegend=T)
         }
@@ -568,21 +568,21 @@ plot.skyscapeR.horizon <- function(hor, obj, data, show.unc=F, show.ground=T, sh
         orb <- orbit(obj$decs[i], hor, res=0.1)
         p <- plotly::add_lines(p, x = orb$az, y = orb$alt,
                                line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
-                               text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', yr2epoch(obj$epoch),'\nAzimuth: ', round(orb$az,1),'º\nAltitude: ', round(orb$alt,2),'º'),
+                               text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch),'\nAzimuth: ', round(orb$az,2),'º\nAltitude: ', round(orb$alt,2),'º'),
                                hoverinfo = 'text',
                                name = colnames(obj$decs)[i],
                                showlegend=T)
 
         p <- plotly::add_lines(p, x = orb$az-360, y = orb$alt,
                                line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
-                               text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', yr2epoch(obj$epoch),'\nAzimuth: ', round(orb$az,1),'º\nAltitude: ', round(orb$alt,2),'º'),
+                               text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch),'\nAzimuth: ', round(orb$az,2),'º\nAltitude: ', round(orb$alt,2),'º'),
                                hoverinfo = 'text',
                                name = colnames(obj$decs)[i],
                                showlegend=F)
 
         p <- plotly::add_lines(p, x = orb$az+360, y = orb$alt,
                                line = list( color = obj$col[i], width = obj$lwd[i], dash = lty2dash(obj$lty[i]) ),
-                               text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', yr2epoch(obj$epoch),'\nAzimuth: ', round(orb$az,1),'º\nAltitude: ', round(orb$alt,2),'º'),
+                               text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],2),'º\nEpoch: ', BCE(obj$epoch),'\nAzimuth: ', round(orb$az,2),'º\nAltitude: ', round(orb$alt,2),'º'),
                                hoverinfo = 'text',
                                name = colnames(obj$decs)[i],
                                showlegend=F)
@@ -594,7 +594,7 @@ plot.skyscapeR.horizon <- function(hor, obj, data, show.unc=F, show.ground=T, sh
                                   line = list(color = MESS::col.alpha(obj$col[i],0.7)),
                                   fillcolor = MESS::col.alpha(obj$col[i],0.5),
                                   name = colnames(obj$decs)[i],
-                                  text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', yr2epoch(obj$epoch[1]),' - ',yr2epoch(obj$epoch[2])),
+                                  text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', BCE(obj$epoch[1]),' - ',BCE(obj$epoch[2])),
                                   hoverinfo = 'text',
                                   showlegend=T)
 
@@ -603,7 +603,7 @@ plot.skyscapeR.horizon <- function(hor, obj, data, show.unc=F, show.ground=T, sh
                                   line = list(color = MESS::col.alpha(obj$col[i],0.7)),
                                   fillcolor = MESS::col.alpha(obj$col[i],0.5),
                                   name = colnames(obj$decs)[i],
-                                  text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', yr2epoch(obj$epoch[1]),' - ',yr2epoch(obj$epoch[2])),
+                                  text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', BCE(obj$epoch[1]),' - ',BCE(obj$epoch[2])),
                                   hoverinfo = 'text',
                                   showlegend=F)
 
@@ -612,7 +612,7 @@ plot.skyscapeR.horizon <- function(hor, obj, data, show.unc=F, show.ground=T, sh
                                   line = list(color = MESS::col.alpha(obj$col[i],0.7)),
                                   fillcolor = MESS::col.alpha(obj$col[i],0.5),
                                   name = colnames(obj$decs)[i],
-                                  text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', yr2epoch(obj$epoch[1]),' - ',yr2epoch(obj$epoch[2])),
+                                  text = paste0(colnames(obj$decs)[i],'\nDeclination: ',round(obj$decs[1,i],1),'º\nEpoch: ', BCE(obj$epoch[1]),' - ',BCE(obj$epoch[2])),
                                   hoverinfo = 'text',
                                   showlegend=F)
 
@@ -641,15 +641,17 @@ plot.skyscapeR.horizon <- function(hor, obj, data, show.unc=F, show.ground=T, sh
   }
 
   ## Horizon line
-  p <- plotly::add_trace(p, x = ~xx, y = ~yy, type = 'scatter', mode = 'lines',
+  xout <- seq(xx[1], tail(xx,1), 1)
+  ff <- approx(xx, yy, xout)$y
+  p <- plotly::add_trace(p, x = xout, y = ff, type = 'scatter', mode = 'lines',
                          line = list(color='black'),
-                         text = paste0('Horizon\nAzimuth: ',round(xx,1),'º\nAltitude: ', round(yy,2),'º'),
+                         text = paste0('Horizon\nAzimuth: ',round(xout,2),'º\nAltitude: ', round(ff,2),'º'),
                          hoverinfo = 'text',
                          name = 'Horizon',
                          showlegend = T)
 
   if (show.axes) {
-    xlist <- list(title = 'Azimuth',
+    xlist <- list(title = 'Azimuth (º)',
                   range = xrange,
                   showgrid = F,
                   zeroline = F)

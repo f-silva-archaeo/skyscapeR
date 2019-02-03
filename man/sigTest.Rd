@@ -30,7 +30,7 @@ Defaults to 0.01º.}
 
 \item{range}{(Optional) Range of declination values to consider.}
 
-\item{verbose}{(Optional) Boolean to decide whether or not}
+\item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 
 \item{...}{Other parameters to be passed on to \code{\link{histogram}} or \code{\link{curvigram}}, as appropriate.}
 }

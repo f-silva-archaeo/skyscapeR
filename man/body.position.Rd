@@ -4,21 +4,20 @@
 \alias{body.position}
 \title{Computes position of Solar System bodies in geocentric equatorial coordinates}
 \usage{
-body.position(body = "sun", time, timezone = "Europe/London",
-  cal = "G")
+body.position(body = "sun", time, timezone = "", calendar = "G")
 }
 \arguments{
 \item{body}{(Optional) String containing name of the solar system body of interest. Can be
 any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.}
 
-\item{time}{Either a string containing the date and time in the format "YYYY-MM-DD HH:MM:SS"
+\item{time}{Either a string containing the date and time in the format "YYYY/MM/DD HH:MM:SS"
 (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).}
 
 \item{timezone}{(Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
 a string with continent followed by country capital (eg. "Europe/London"). See
-\link{timezones} for details. Only needed if \emph{time} is a string. Defaults to GMT.}
+\link{timezones} for details. Only needed if \emph{time} is a string. Defaults to system timezone.}
 
-\item{cal}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
+\item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 Only needed if \emph{time} is a string. Defaults to Gregorian.}
 }
 \description{
@@ -28,10 +27,10 @@ This function calculates the geocentric declination and right ascension of solar
 }
 \examples{
 # Position of the sun at noon GMT on Christmas day 2018:
-body.position('sun', '2018-12-25 12:00:00', timezone='GMT')
+body.position('sun', '2018/12/25 12:00:00', timezone='GMT')
 
 # Declination of the moon at same time
-body.position('moon', '2018-12-25 12:00:00', timezone='GMT')$Dec
+body.position('moon', '2018/12/25 12:00:00', timezone='GMT')$Dec
 }
 \seealso{
 \code{\link[swephR]{swe_calc}}, \code{\link{timestring}}, \code{\link{time2jd}}

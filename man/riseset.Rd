@@ -5,31 +5,38 @@
 \title{Computes the rising and setting azimuth, declination and time of a Solar System object
 for a given location and day}
 \usage{
-riseset(body = "sun", date, cal = "G", timezone = "GMT", loc,
-  refraction = T, atm = 1013.25, temp = 15)
+riseset(body = "sun", date, jd, calendar = "G", timezone = "", loc,
+  refraction = T, atm = 1013.25, temp = 15, verbose = T)
 }
 \arguments{
 \item{body}{(Optional) String containing name of the solar system body of interest. Can be
 any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.}
 
-\item{date}{Either a string containing the date in the format "YYYY-MM-DD"
-(see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).}
+\item{date}{Either a string containing the date in the format "YYYY/MM/DD"
+(see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).
+Can also be a single year ("YYYY") or a month ("YYYY/MM") to calculate risings and settings for every day in the
+year or month, respectively. Not necessary if \emph{jd} is given.}
 
-\item{cal}{(Optional) Calendar used in parameter \emph{date}. G for gregorian and J for julian. Defaults to Gregorian.}
+\item{jd}{(Optional) A numeric containing the julian date (see \code{\link{time2jd}}) for which to
+calculate rising and settings. Only needed if \emph{date} is not given.}
+
+\item{calendar}{(Optional) Calendar used in parameter \emph{date}. G for gregorian and J for julian. Defaults to \emph{Gregorian}.}
 
 \item{timezone}{(Optional) Timezone for output of rising and setting time either as a known acronym
 (eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
-\link{timezones} for details. Defaults to GMT.}
+\link{timezones} for details. Defaults to system timezone}
 
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
-containing the latitude and longitude of location, in this order.}
+containing the latitude, longitude and elevation of location, in this order.}
 
 \item{refraction}{(Optional) Boolean for whether or not atmospheric refraction should be taken into account.
-Defaults to _TRUE_.}
+Defaults to \emph{TRUE}.}
 
-\item{atm}{(Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to _TRUE_. Default is 1013.25 mbar.}
+\item{atm}{(Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 1013.25 mbar.}
 
-\item{temp}{(Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to _TRUE_. Default is 15 degrees.}
+\item{temp}{(Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 15 degrees.}
+
+\item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 }
 \description{
 Computes the rising and setting azimuth, declination and time of a Solar System object
@@ -37,11 +44,17 @@ for a given location and day
 }
 \examples{
 # Rising and setting of the sun on june solstice 2018, from the location of London
-riseset('sun', '2018-06-21', loc=c(51.5, 0.11))
+riseset('sun', '2018/06/21', loc=c(51.5, 0.11, 100))
 
 # Rising ans setting of the moon on june solstice 2018, using a horizon profile
 hor <- downloadHWT('HIFVTBGK') # Liverpool cathedral
-riseset('moon', '2018-06-21', loc=hor)
+riseset('moon', '2018/06/21', loc=hor)
+
+# Rising and setting of the sun throughout February 1999, from the location of London
+riseset('sun', '1999/02', loc=c(51.5, 0.11, 100))
+
+# Rising and setting of the sun throughout 3000 BC, from the location of London
+riseset('sun', -3000, loc=c(51.5, 0.11, 100))
 }
 \seealso{
 \code{\link[swephR]{swe_calc_ut}}, \code{\link[swephR]{swe_azalt}}

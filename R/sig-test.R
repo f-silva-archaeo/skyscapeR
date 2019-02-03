@@ -17,7 +17,7 @@
 #' @param prec (Optional) Smallest possible azimuth for the random sampler, i.e. precision being considered.
 #' Defaults to 0.01º.
 #' @param range (Optional) Range of declination values to consider.
-#' @param verbose (Optional) Boolean to decide whether or not
+#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @param ... Other parameters to be passed on to \code{\link{histogram}} or \code{\link{curvigram}}, as appropriate.
 #' @export
 #' @import parallel foreach doParallel
@@ -56,7 +56,7 @@ sigTest <- function(data, type='curv', ncores=parallel::detectCores()-1, nsims=2
   ## empirical SPD
   if (verbose) { cat(paste0('Creating Empirical ', tt, '...')) }
   if (!missing(range)) {
-    empirical <- ff(decs, unc, ...)
+    empirical <- ff(decs, unc, range = range, ...)
   } else {
     empirical <- ff(decs, unc, ...)
     range <- empirical$metadata$range

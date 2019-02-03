@@ -5,7 +5,7 @@
 \title{Calculate the seasons and phases of a star}
 \usage{
 star.phases(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600,
-  ncores)
+  refraction = T, atm = 1013.25, temp = 15)
 }
 \arguments{
 \item{star}{Either the star name or a \emph{skyscapeR.star} object.}
@@ -36,7 +36,6 @@ star for a given location and epoch. This functions uses the
 the nomenclature used, and description of star phases, see Brady (2015).
 }
 \examples{
-\dontrun{
 ss1 <- star.phases('Aldebaran',-4000, c(35,-8))
 
 # One can then look at the star's phase:
@@ -49,12 +48,11 @@ ss1$seasons
 ss1$events
 
 # And plot them:
-plotPhases(ss1)
+plot(ss1)
 
 # You can play with the parameters and see how predictions change:
 ss1 <- star.phases('Aldebaran',-4000, c(35,-8), alt.hor=2, alt.rs=5)
-plotPhases(ss1)
-}
+plot(ss1)
 }
 \references{
 Purrington, Robert D. (1988) Heliacal Rising and Setting:

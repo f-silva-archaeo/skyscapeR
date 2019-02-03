@@ -1,14 +1,14 @@
 #' @noRd
 events <- function(name) {
   return(switch(name,
-         'December Solstice' = 'dS',
-         'June Solstice' = 'jS',
-         'Equinox' = 'eq',
-         'Major Lunar Extreme (southern)' = 'sMjLX',
-         'Minor Lunar Extreme (southern)' = 'smnLX',
-         'Minor Lunar Extreme (northern)' = 'nMjLX',
-         'Major Lunar Extreme (northern)' = 'nmnLX',
-          name))
+                'December Solstice' = 'dS',
+                'June Solstice' = 'jS',
+                'Equinox' = 'eq',
+                'Major Lunar Extreme (southern)' = 'sMjLX',
+                'Minor Lunar Extreme (southern)' = 'smnLX',
+                'Minor Lunar Extreme (northern)' = 'nMjLX',
+                'Major Lunar Extreme (northern)' = 'nmnLX',
+                name))
 }
 
 
@@ -73,14 +73,13 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
   tt.lty <- c()
   tt.lwd <- c()
 
-  options(warn=-2)
   for (i in 1:N) {
     # stars
     data(stars, envir=environment())
     if (sum(as.character(stars$NAME) == names[i])) {
       aux <- array(NA, c(NROW(epoch),1))
       for (j in 1:NROW(epoch)) {
-        aux[j,] <- star(names[i], epoch[j])$dec
+        aux[j,] <- star(names[i], epoch[j])$coord$Dec
       }
       colnames(aux) <- names[i]
       tt <- cbind(tt, aux)
@@ -90,32 +89,31 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
       next
     } else
 
-    # custom dec
-    if (!is.na(as.numeric(names[i]))) {
-      aux <- array(NA, c(NROW(epoch),1))
-      aux[,1] <- rep(as.numeric(names[i]),NROW(epoch))
-      colnames(aux) <- 'Custom Dec'
-      tt <- cbind(tt, aux)
-      tt.col <- c(tt.col, col[i])
-      tt.lty <- c(tt.lty, lty[i])
-      tt.lwd <- c(tt.lwd, lwd[i])
-      next
-    } else {
+      # custom dec
+      if (!is.na(suppressWarnings(as.numeric(names[i])))) {
+        aux <- array(NA, c(NROW(epoch),1))
+        aux[,1] <- rep(as.numeric(names[i]),NROW(epoch))
+        colnames(aux) <- 'Custom Dec'
+        tt <- cbind(tt, aux)
+        tt.col <- c(tt.col, col[i])
+        tt.lty <- c(tt.lty, lty[i])
+        tt.lwd <- c(tt.lwd, lwd[i])
+        next
+      } else {
 
-    # try calling the functions
-    aux <- array(NA, c(NROW(epoch),1))
-    for (j in 1:NROW(epoch)) {
-      aux[j,] <- do.call(events(names[i]), list(epoch[j]))
-    }
-    colnames(aux) <- names[i]
-    tt <- cbind(tt, aux)
-    tt.col <- c(tt.col, col[i])
-    tt.lty <- c(tt.lty, lty[i])
-    tt.lwd <- c(tt.lwd, lwd[i])
-    }
+        # try calling the functions
+        aux <- array(NA, c(NROW(epoch),1))
+        for (j in 1:NROW(epoch)) {
+          aux[j,] <- do.call(events(names[i]), list(epoch[j]))
+        }
+        colnames(aux) <- names[i]
+        tt <- cbind(tt, aux)
+        tt.col <- c(tt.col, col[i])
+        tt.lty <- c(tt.lty, lty[i])
+        tt.lwd <- c(tt.lwd, lwd[i])
+      }
 
   }
-  options(warn=0)
   rownames(tt) <- epoch
 
   # check min and max decs
@@ -313,4 +311,101 @@ antizenith = function(loc) {
   if (lat > jS() | lat < dS()) {
     return(NULL)
   } else { return(-lat) }
+}
+
+
+#' Equinoctial Full Moons
+#'
+#' This function calculates the date, rise/set times, azimuths and declinations
+#' for sun and moon on the days of the Spring Full Moon (SFM) and Autumn Full
+#' Moon (AFM), for a given year and location.
+#' @param season (Optional) Either 'spring' or 'autumn'. Default is 'spring.
+#' @param rise (Optional) Boolean to choose whether to calculate Equinoctial Full
+#' Moon rises or sets. Defaults to \emph{TRUE}.
+#' @param year Epoch(s) for which to do calculations. Can be either a single value (the year),
+#' two values (range of years), or a vector of years.
+#' @param loc This can be either a \emph{skyscapeR.horizon} object, or a vector with the
+#' latitude, longitude and elevation of the site, in this order.
+#' @param min.phase (Optional) Minimun lunar phase (between 0 and 1) for which a
+#' moon is considered to be full. Defaults to 0.99.
+#' @param refraction (Optional) Boolean for whether or not atmospheric refraction should be taken into account.
+#' Defaults to \emph{TRUE}.
+#' @param atm (Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to \emph{TRUE}.
+#' Default is 1013.25 mbar.
+#' @param temp (Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to \emph{TRUE}.
+#' Default is 15 degrees.
+#' @param calendar (Optional) Calendar used to output dates. G for gregorian and J for julian. Defaults to \emph{Gregorian}.
+#' @param timezone (Optional) Timezone for output of rising and setting time either as a known acronym
+#' (eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
+#' \link{timezones} for details. Defaults to system timezone.
+#' @import swephR parallel foreach doParallel
+#' @export
+#' @examples
+#' # Spring Full Moon from a location in Portugal in the year 2018
+#' EFM(year=2018, loc=c(35,-8,100))
+#'
+#' # Autumn Full Moons in the last ten years
+#' EFM(season='autumn', year=c(2009,2019), loc=c(35,-8,100))
+EFM <- function(season='spring', rise=T, year, loc, min.phase=.99, refraction=T, atm=1013.25, temp=15, timezone='', calendar='G') {
+
+  if (length(year)==2) { year <- seq(year[1], year[2], 1) }
+
+  suns <- data.frame(year=NA, date=NA, time=NA, azimuth=NA, declination=NA, stringsAsFactors = F); moons <- suns
+  if (length(year) > 1) { pb <- txtProgressBar(max = length(year), style=3) }
+
+  for (k in 1:length(year)) {
+    jd0 <- time2jd(paste(year[k],'01','01',sep='/'), timezone, calendar)
+
+    # find celestial crossovers (i.e. declination-based)
+    jd <- seq(jd0, jd0+365, 1)
+    sun <- sapply(jd, vecAzAlt, 0, loc=loc, refraction=refraction, atm=atm, temp=temp)[2,]
+    moon <- sapply(jd, vecAzAlt, 1, loc=loc, refraction=refraction, atm=atm, temp=temp)[2,]
+    phase <- moonphase(jd, timezone, calendar)
+
+    ind <- which(c(0,diff(sign(sun[phase >= min.phase] - moon[phase >= min.phase]))) != 0)
+    crossovers <- jd[phase >= min.phase][ind]
+
+    if (season=='spring') { i <- which(month(jd2time(crossovers)) < 6) } else { i <- which(month(jd2time(crossovers)) > 6)  }
+
+    # find visible crossovers (i.e. rising/setting azimuth-based)
+    jd <- seq(crossovers[i]-33, crossovers[i]+33, 1/4)
+    phase <- moonphase(jd, timezone, calendar); excl <- which(phase < min.phase); jd <- jd[-excl]
+    jd <- time2jd(unique(substr(jd2time(jd, timezone, calendar),1,which(strsplit(jd2time(jd, timezone, calendar), "")[[1]]==" ")-1)), timezone, calendar)
+
+    ss <- c()
+    for (j in 1:length(jd)) {  ### TODO parallelise this
+      if (rise) {
+        sun <- riseset('sun', jd=jd[j], loc=loc, calendar=calendar, timezone=timezone, refraction=refraction, atm=atm, temp=temp)$rise
+        moon <- riseset('moon', jd=jd[j], loc=loc, calendar=calendar, timezone=timezone, refraction=refraction, atm=atm, temp=temp)$rise
+      } else {
+        sun <- riseset('sun', jd=jd[j], loc=loc, calendar=calendar, timezone=timezone, refraction=refraction, atm=atm, temp=temp)$set
+        moon <- riseset('moon', jd=jd[j], loc=loc, calendar=calendar, timezone=timezone, refraction=refraction, atm=atm, temp=temp)$set
+      }
+      ss[j] <- sign(sun$azimuth-moon$azimuth)
+      jd[j] <- time2jd(paste(substr(jd2time(jd[j], timezone, calendar),1,which(strsplit(jd2time(jd[j], timezone, calendar), "")[[1]]==" ")-1), moon$time), timezone, calendar)
+    }
+    phase <- moonphase(jd, timezone, calendar); excl <- which(phase < min.phase); if (length(excl)>0) { jd <- jd[-excl]; ss <- ss[-excl] }
+
+    if (sum(c(0,diff(ss))!=0)) { ind <- which(c(0,diff(ss))!=0) } else { stop('Error: No crossover found. Check with package maintainer.') }
+    jd <- jd[ind]
+    if (rise) {
+      sun <- riseset('sun', jd=jd, loc=loc, calendar=calendar, timezone=timezone, refraction=refraction, atm=atm, temp=temp)$rise
+      moon <- riseset('moon', jd=jd, loc=loc, calendar=calendar, timezone=timezone, refraction=refraction, atm=atm, temp=temp)$rise
+    } else {
+      sun <- riseset('sun', jd=jd, loc=loc, calendar=calendar, timezone=timezone, refraction=refraction, atm=atm, temp=temp)$set
+      moon <- riseset('moon', jd=jd, loc=loc, calendar=calendar, timezone=timezone, refraction=refraction, atm=atm, temp=temp)$set
+    }
+    date <- jd2time(jd)
+
+    dates <- substr(date,1,which(strsplit(date, "")[[1]]==" ")-1)
+    suns[k,] <- c(year[k], dates, sun$time, sun$azimuth, sun$declination)
+    moons[k,] <- c(year[k], dates, moon$time, moon$azimuth, moon$declination)
+
+    if (length(year) > 1) { setTxtProgressBar(pb, k) }
+  }
+
+  suns$year <- as.numeric(suns$year); suns$azimuth <- as.numeric(suns$azimuth); suns$declination <- as.numeric(suns$declination)
+  moons$year <- as.numeric(moons$year); moons$azimuth <- as.numeric(moons$azimuth); moons$declination <- as.numeric(moons$declination)
+  out <- list(Event = paste0(season, ' full moon'), Moon= moons, Sun= suns)
+  return(out)
 }

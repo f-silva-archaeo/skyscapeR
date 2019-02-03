@@ -29,15 +29,17 @@ cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 #' ss <- star('Sirius', -3000)
 star <- function(string, year=2000) {
 
-  info <- swephR::swe_fixstar2_ut(paste(string), swephR::swe_julday(year, 1, 1, 12.,1), 2048+16384+16)
+  aux <- data.frame(year=NA, RA=NA, Dec=NA)
+  for (i in 1:length(year)) {
+    info <- swephR::swe_fixstar2_ut(paste(string), swephR::swe_julday(year[i], 1, 1, 12.,1), 2048+16384+16)
+    aux[i,] <- c(year[i], info$xx[1], info$xx[2])
+  }
 
   star <- c()
   star$name <- strsplit(info$star,',')[[1]][1]
   star$constellation <- strsplit(info$star,',')[[1]][2]
   star$app.mag <- swephR::swe_fixstar2_mag(paste(string))$mag
-  star$RA <- info$xx[1]
-  star$Dec <- info$xx[2]
-  star$epoch <- year
+  star$coord <- aux
   class(star) <- "skyscapeR.star"
 
   return(star)
@@ -74,7 +76,6 @@ star <- function(string, year=2000) {
 #' Pyramid Texts. In F Silva and N Campion (eds) \emph{Skyscapes: The Role and Importance of
 #' the Sky in Archaeology}. Oxford: Oxbow Books, pp. 76-86.
 #' @examples
-#' \dontrun{
 #' ss1 <- star.phases('Aldebaran',-4000, c(35,-8))
 #'
 #' # One can then look at the star's phase:
@@ -87,13 +88,12 @@ star <- function(string, year=2000) {
 #' ss1$events
 #'
 #' # And plot them:
-#' plotPhases(ss1)
+#' plot(ss1)
 #'
 #' # You can play with the parameters and see how predictions change:
 #' ss1 <- star.phases('Aldebaran',-4000, c(35,-8), alt.hor=2, alt.rs=5)
-#' plotPhases(ss1)
-#' }
-star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600, ncores) {
+#' plot(ss1)
+star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600, refraction=T, atm=1013.25, temp=15) {
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$metadata$georef[1]
     lon <- loc$metadata$georef[2]
@@ -107,28 +107,17 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
   if (class(star)!='skyscapeR.star') { star <- star(star, year) }
   arcus_visionis <- 2.1*star$app.mag + 10
 
-  # init parallel cluster
-  if (missing(ncores)) { ncores <-  parallel::detectCores()-1 }
-  cl <- parallel::makeCluster(ncores, type = "PSOCK")
-  parallel::clusterEvalQ(cl, library(skyscapeR))
-  parallel::clusterExport(cl, list("lat", "lon"), envir=environment())
-  message(paste0('Running calculations on ', ncores, ' processing cores. This may take a while...'))
-
   # calculations
   jd0 <- swephR::swe_julday(year,1,1,12,1)
   jd.t <- seq(jd0, jd0+365, res)
   tx <- jd.t - jd0+1
 
   # Sun
-  Sun <- as.data.frame(swephR::swe_calc_ut(jd.t, 0, 32*1024+2048)$xx[,1:2]); colnames(Sun) <- c('ra','dec')
-  X <- cbind(Sun$ra,Sun$dec); X <- cbind(X,jd.t)
-  Sun.alt <- parallel::parApply(cl, X, 1, eq.to.Hor, lat=lat, lon=lon)
+  Sun.alt <- sapply(jd.t, vecAzAlt, 0, loc=c(lon,lat), refraction=refraction, atm=atm, temp=temp)[4,]
 
   # Star
-  X <- cbind(rep(star$ra, NROW(jd.t)), rep(star$dec, NROW(jd.t))); X <- cbind(X,jd.t)
-  Star.alt <- parallel::parApply(cl, X, 1, eq.to.Hor, lat=lat, lon=lon)
-
-  parallel::stopCluster(cl)
+  ff <- function(x, loc, atm, temp, star) { return(swephR::swe_azalt(x, 1, c(loc[2],loc[1],0), atm, temp, c(star$coord$RA, star$coord$Dec))$xaz) }
+  Star.alt <- sapply(jd.t, ff, c(lat, lon), atm, temp, star)[3,]
 
   day <- which(Sun.alt >= alt.hor)
   civ <- which(Sun.alt >= -6 & Sun.alt < alt.hor)

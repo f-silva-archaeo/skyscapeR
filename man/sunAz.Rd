@@ -8,7 +8,7 @@ sunAz(loc, time, timezone = "Europe/London", limb, alt = F)
 }
 \arguments{
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
-containing the latitude and longitude of location, in this order.}
+containing the latitude, longitude and elevation of location, in this order.}
 
 \item{time}{String containing the date and time in the following format:
 "YYYY-MM-DD HH:MM:SS"}
