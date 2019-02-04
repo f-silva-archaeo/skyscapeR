@@ -46,8 +46,8 @@ cp <- list(
 #' plotAz(az=NULL, obj=tt, loc=c(35,-8), legend=T)
 plotAz = function(az, obj, loc, col='blue', lwd=1, lty=1, len=1, legend=F) {
   if (class(az)=='data.frame') {
-    az <- az$True.Azimuth
     names <- az$Name
+    az <- az$True.Azimuth
   } else {
     names <- as.character(1:NROW(az))
   }
