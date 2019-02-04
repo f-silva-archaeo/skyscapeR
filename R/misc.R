@@ -23,6 +23,7 @@ tWS <- function(days, year) {
 }
 
 #' @noRd
+#' @export
 eq2hor <- function(ra, dec, loc, refraction=F, atm=1013.25, temp=15) {
   xx <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, c(ra,dec))$xaz
 
