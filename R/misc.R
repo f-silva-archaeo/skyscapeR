@@ -1,4 +1,5 @@
 swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
+jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 
 #' @noRd
 stars.pval <- function(p.value) {
