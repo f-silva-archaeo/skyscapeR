@@ -22,6 +22,7 @@ tWS <- function(days, year) {
   return(aux)
 }
 
+
 #' @noRd
 #' @export
 eq2hor <- function(ra, dec, loc, refraction=F, atm=1013.25, temp=15) {
