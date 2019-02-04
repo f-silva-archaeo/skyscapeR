@@ -63,8 +63,10 @@ star <- function(string, year=2000) {
 #' Defaults to ten degrees.
 #' @param res (Optional) Resolution of calculation. The smaller this
 #' figure the slower the computation. Defaults to 24/3600 = 1 sec.
-#' @param ncores (Optional) Number of processing cores to use for parallelisation.
-#' Defaults to the number of available cores minus 1.
+#' @param refraction (Optional) Boolean for whether or not atmospheric refraction should be taken into account.
+#' Defaults to \emph{TRUE}.
+#' @param atm (Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 1013.25 mbar.
+#' @param temp (Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 15 degrees.
 #' @export
 #' @import parallel numDeriv swephR
 #' @seealso \code{\link{plotPhases}}

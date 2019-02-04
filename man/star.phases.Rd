@@ -25,8 +25,12 @@ Defaults to ten degrees.}
 \item{res}{(Optional) Resolution of calculation. The smaller this
 figure the slower the computation. Defaults to 24/3600 = 1 sec.}
 
-\item{ncores}{(Optional) Number of processing cores to use for parallelisation.
-Defaults to the number of available cores minus 1.}
+\item{refraction}{(Optional) Boolean for whether or not atmospheric refraction should be taken into account.
+Defaults to \emph{TRUE}.}
+
+\item{atm}{(Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 1013.25 mbar.}
+
+\item{temp}{(Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 15 degrees.}
 }
 \description{
 This function calculates the seasons (Rising, Setting, etc.)
