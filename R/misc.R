@@ -1,4 +1,5 @@
 swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
+jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 
 #' @noRd
 stars.pval <- function(p.value) {
@@ -21,16 +22,10 @@ tWS <- function(days, year) {
   return(aux)
 }
 
-#' @noRd
-eq.to.Hor <- function(xx,lat,lon) {
-  rr <- eq2horFS(xx[1],xx[2],xx[3],cbind(lat,lon))$alt
-  return(rr)
-}
 
-
-#' Fixed eq2hor function
 #' @noRd
-eq2horFS <- function(ra, dec, jd, loc, refraction=F, atm=1013.25, temp=15) {
+#' @export
+eq2hor <- function(ra, dec, loc, refraction=F, atm=1013.25, temp=15) {
   xx <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, c(ra,dec))$xaz
 
   if (refraction) { alt <- xx[3] } else { alt <- xx[2] }

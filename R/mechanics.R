@@ -242,7 +242,7 @@ orbit = function(dec, loc, res=0.25, refraction=T, ...) {
   aux <- array(NA, c(NROW(ra),2))
 
   for (i in 1:NROW(ra)) {
-    tmp <- eq2horFS(ra[i], dec, time2jd('2000-01-01 12:00'), loc, refraction, ...)
+    tmp <- eq2hor(ra[i], dec, time2jd('2000-01-01 12:00'), loc, refraction, ...)
 
     aux[i,] <- c(tmp$az,tmp$alt)
   }
