@@ -232,17 +232,17 @@ riseset <- function(body = 'sun', date, jd, calendar='G', timezone='', loc, refr
 #' sun.dec <- jS(-4000)
 #' london.lat <- 51.5074 #N
 #' london.lon <- -0.1278 #W
-#' loc <- c( london.lat, london.lon )
+#' loc <- c( london.lat, london.lon, 0 )
 #' path <- orbit(sun.dec, loc)
 #' plot(path$az, path$alt, ylim=c(0,90), type='l', xlab='AZ', ylab='ALT', col='red', lwd=2)
 orbit = function(dec, loc, res=0.25, refraction=T, ...) {
-  if (class(loc)=='skyscapeR.horizon') { loc <- c(loc$metadata$georef, loc$metadata$elevation) }
+  if (class(loc)=='skyscapeR.horizon') { loc <- loc$metadata$georef }
 
   ra <- seq(0, 360, by=res)
   aux <- array(NA, c(NROW(ra),2))
 
   for (i in 1:NROW(ra)) {
-    tmp <- eq2hor(ra[i], dec, time2jd('2000-01-01 12:00'), loc, refraction, ...)
+    tmp <- eq2hor(ra[i], dec, loc, refraction, ...)
 
     aux[i,] <- c(tmp$az,tmp$alt)
   }

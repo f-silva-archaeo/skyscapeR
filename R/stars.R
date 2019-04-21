@@ -78,7 +78,7 @@ star <- function(string, year=2000) {
 #' Pyramid Texts. In F Silva and N Campion (eds) \emph{Skyscapes: The Role and Importance of
 #' the Sky in Archaeology}. Oxford: Oxbow Books, pp. 76-86.
 #' @examples
-#' ss1 <- star.phases('Aldebaran',-4000, c(35,-8))
+#' ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200))
 #'
 #' # One can then look at the star's phase:
 #' ss1$phase
@@ -93,15 +93,17 @@ star <- function(string, year=2000) {
 #' plot(ss1)
 #'
 #' # You can play with the parameters and see how predictions change:
-#' ss1 <- star.phases('Aldebaran',-4000, c(35,-8), alt.hor=2, alt.rs=5)
+#' ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200), alt.hor=2, alt.rs=5)
 #' plot(ss1)
 star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600, refraction=T, atm=1013.25, temp=15) {
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$metadata$georef[1]
     lon <- loc$metadata$georef[2]
+    elev <- loc$metadata$georef[3]
   } else {
     lat <- loc[1]
     lon <- loc[2]
+    elev <- loc[3]
   }
   swephR::swe_set_topo(lon, lat, 0)
 
@@ -115,7 +117,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
   tx <- jd.t - jd0+1
 
   # Sun
-  Sun.alt <- sapply(jd.t, vecAzAlt, 0, loc=c(lon,lat), refraction=refraction, atm=atm, temp=temp)[4,]
+  Sun.alt <- sapply(jd.t, vecAzAlt, 0, loc=c(lon,lat,elev), refraction=refraction, atm=atm, temp=temp)[4,]
 
   # Star
   ff <- function(x, loc, atm, temp, star) { return(swephR::swe_azalt(x, 1, c(loc[2],loc[1],0), atm, temp, c(star$coord$RA, star$coord$Dec))$xaz) }
