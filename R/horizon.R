@@ -177,7 +177,7 @@ downloadHWT <- function(HWTID) {
   hor$metadata <- c()
   hor$metadata$ID <- HWTID
   hor$metadata$name <- Name
-  hor$metadata$georef <- c(Lat, Lon); names(hor$metadata$georef) <- c('Lat','Lon'); dim(hor$metadata$georef) <- c(1,2)
+  hor$metadata$georef <- c(Lat, Lon, Elev); names(hor$metadata$georef) <- c('Lat','Lon', 'Elev'); dim(hor$metadata$georef) <- c(1,3)
   hor$metadata$elevation <- Elev
 
   hor$data <- data.frame(az = horizon$bin.bottom, alt = horizon$altitude, alt.unc = horizon$error)
