@@ -4,11 +4,13 @@
 \alias{nMjLX}
 \title{Declination of northern major Lunar Extreme for a given year}
 \usage{
-nMjLX(year = cur.year)
+nMjLX(year = cur.year, parallax = 0.85)
 }
 \arguments{
 \item{year}{Year for which to calculate the declination.
 Defaults to present year as given by \emph{Sys.Date()}.}
+
+\item{parallax}{Lunar parallax value. Defaults to 0.85.}
 }
 \description{
 This function calculates the declination of the northern

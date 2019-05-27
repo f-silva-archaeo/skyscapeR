@@ -40,7 +40,7 @@ star for a given location and epoch. This functions uses the
 the nomenclature used, and description of star phases, see Brady (2015).
 }
 \examples{
-ss1 <- star.phases('Aldebaran',-4000, c(35,-8))
+ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200))
 
 # One can then look at the star's phase:
 ss1$phase
@@ -55,7 +55,7 @@ ss1$events
 plot(ss1)
 
 # You can play with the parameters and see how predictions change:
-ss1 <- star.phases('Aldebaran',-4000, c(35,-8), alt.hor=2, alt.rs=5)
+ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200), alt.hor=2, alt.rs=5)
 plot(ss1)
 }
 \references{

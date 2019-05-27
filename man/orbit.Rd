@@ -29,7 +29,7 @@ object, which includes AZ and ALT information.
 sun.dec <- jS(-4000)
 london.lat <- 51.5074 #N
 london.lon <- -0.1278 #W
-loc <- c( london.lat, london.lon )
+loc <- c( london.lat, london.lon, 0 )
 path <- orbit(sun.dec, loc)
 plot(path$az, path$alt, ylim=c(0,90), type='l', xlab='AZ', ylab='ALT', col='red', lwd=2)
 }
