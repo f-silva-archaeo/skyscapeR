@@ -30,13 +30,13 @@ az2dec = function(az, loc, alt){
   if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az)[,1] }
   if (class(loc) != 'skyscapeR.horizon') {
     hor <- c()
-    if (length(loc) < length(az) & length(loc)==2) { hor$metadata$georef <- matrix(rep(loc,NROW(az)), ncol=2, byrow=T)}
-    if (length(loc) < length(az) & length(loc)==1) { hor$metadata$georef <- matrix(rep(c(loc,0),NROW(az)), ncol=2, byrow=T)}
+    if (length(loc) < length(az) & length(loc)==2) { hor$metadata$georef <- matrix(rep(loc,NROW(az)), ncol=3, byrow=T)}
+    if (length(loc) < length(az) & length(loc)==1) { hor$metadata$georef <- matrix(rep(c(loc,0),NROW(az)), ncol=3, byrow=T)}
     if (length(loc) == length(az)) { hor$metadata$georef <- cbind(loc, 0) }
-    if (length(loc) == 2*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),2) }
+    if (length(loc) == 3*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),3) }
   } else { hor <- loc }
 
-  if (length(alt) == 1) { alt <- rep(alt, NROW(az)) }
+  if (length(alt) == 1 & length(az) > 1) { alt <- rep(alt, NROW(az)) }
 
   prec <- max(nchar(sub('.*\\.', '', as.character(az))))
 
@@ -168,7 +168,7 @@ moonphase <- function(time, timezone='', calendar='G') {
 #' @noRd
 vecAzAlt <- function(jd, body, loc, refraction=T, atm=1013.25, temp=15) {
   swephR::swe_set_topo(loc[2], loc[1], loc[3])
-  xin <- swephR::swe_calc_ut(jd, body, 32*1024+2048)$xx[1:2]
+  xin <- swephR::swe_calc_ut(jd, body, 32*1024+2048+16)$xx[1:2]
   aux <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, xin)$xaz
   if (refraction) {
     aux <- aux[c(1,3)] ## apparent altitude
@@ -217,7 +217,7 @@ vecAzAlt <- function(jd, body, loc, refraction=T, atm=1013.25, temp=15) {
 #'
 #' # Rising and setting of the sun throughout 3000 BC, from the location of London
 #' riseset('sun', -3000, loc=c(51.5, 0.11, 100))
-riseset <- function(body = 'sun', date, jd, calendar='G', timezone='', loc, refraction=T, atm=1013.25, temp=15, verbose=T) {
+riseset <- function(body = 'sun', date, jd, calendar='G', timezone='', loc, refraction=T, atm=1013.25, temp=15, verbose=T, alt=0) {
   out <- c()
   out$object <- body
   body <- checkbody(body) ## TODO add stars
@@ -257,12 +257,12 @@ riseset <- function(body = 'sun', date, jd, calendar='G', timezone='', loc, refr
   if (length(jd0) > 1 & verbose) { pb <- txtProgressBar(max = length(jd0), style=3) }
 
   for (k in 1:length(jd0)) {
-    rise <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 1+256, c(loc[2],loc[1],loc[3]), atm, temp, 0)$tret
+    rise <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 1+256, c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
     aux <- vecAzAlt(rise, body, loc, refraction, atm, temp)
     aux[1,2] <- aux[1,2] - 180; if (aux[1,2]>360) { aux[1,2] <- aux[1,2]-360 }
     aux1 <- data.frame(azimuth = aux[1,2], declination = aux[2,1], time = jd2time(rise, timezone, calendar), stringsAsFactors = F)
 
-    set <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 2+256, c(loc[2],loc[1],loc[3]), atm, temp, 0)$tret
+    set <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 2+256, c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
     aux <- vecAzAlt(set, body, loc, refraction, atm, temp)
     aux[1,2] <- aux[1,2] - 180; if (aux[1,2]>360) { aux[1,2] <- aux[1,2]-360 }
     aux2<- data.frame(azimuth = aux[1,2], declination = aux[2,1], time = jd2time(set, timezone, calendar), stringsAsFactors = F)

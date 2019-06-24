@@ -1,8 +1,8 @@
 Package: skyscapeR
 Type: Package
 Title: Skyscape Archaeology Data Reduction, Visualization and Analysis
-Version: 0.3.4.9000
-Date: 2019-05-27
+Version: 0.3.5.9000
+Date: 2019-06-24
 Authors@R: c(person("Silva", "Fabio", email = "f.silva@uwtsd.ac.uk", role = c("aut", "cre")), person("Reijs", "Victor", role = "ctb"))
 Description: A toolset for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy.
 Depends: R (>= 2.10), swephR, swephRdata, plotly

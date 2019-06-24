@@ -130,9 +130,10 @@ plotAz = function(az, obj, loc, col='blue', lwd=1, lty=1, len=1, legend=F) {
 #' Bar plot of orientations (declinations)
 #'
 #' This function creates a bar plot of orientation data.
-#' @param val Array of declinations.
-#' @param unc Single value or array of declination uncertainty
+#' @param val Array of declinations or azimuths.
+#' @param unc Single value or array of measurement uncertainty
 #' @param names (Optional) Array of names of measurements in \emph{val}
+#' @param unit (Optional). Either 'Declination' or 'Azimuth'. Defaults to 'Declination'.
 #' @param obj (Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 #' for displaying the declinations of celestial objects.
 #' @param obj.label (Optional) Boolean to control whether to label the celestial objects in
@@ -157,8 +158,10 @@ plotAz = function(az, obj, loc, col='blue', lwd=1, lty=1, len=1, legend=F) {
 #' # To visualize this data against the common solar and lunar targets:
 #' tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
 #' plotBars(decs, unc=5, obj=tt)
-plotBars <- function(val, unc, names, obj, obj.label=T, col='blue', shade=T, mark=T, sort=F, xrange, yrange) {
-  if (min(val)< -90 | max(val)>90) { stop('It appears that val includes azimuth values This function can only be used for declination values.')}
+plotBars <- function(val, unc, names, unit='Declination', obj, obj.label=T, col='blue', shade=T, mark=T, sort=F, xrange, yrange) {
+  if (min(val)< -90 | max(val)>90 & unit=='Declination') {
+    message('It appears that val includes azimuth values. Changing unit to Azimuth')
+    unit <- 'Azimuth'}
   if (NROW(unc)==1) { unc <- rep(unc, NROW(val)) }
   if (sort) {
     ind <- sort(val, decreasing=T, index.return=T)$ix
@@ -170,7 +173,7 @@ plotBars <- function(val, unc, names, obj, obj.label=T, col='blue', shade=T, mar
   if (!missing(names)) { par(mar=c(4, 9, 2, 2) + 0.1) } else { par(mar=c(4, 2, 2, 2) + 0.1) }
   if (missing(xrange)) { xrange <- c(min(val-unc)-5, max(val+unc)+5) }
   if (missing(yrange)) { yrange <- c(0.5, NROW(val)+0.5) }
-  plot.default(-100,-100, xlab='Declination (º)', ylab='', xlim=xrange, ylim=yrange, axes=F, yaxs='i')
+  plot.default(-100,-100, xlab=paste(unit,'(º)'), ylab='', xlim=xrange, ylim=yrange, axes=F, yaxs='i')
   axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
   axis(1, at=0, labels = 0)
   scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
@@ -194,15 +197,17 @@ plotBars <- function(val, unc, names, obj, obj.label=T, col='blue', shade=T, mar
 
   # objects
   if (!missing(obj)) {
-    for (i in 1:obj$n) {
-      if (length(obj$epoch)==1) {
-        abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
-        if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
-      } else {
-        xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
-        yp <- c(-1,-1,2,2)
-        polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
-        if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+    if (unit == 'Azimith') { message('Celestial objects can only currently be plotted when using declination values.') } else {
+      for (i in 1:obj$n) {
+        if (length(obj$epoch)==1) {
+          abline(v=obj$decs[i], col=obj$col[i], lwd=obj$lwd[i], lty=obj$lty[i])
+          if (obj.label) { text(obj$decs[i], .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+        } else {
+          xp <- c(obj$decs[3:4,i], rev(obj$decs[3:4,i]))
+          yp <- c(-1,-1,2,2)
+          polygon(xp, yp, border=obj$col[i], col=MESS::col.alpha(obj$col[i],.3))
+          if (obj.label) { text(mean(obj$decs[3:4,i]), .95*par('usr')[4], colnames(obj$decs)[i], col=obj$col[i], pos=4, offset=0.2, cex=0.7) }
+        }
       }
     }
   }
