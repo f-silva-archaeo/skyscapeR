@@ -101,9 +101,9 @@ obliquity = function(year = cur.year) {
 
 
 
-#' Computes position of Solar System bodies in geocentric equatorial coordinates
+#' Computes position of Solar System bodies in equatorial coordinates
 #'
-#' This function calculates the geocentric declination and right ascension of solar
+#' This function calculates the geocentric or topocentric declination and right ascension of solar
 #'  system bodies at a given time. It is a wrapper for function
 #'  \code{\link[swephR]{swe_calc}} of package \emph{swephR}.
 #' @param body (Optional) String containing name of the solar system body of interest. Can be
@@ -115,6 +115,9 @@ obliquity = function(year = cur.year) {
 #' \link{timezones} for details. Only needed if \emph{time} is a string. Defaults to system timezone.
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' Only needed if \emph{time} is a string. Defaults to Gregorian.
+#' @param dec (Optional) \emph{geo} for geocentric, or \emph{topo} for topocentric coordinates. Defaults
+#' to geocentric.
+#' @param loc (Optional) Location, only needed if output is in topocentric coordinates.
 #' @import swephR
 #' @export
 #' @seealso \code{\link[swephR]{swe_calc}}, \code{\link{timestring}}, \code{\link{time2jd}}
@@ -124,13 +127,20 @@ obliquity = function(year = cur.year) {
 #'
 #' # Declination of the moon at same time
 #' body.position('moon', '2018/12/25 12:00:00', timezone='GMT')$Dec
-body.position = function(body='sun', time, timezone='', calendar='G') {
+body.position = function(body='sun', time, timezone='', calendar='G', dec='geo', loc) {
   body <- checkbody(body)
 
   out <- data.frame(RA=NA, Dec=NA)
   for (i in 1:length(time)) {
     if (class(time[i])=='character') { jd <- time2jd(time[i], timezone, calendar) } else { jd <- time[i] }
-    aux <- swephR::swe_calc(jd, body, 2048)
+    if (dec == 'geo') {
+      aux <- swephR::swe_calc(jd, body, 2048)
+    } else if (dec == 'topo') {
+      if (missing(loc)) { stop('No location given, but necessary to ouput topocentric coordinates.')}
+      if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
+      swephR::swe_set_topo(loc[2],loc[1],loc[3])
+      aux <- swephR::swe_calc(jd, body, 2048+32*1024)
+    }
     out[i,] <- aux$xx[1:2]
   }
   return(out)
