@@ -165,7 +165,7 @@ body.position = function(obj='sun', time, timezone='', calendar='G', dec='topo',
       if (coords.hor[i,1] < 0) { coords.hor[i,1] <- coords.hor[i,2] + 360 }
     }
 
-    if (length(time) > 1 & verbose) { setTxtProgressBar(pb, k) }
+    if (length(time) > 1 & verbose) { setTxtProgressBar(pb, i) }
   }
   # TODO: output special object with more information, including fame of reference, object and time
   out <- c()
