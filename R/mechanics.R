@@ -78,12 +78,12 @@ mag.dec = function(loc, date) {
 #' Computes obliquity of the ecliptic
 #'
 #' This function calculates the obliquity for a given epoch. It is a
-#' wrapper for function \code{\link[swephR]{swe_calc}} of package \emph{swephR}.
+#' wrapper for function \code{\link[swephR]{swe_calc_ut}} of package \emph{swephR}.
 #' @param year Year for which to calculate the obliquity.
 #' Defaults to present year as given by Sys.Date()
 #' @import swephR
 #' @export
-#' @seealso \code{\link[swephR]{swe_calc}}
+#' @seealso \code{\link[swephR]{swe_calc_ut}}
 #' @references Laskar, J. et al. (2004), A long-term numerical
 #' solution for the insolation quantities of the Earth, \emph{Astron.
 #'  Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
@@ -94,7 +94,7 @@ obliquity = function(year = cur.year) {
   aux <- c()
   for (i in 1:length(year)) {
     jd <- swephR::swe_julday(year[i],1,1,12,1)
-    aux[i] <- swephR::swe_calc(jd, -1, 0)$xx[1]
+    aux[i] <- swephR::swe_calc_ut(jd, -1, 0)$xx[1]
   }
   return(aux)
 }
@@ -105,7 +105,7 @@ obliquity = function(year = cur.year) {
 #'
 #' This function calculates the geocentric or topocentric declination and right ascension of solar
 #'  system bodies at a given time. It is a wrapper for function
-#'  \code{\link[swephR]{swe_calc}} of package \emph{swephR}.
+#'  \code{\link[swephR]{swe_calc_ut}} of package \emph{swephR}.
 #' @param body (Optional) String containing name of the solar system body of interest. Can be
 #' any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.
 #' @param time Either a string containing the date and time in the format "YYYY/MM/DD HH:MM:SS"
@@ -115,36 +115,66 @@ obliquity = function(year = cur.year) {
 #' \link{timezones} for details. Only needed if \emph{time} is a string. Defaults to system timezone.
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' Only needed if \emph{time} is a string. Defaults to Gregorian.
-#' @param dec (Optional) \emph{geo} for geocentric, or \emph{topo} for topocentric coordinates. Defaults
-#' to geocentric.
-#' @param loc (Optional) Location, only needed if output is in topocentric coordinates.
+#' @param dec (Optional) Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
+#' frame of reference. Defaults to topocentric.
+#' @param loc (Optional) Location, only needed if output is in topocentric declination.
+#' @param refraction
+#' @param atm
+#' @param temp
 #' @import swephR
 #' @export
-#' @seealso \code{\link[swephR]{swe_calc}}, \code{\link{timestring}}, \code{\link{time2jd}}
+#' @seealso \code{\link[swephR]{swe_calc_ut}}, \code{\link{timestring}}, \code{\link{time2jd}}
 #' @examples
 #' # Position of the sun at noon GMT on Christmas day 2018:
 #' body.position('sun', '2018/12/25 12:00:00', timezone='GMT')
 #'
 #' # Declination of the moon at same time
-#' body.position('moon', '2018/12/25 12:00:00', timezone='GMT')$Dec
-body.position = function(body='sun', time, timezone='', calendar='G', dec='geo', loc) {
-  body <- checkbody(body)
+#' body.position('moon', '2018/12/25 12:00:00', timezone='GMT')$equatorial$Dec
+body.position = function(obj='sun', time, timezone='', calendar='G', dec='topo', loc, refraction=T, atm=1013.25, temp=15, verbose=T) {
+  if (missing(loc)) {
+    cat('No location given. Forcing output to equatorial coordinates in the geocentric frame of reference.\n')
+    dec <- 'geo'
+    nohoriz <- T
+  } else { nohoriz <- F }
 
-  out <- data.frame(RA=NA, Dec=NA)
+  body <- checkbody(obj)
+
+  coords.eq <- data.frame(RA=NA, Dec=NA)
+  if (!nohoriz) { coords.hor <- data.frame(az=NA, alt=NA) }
+  if (length(time) > 1 & verbose) { pb <- txtProgressBar(max = length(time), style=3) }
   for (i in 1:length(time)) {
     if (class(time[i])=='character') { jd <- time2jd(time[i], timezone, calendar) } else { jd <- time[i] }
     if (dec == 'geo') {
-      aux <- swephR::swe_calc(jd, body, 2048)
+      coords.eq[i,] <- swephR::swe_calc_ut(jd, body, 2048)$xx[1:2]
+
     } else if (dec == 'topo') {
-      if (missing(loc)) { stop('No location given, but necessary to ouput topocentric coordinates.')}
       if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
       swephR::swe_set_topo(loc[2],loc[1],loc[3])
-      aux <- swephR::swe_calc(jd, body, 2048+32*1024)
+      coords.eq[i,] <- swephR::swe_calc_ut(jd, body, 2048+32*1024+16)$xx[1:2]
     }
-    out[i,] <- aux$xx[1:2]
+
+    if (!nohoriz) {
+      aux <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, as.numeric(coords.eq[i,]))$xaz
+
+      if (refraction) {
+        coords.hor[i,] <- aux[c(1,3)] ## apparent altitude
+        coords.eq[i,] <- swephR::swe_azalt_rev(jd, 1, c(loc[2],loc[1],loc[3]), aux)$xout[1:2] ## apparent declination
+      } else { coords.hor[i,] <- aux[1:2] }
+      coords.hor[i,1] <- coords.hor[i,1] - 180
+      if (coords.hor[i,1] > 360) { coords.hor[i,1] <- coords.hor[i,2] - 360 }
+      if (coords.hor[i,1] < 0) { coords.hor[i,1] <- coords.hor[i,2] + 360 }
+    }
+
+    if (length(time) > 1 & verbose) { setTxtProgressBar(pb, i) }
   }
+  # TODO: output special object with more information, including fame of reference, object and time
+  out <- c()
+  out$equatorial <- coords.eq
+  if (!nohoriz) { out$horizontal <- coords.hor }
   return(out)
 }
+
+
 
 
 #' Computes the phase of the moon
@@ -175,24 +205,10 @@ moonphase <- function(time, timezone='', calendar='G') {
 }
 
 
-#' @noRd
-vecAzAlt <- function(jd, body, loc, refraction=T, atm=1013.25, temp=15) {
-  swephR::swe_set_topo(loc[2], loc[1], loc[3])
-  xin <- swephR::swe_calc_ut(jd, body, 32*1024+2048+16)$xx[1:2]
-  aux <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, xin)$xaz
-  if (refraction) {
-    aux <- aux[c(1,3)] ## apparent altitude
-    xin <- swephR::swe_azalt_rev(jd, 1, c(loc[2],loc[1],loc[3]), aux)$xout[1:2] ## apparent declination
-  } else { aux <- aux[1:2] }
-  return(cbind(xin,aux))
-}
-
-
-
 #' Computes the rising and setting azimuth, declination and time of a Solar System object
 #' for a given location and day
 #'
-#' @param body (Optional) String containing name of the solar system body of interest. Can be
+#' @param obj (Optional) String containing name of the solar system body of interest. Can be
 #' any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.
 #' @param date Either a string containing the date in the format "YYYY/MM/DD"
 #'  (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).
@@ -227,10 +243,10 @@ vecAzAlt <- function(jd, body, loc, refraction=T, atm=1013.25, temp=15) {
 #'
 #' # Rising and setting of the sun throughout 3000 BC, from the location of London
 #' riseset('sun', -3000, loc=c(51.5, 0.11, 100))
-riseset <- function(body = 'sun', date, jd, calendar='G', timezone='', loc, refraction=T, atm=1013.25, temp=15, verbose=T, alt=0) {
+riseset <- function(obj = 'sun', date, jd, calendar='G', timezone='', loc, alt=0, dec='topo', refraction=T, atm=1013.25, temp=15, verbose=T) {
   out <- c()
-  out$object <- body
-  body <- checkbody(body) ## TODO add stars
+  out$object <- obj
+  body <- checkbody(obj) ## TODO add stars
 
   if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- c(hor$metadata$georef, hor$metadata$elevation) }
 
@@ -267,15 +283,13 @@ riseset <- function(body = 'sun', date, jd, calendar='G', timezone='', loc, refr
   if (length(jd0) > 1 & verbose) { pb <- txtProgressBar(max = length(jd0), style=3) }
 
   for (k in 1:length(jd0)) {
-    rise <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 1+256, c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
-    aux <- vecAzAlt(rise, body, loc, refraction, atm, temp)
-    aux[1,2] <- aux[1,2] - 180; if (aux[1,2]>360) { aux[1,2] <- aux[1,2]-360 }
-    aux1 <- data.frame(azimuth = aux[1,2], declination = aux[2,1], time = jd2time(rise, timezone, calendar), stringsAsFactors = F)
+    rise <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 1+256+ifelse(refraction,512,0), c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
+    aux <- body.position(obj, rise, '', '', dec, loc, refraction, atm, temp, verbose=F)
+    aux1 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(rise, timezone, calendar), stringsAsFactors = F)
 
-    set <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 2+256, c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
-    aux <- vecAzAlt(set, body, loc, refraction, atm, temp)
-    aux[1,2] <- aux[1,2] - 180; if (aux[1,2]>360) { aux[1,2] <- aux[1,2]-360 }
-    aux2<- data.frame(azimuth = aux[1,2], declination = aux[2,1], time = jd2time(set, timezone, calendar), stringsAsFactors = F)
+    set <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 2+256+ifelse(refraction,512,0), c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
+    aux <- body.position(obj, set, '', '', dec, loc, refraction, atm, temp, verbose=F)
+    aux2 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(set, timezone, calendar), stringsAsFactors = F)
 
     date <- substr(jd2time(jd0[k], timezone, calendar),1,which(strsplit(jd2time(jd0[k], timezone, calendar), "")[[1]]==" ")-1)
     rises[k,] <- c(date, substr(aux1$time,which(strsplit(aux1$time, "")[[1]]==" ")+1,nchar(aux1$time)), aux1$azimuth, aux1$declination)
