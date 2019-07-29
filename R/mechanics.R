@@ -470,6 +470,6 @@ solar.date <- function(dec, year, calendar='G'){
 parallax.corr <- function(parallax, loc, altitude=0) {
   if (class(loc)=='skyscapeR.horizon') { latitude <- loc$metadata$georef[1] }
   if (class(loc)=='numeric') { latitude <- loc }
-  # return(parallax*cos(altitude/180*pi)*sin(latitude/180*pi))
-  return(parallax * cos(altitude/180*pi) * (1-sin(latitude/180*pi)^2/298.3))
+  return(parallax*cos(altitude/180*pi)*sin(latitude/180*pi)) # V Reijs/SE formula
+  # return(parallax * cos(altitude/180*pi) * (1-sin(latitude/180*pi)^2/298.3)) # Nautical formula
 }
