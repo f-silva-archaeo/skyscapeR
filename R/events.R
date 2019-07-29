@@ -142,177 +142,315 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 #'
 #' This function calculates the declination of the sun
 #' at December Solstice for a given year, based upon
-#' obliquity estimation.
+#' obliquity estimation and corrected average parallax.
 #' @param year Year for which to calculate the declination.
 #' Defaults to present year as given by \emph{Sys.Date()}.
+#' @param loc (Optional) This can be either the latitude of the
+#' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+#' function will output geocentric declination.
+#' @param parallax (Optional) Average parallax value for the sun.
+#'  Defaults to 0.00224.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
 #' @export
-#' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}}, \code{\link{zenith}}, \code{\link{antizenith}}
+#' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}},
+#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
 #' @examples
-#' # December Solstice declination for year 3999 BC:
+#' # December Solstice geocentric declination for year 3999 BC:
 #' dS(-4000)
-dS = function(year = cur.year) {
-  aux <- obliquity(year)
-  return(-aux)
-}
+#'
+#' # Topocentric declination for same year and latitude of 50ºN:
+#' dS(-4000, loc=50)
+dS = function(year = cur.year, loc, parallax = 0.00224, altitude = 0) {
+  aux <- -obliquity(year)
 
+  if (missing(loc)) {
+    cat('No location given, therefore outputting geocentric declination.\n')
+  } else {
+    if (loc) {
+      aux <- aux - parallax.corr(parallax, loc, altitude)
+    }
+  }
+  return(aux)
+}
 
 #' Declination of June Solstice for a given year
 #'
 #' This function calculates the declination of the sun
 #' at June Solstice for a given year, based upon
-#' obliquity estimation.
+#' obliquity estimation and corrected average parallax.
 #' @param year Year for which to calculate the declination.
 #' Defaults to present year as given by \emph{Sys.Date()}.
+#' @param loc (Optional) This can be either the latitude of the
+#' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+#' function will output geocentric declination.
+#' @param parallax (Optional) Average parallax value for the sun.
+#'  Defaults to 0.00224.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
 #' @export
-#' @seealso \code{\link{obliquity}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}, \code{\link{antizenith}}
+#' @seealso \code{\link{obliquity}}, \code{\link{dS}}, \code{\link{eq}},
+#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
 #' @examples
-#' # June Solstice declination for year 3999 BC:
+#' # June Solstice geocentric declination for year 3999 BC:
 #' jS(-4000)
-jS = function(year = cur.year) {
+#'
+#' # Topocentric declination for same year and latitude of 50ºN:
+#' jS(-4000, loc=50)
+jS = function(year = cur.year, loc, parallax = 0.00224, altitude = 0) {
   aux <- obliquity(year)
+
+  if (missing(loc)) {
+    cat('No location given, therefore outputting geocentric declination.\n')
+  } else {
+    if (loc) {
+      aux <- aux - parallax.corr(parallax, loc, altitude)
+    }
+  }
   return(aux)
 }
 
-
-#' Declination of northern minor Lunar Extreme for a given year
+#' Declination of the sun at the Equinox
 #'
-#' This function calculates the declination of the northern
-#' minor Lunar Extreme for a given year, by simple addition
-#' of obliquity with maximum lunar inclination.
-#' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
-#' @param parallax Lunar parallax value. Defaults to 0.951 the average parallax value.
+#' This function calculates the declination of the sun
+#' at the astronomical equinox with corrected average parallax.
+#' @param loc (Optional) This can be either the latitude of the
+#' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+#' function will output geocentric declination.
+#' @param parallax (Optional) Average parallax value for the sun.
+#'  Defaults to 0.00224.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
 #' @export
-#' @seealso \code{\link{smnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}}
+#' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}},
+#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
 #' @examples
-#' # Northern minor Lunar Extreme declination for year 2499 BC:
-#' nmnLX(-2500)
-nmnLX = function(year = cur.year, parallax = 0.951) {
-  return(obliquity(year) - 5.145 - parallax)
-}
-
-
-#' Declination of southern minor Lunar Extreme for a given year
-#'
-#' This function calculates the declination of the southern
-#' minor Lunar Extreme for a given year, by simple addition
-#' of obliquity with maximum lunar inclination.
-#' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
-#' @param parallax Lunar parallax value. Defaults to 0.951 the average parallax value.
-#' @export
-#' @seealso \code{\link{nmnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}}
-#' @examples
-#' # Southern minor Lunar Extreme declination for year 2499 BC:
-#' smnLX(-2500)
-smnLX = function(year = cur.year, parallax = .85) {
-  return(-(obliquity(year) - 5.145) - parallax)
-}
-
-
-#' Declination of northern major Lunar Extreme for a given year
-#'
-#' This function calculates the declination of the northern
-#' major Lunar Extreme for a given year, by simple addition
-#' of obliquity with maximum lunar inclination.
-#' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
-#' @param parallax Lunar parallax value. Defaults to 0.951 the averaga parallax value.
-#' @export
-#' @seealso \code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{sMjLX}}
-#' @examples
-#' # Northern major Lunar Extreme declination for year 2499 BC:
-#' nMjLX(-2500)
-nMjLX = function(year = cur.year, parallax = 0.951) {
-  return(obliquity(year) + 5.145 - parallax)
-}
-
-
-#' Declination of southern major Lunar Extreme for a given year
-#'
-#' This function calculates the declination of the southern
-#' major Lunar Extreme for a given year, by simple addition
-#' of obliquity with maximum lunar inclination.
-#' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
-#' @param parallax Lunar parallax value. Defaults to 0.951 the average parallax value.
-#' @export
-#' @seealso \code{\link{nmnLX}}, \code{\link{nMjLX}}, \code{\link{smnLX}}
-#' @examples
-#' # Southern major Lunar Extreme declination for year 2499 BC:
-#' sMjLX(-2500)
-sMjLX = function(year = cur.year, parallax = 0.951) {
-  return(-(obliquity(year) + 5.145) - parallax)
-}
-
-#' Declination of sun at the equinoxes
-#'
-#' This function always returns a value of zero, which is the
-#' declination of the sun on the day of the (astronomical)
-#' equinoxes.
-#' @param bh \emph{NULL} parameter. Can be left empty.
-#' @export
-#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{zenith}}, \code{\link{antizenith}}
-#' @examples
+#' # Equinoctial geocentric declination:
 #' eq()
-eq = function(bh=NULL) {
-  return(0)
+#'
+#' # Topocentric declination for same year and latitude of 50ºN:
+#' eq(loc=50)
+eq = function(loc, parallax = 0.00224, altitude = 0) {
+  aux <- 0
+
+  if (missing(loc)) {
+    cat('No location given, therefore outputting geocentric declination.\n')
+  } else {
+    if (loc) {
+      aux <- aux - parallax.corr(parallax, loc, altitude)
+    }
+  }
+  return(aux)
 }
 
 #' Declination of the zenith sun for a given location
 #'
 #' This function returns the declination of the sun
-#' when it is at the zenith for a given location. If
-#'  this phenomena does not occur at given location
-#'  (i.e. if location is outside the tropical band)
-#'  the function returns a \emph{NULL} value.
+#' when it is at the zenith for a given location with
+#' corrected average parallax. If this phenomena does
+#' not occur at given location (i.e. if location is
+#' outside the tropical band) the function returns a
+#' \emph{NULL} value.
 #' @param loc This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object.
+#' @param parallax (Optional) Average parallax value for the sun.
+#'  Defaults to 0.00224.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
 #' @export
-#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{antizenith}}
+#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}},
+#' \code{\link{antizenith}}, \code{\link{parallax.corr}}
 #' @examples
 #' # Zenith sun declination for Mexico City:
 #' zenith(19.419)
 #'
 #' # There is no zenith sun phenomena in London:
 #' zenith(51.507)
-zenith = function(loc) {
+zenith = function(loc, parallax = 0.00224, altitude = 0) {
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$metadata$georef[1]
   } else { lat <- loc }
 
   if (lat > jS() | lat < dS()) {
     return(NULL)
-  } else { return(lat) }
+  } else {
+    aux <- lat
+    aux <- aux - parallax.corr(parallax, loc, altitude)
+    return(aux)
+  }
 }
 
 #' Declination of the anti-zenith sun for a given location
 #'
 #' This function returns the declination of the sun
-#' when it is at the anti-zenith, or nadir, for a given
-#' location. If this phenomena does not occur at given
-#' location (i.e. if location is outside the tropical
-#' band) the function returns a \emph{NULL} value.
+#' when it is at the anti-zenith for a given location with
+#' corrected average parallax. If this phenomena does
+#' not occur at given location (i.e. if location is
+#' outside the tropical band) the function returns a
+#' \emph{NULL} value.
 #' @param loc This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object.
+#' @param parallax (Optional) Average parallax value for the sun.
+#'  Defaults to 0.00224.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
 #' @export
-#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}
+#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}},
+#' \code{\link{zenith}}, \code{\link{parallax.corr}}
 #' @examples
 #' # Anti-zenith sun declination for Mexico City:
 #' antizenith(19.419)
 #'
 #' # There is no anti-zenith sun phenomena in London:
 #' antizenith(51.507)
-antizenith = function(loc) {
+antizenith = function(loc, parallax = 0.00224, altitude = 0) {
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$metaata$georef[1]
   } else { lat <- loc }
 
   if (lat > jS() | lat < dS()) {
     return(NULL)
-  } else { return(-lat) }
+  } else {
+    aux <- -lat
+    aux <- aux - parallax.corr(parallax, loc, altitude)
+    return(aux)
+  }
 }
 
+
+#' Declination of northern minor Lunar Extreme for a given year
+#'
+#' This function calculates the declination of the northern
+#' minor Lunar Extreme for a given year, based upon
+#' obliquity estimation and corrected average parallax.
+#' @param year Year for which to calculate the declination.
+#' Defaults to present year as given by \emph{Sys.Date()}.
+#' @param loc (Optional) This can be either the latitude of the
+#' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+#' function will output geocentric declination.
+#' @param parallax (Optional) Average parallax value for the moon
+#'  Defaults to 0.952.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @export
+#' @seealso \code{\link{smnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}},
+#' \code{\link{parallax.corr}}
+#' @examples
+#' # Northern minor Lunar Extreme geocentric declination for year 2499 BC:
+#' nmnLX(-2500)
+#'
+#' # Topocentric declination for same year and latitude of 50ºN:
+#' nmnLX(-2500, loc=50)
+nmnLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
+  aux <- obliquity(year) - (5.145+0.145)
+  if (missing(loc)) {
+    cat('No location given, therefore outputting geocentric declination.\n')
+  } else {
+    if (loc) {
+      aux <- aux - parallax.corr(parallax, loc, altitude)
+    }
+  }
+  return(aux)
+}
+
+
+#' Declination of southern minor Lunar Extreme for a given year
+#'
+#' This function calculates the declination of the southern
+#' minor Lunar Extreme for a given year, based upon
+#' obliquity estimation and corrected average parallax.
+#' @param year Year for which to calculate the declination.
+#' Defaults to present year as given by \emph{Sys.Date()}.
+#' @param loc (Optional) This can be either the latitude of the
+#' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+#' function will output geocentric declination.
+#' @param parallax (Optional) Average parallax value for the moon
+#'  Defaults to 0.952.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @export
+#' @seealso \code{\link{nmnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}},
+#' \code{\link{parallax.corr}}
+#' @examples
+#' # Southern minor Lunar Extreme geocentric declination for year 2499 BC:
+#' smnLX(-2500)
+#'
+#' # Topocentric declination for same year and latitude of 50ºN:
+#' smnLX(-2500, loc=50)
+smnLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
+  aux <- -(obliquity(year) - (5.145+0.145))
+  if (missing(loc)) {
+    cat('No location given, therefore outputting geocentric declination.\n')
+  } else {
+    if (loc) {
+      aux <- aux - parallax.corr(parallax, loc, altitude)
+    }
+  }
+  return(aux)
+}
+
+
+#' Declination of northern major Lunar Extreme for a given year
+#'
+#' This function calculates the declination of the northern
+#' major Lunar Extreme for a given year, based upon
+#' obliquity estimation and corrected average parallax.
+#' @param year Year for which to calculate the declination.
+#' Defaults to present year as given by \emph{Sys.Date()}.
+#' @param loc (Optional) This can be either the latitude of the
+#' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+#' function will output geocentric declination.
+#' @param parallax (Optional) Average parallax value for the moon
+#'  Defaults to 0.952.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @export
+#' @seealso \code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{sMjLX}},
+#' \code{\link{parallax.corr}}
+#' @examples
+#' # Northern major Lunar Extreme geocentric declination for year 2499 BC:
+#' nMjLX(-2500)
+#'
+#' # Topocentric declination for same year and latitude of 50ºN:
+#' nMjLX(-2500, loc=50)
+nMjLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
+  aux <- obliquity(year) + (5.145+0.145)
+  if (missing(loc)) {
+    cat('No location given, therefore outputting geocentric declination.\n')
+  } else {
+    if (loc) {
+      aux <- aux - parallax.corr(parallax, loc, altitude)
+    }
+  }
+  return(aux)
+}
+
+
+#' Declination of southern major Lunar Extreme for a given year
+#'
+#' This function calculates the declination of the southern
+#' major Lunar Extreme for a given year, based upon
+#' obliquity estimation and corrected average parallax.
+#' @param year Year for which to calculate the declination.
+#' Defaults to present year as given by \emph{Sys.Date()}.
+#' @param loc (Optional) This can be either the latitude of the
+#' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+#' function will output geocentric declination.
+#' @param parallax (Optional) Average parallax value for the moon
+#'  Defaults to 0.952.
+#' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @export
+#' @seealso \code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{nMjLX}},
+#' \code{\link{parallax.corr}}
+#' @examples
+#' # Southern major Lunar Extreme geocentric declination for year 2499 BC:
+#' sMjLX(-2500)
+#'
+#' # Topocentric declination for same year and latitude of 50ºN:
+#' sMjLX(-2500, loc=50)
+sMjLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
+  aux <- -(obliquity(year) + (5.145+0.145))
+  if (missing(loc)) {
+    cat('No location given, therefore outputting geocentric declination.\n')
+  } else {
+    if (loc) {
+      aux <- aux - parallax.corr(parallax, loc, altitude)
+    }
+  }
+  return(aux)
+}
 
 #' Equinoctial Full Moons
 #'

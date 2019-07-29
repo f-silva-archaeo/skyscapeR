@@ -4,18 +4,24 @@
 \alias{antizenith}
 \title{Declination of the anti-zenith sun for a given location}
 \usage{
-antizenith(loc)
+antizenith(loc, parallax = 0.00224, altitude = 0)
 }
 \arguments{
 \item{loc}{This can be either the latitude of the
 location, or a \emph{skyscapeR.horizon} object.}
+
+\item{parallax}{(Optional) Average parallax value for the sun.
+Defaults to 0.00224.}
+
+\item{altitude}{(Optional) Altitude of the sun. Defaults to 0 degrees.}
 }
 \description{
 This function returns the declination of the sun
-when it is at the anti-zenith, or nadir, for a given
-location. If this phenomena does not occur at given
-location (i.e. if location is outside the tropical
-band) the function returns a \emph{NULL} value.
+when it is at the anti-zenith for a given location with
+corrected average parallax. If this phenomena does
+not occur at given location (i.e. if location is
+outside the tropical band) the function returns a
+\emph{NULL} value.
 }
 \examples{
 # Anti-zenith sun declination for Mexico City:
@@ -25,5 +31,6 @@ antizenith(19.419)
 antizenith(51.507)
 }
 \seealso{
-\code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}
+\code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}},
+\code{\link{zenith}}, \code{\link{parallax.corr}}
 }

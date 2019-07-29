@@ -4,15 +4,17 @@
 \alias{plotBars}
 \title{Bar plot of orientations (declinations)}
 \usage{
-plotBars(val, unc, names, obj, obj.label = T, col = "blue",
-  shade = T, mark = T, sort = F, xrange, yrange)
+plotBars(val, unc, names, unit = "Declination", obj, obj.label = T,
+  col = "blue", shade = T, mark = T, sort = F, xrange, yrange)
 }
 \arguments{
-\item{val}{Array of declinations.}
+\item{val}{Array of declinations or azimuths.}
 
-\item{unc}{Single value or array of declination uncertainty}
+\item{unc}{Single value or array of measurement uncertainty}
 
 \item{names}{(Optional) Array of names of measurements in \emph{val}}
+
+\item{unit}{(Optional). Either 'Declination' or 'Azimuth'. Defaults to 'Declination'.}
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the declinations of celestial objects.}

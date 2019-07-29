@@ -12,7 +12,7 @@ Defaults to present year as given by Sys.Date()}
 }
 \description{
 This function calculates the obliquity for a given epoch. It is a
-wrapper for function \code{\link[swephR]{swe_calc}} of package \emph{swephR}.
+wrapper for function \code{\link[swephR]{swe_calc_ut}} of package \emph{swephR}.
 }
 \examples{
 #' # Obliquity for year 3999 BC:
@@ -24,5 +24,5 @@ solution for the insolation quantities of the Earth, \emph{Astron.
  Astroph.}, 428, 261-285, doi:10.1051/0004-6361:20041335.
 }
 \seealso{
-\code{\link[swephR]{swe_calc}}
+\code{\link[swephR]{swe_calc_ut}}
 }

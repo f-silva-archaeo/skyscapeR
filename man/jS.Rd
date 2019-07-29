@@ -4,21 +4,34 @@
 \alias{jS}
 \title{Declination of June Solstice for a given year}
 \usage{
-jS(year = cur.year)
+jS(year = cur.year, loc, parallax = 0.00224, altitude = 0)
 }
 \arguments{
 \item{year}{Year for which to calculate the declination.
 Defaults to present year as given by \emph{Sys.Date()}.}
+
+\item{loc}{(Optional) This can be either the latitude of the
+location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+function will output geocentric declination.}
+
+\item{parallax}{(Optional) Average parallax value for the sun.
+Defaults to 0.00224.}
+
+\item{altitude}{(Optional) Altitude of the sun. Defaults to 0 degrees.}
 }
 \description{
 This function calculates the declination of the sun
 at June Solstice for a given year, based upon
-obliquity estimation.
+obliquity estimation and corrected average parallax.
 }
 \examples{
-# June Solstice declination for year 3999 BC:
+# June Solstice geocentric declination for year 3999 BC:
 jS(-4000)
+
+# Topocentric declination for same year and latitude of 50ºN:
+jS(-4000, loc=50)
 }
 \seealso{
-\code{\link{obliquity}}, \code{\link{dS}}, \code{\link{eq}}, \code{\link{zenith}}, \code{\link{antizenith}}
+\code{\link{obliquity}}, \code{\link{dS}}, \code{\link{eq}},
+\code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
 }
