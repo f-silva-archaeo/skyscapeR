@@ -452,3 +452,24 @@ solar.date <- function(dec, year, calendar='G'){
   rownames(aux) <- c('Dec','Date1', 'Date2')
   return(aux)
 }
+
+
+
+#' Corrected parallax for a given location and object altitude
+#'
+#' Given the average parallax, this fucntion corrects this value for a given latitude of the observer
+#' and for the altitude of the celestial object.
+#' @param parallax Average parallax to correct (e.g. 0.00224 for the Sun, or 0.952 for the Moon)
+#' @param loc This can be either the latitude of the location, or a \emph{skyscapeR.horizon} object.
+#' @param altitude (Optional) Altitude of the celestial object.. Defaults to 0 degrees.
+#' @import swephR
+#' @export
+#' @examples
+#' # Parallax correction for the moon, as seen from latitude 50ºN and at 0º altitude
+#' parallax.corr(0.952, 50, 0)
+parallax.corr <- function(parallax, loc, altitude=0) {
+  if (class(loc)=='skyscapeR.horizon') { latitude <- loc$metadata$georef[1] }
+  if (class(loc)=='numeric') { latitude <- loc }
+  return(parallax*cos(altitude/180*pi)*sin(latitude/180*pi)) # V Reijs/SE formula
+  # return(parallax * cos(altitude/180*pi) * (1-sin(latitude/180*pi)^2/298.3)) # Nautical formula
+}

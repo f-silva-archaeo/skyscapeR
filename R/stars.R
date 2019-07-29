@@ -117,7 +117,9 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
   tx <- jd.t - jd0+1
 
   # Sun
-  Sun.alt <- sapply(jd.t, vecAzAlt, 0, loc=c(lon,lat,elev), refraction=refraction, atm=atm, temp=temp)[4,]
+  #Sun.alt <- sapply(jd.t, vecAzAlt, 0, loc=c(lon,lat,elev), refraction=refraction, atm=atm, temp=temp)[4,]
+  Sun.alt <- body.position('sun', jd.t, loc=loc, refraction=refraction, atm=atm, temp=temp, verbose=F)$horizontal$alt
+  ### TODO must speed this up
 
   # Star
   ff <- function(x, loc, atm, temp, star) { return(swephR::swe_azalt(x, 1, c(loc[2],loc[1],0), atm, temp, c(star$coord$RA, star$coord$Dec))$xaz) }

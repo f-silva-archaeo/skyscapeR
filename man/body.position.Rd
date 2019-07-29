@@ -2,14 +2,13 @@
 % Please edit documentation in R/mechanics.R
 \name{body.position}
 \alias{body.position}
-\title{Computes position of Solar System bodies in geocentric equatorial coordinates}
+\title{Computes position of Solar System bodies in equatorial coordinates}
 \usage{
-body.position(body = "sun", time, timezone = "", calendar = "G")
+body.position(obj = "sun", time, timezone = "", calendar = "G",
+  dec = "topo", loc, refraction = T, atm = 1013.25, temp = 15,
+  verbose = T)
 }
 \arguments{
-\item{body}{(Optional) String containing name of the solar system body of interest. Can be
-any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.}
-
 \item{time}{Either a string containing the date and time in the format "YYYY/MM/DD HH:MM:SS"
 (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).}
 
@@ -19,19 +18,27 @@ a string with continent followed by country capital (eg. "Europe/London"). See
 
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 Only needed if \emph{time} is a string. Defaults to Gregorian.}
+
+\item{dec}{(Optional) Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
+frame of reference. Defaults to topocentric.}
+
+\item{loc}{(Optional) Location, only needed if output is in topocentric declination.}
+
+\item{body}{(Optional) String containing name of the solar system body of interest. Can be
+any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.}
 }
 \description{
-This function calculates the geocentric declination and right ascension of solar
+This function calculates the geocentric or topocentric declination and right ascension of solar
  system bodies at a given time. It is a wrapper for function
- \code{\link[swephR]{swe_calc}} of package \emph{swephR}.
+ \code{\link[swephR]{swe_calc_ut}} of package \emph{swephR}.
 }
 \examples{
 # Position of the sun at noon GMT on Christmas day 2018:
 body.position('sun', '2018/12/25 12:00:00', timezone='GMT')
 
 # Declination of the moon at same time
-body.position('moon', '2018/12/25 12:00:00', timezone='GMT')$Dec
+body.position('moon', '2018/12/25 12:00:00', timezone='GMT')$equatorial$Dec
 }
 \seealso{
-\code{\link[swephR]{swe_calc}}, \code{\link{timestring}}, \code{\link{time2jd}}
+\code{\link[swephR]{swe_calc_ut}}, \code{\link{timestring}}, \code{\link{time2jd}}
 }

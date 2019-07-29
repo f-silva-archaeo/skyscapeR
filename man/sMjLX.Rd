@@ -4,23 +4,34 @@
 \alias{sMjLX}
 \title{Declination of southern major Lunar Extreme for a given year}
 \usage{
-sMjLX(year = cur.year, parallax = 0.85)
+sMjLX(year = cur.year, loc, parallax = 0.952, altitude = 0)
 }
 \arguments{
 \item{year}{Year for which to calculate the declination.
 Defaults to present year as given by \emph{Sys.Date()}.}
 
-\item{parallax}{Lunar parallax value. Defaults to 0.85.}
+\item{loc}{(Optional) This can be either the latitude of the
+location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
+function will output geocentric declination.}
+
+\item{parallax}{(Optional) Average parallax value for the moon
+Defaults to 0.952.}
+
+\item{altitude}{(Optional) Altitude of the sun. Defaults to 0 degrees.}
 }
 \description{
 This function calculates the declination of the southern
-major Lunar Extreme for a given year, by simple addition
-of obliquity with maximum lunar inclination.
+major Lunar Extreme for a given year, based upon
+obliquity estimation and corrected average parallax.
 }
 \examples{
-# Southern major Lunar Extreme declination for year 2499 BC:
+# Southern major Lunar Extreme geocentric declination for year 2499 BC:
 sMjLX(-2500)
+
+# Topocentric declination for same year and latitude of 50ºN:
+sMjLX(-2500, loc=50)
 }
 \seealso{
-\code{\link{nmnLX}}, \code{\link{nMjLX}}, \code{\link{smnLX}}
+\code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{nMjLX}},
+\code{\link{parallax.corr}}
 }

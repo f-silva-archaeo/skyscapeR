@@ -5,11 +5,12 @@
 \title{Computes the rising and setting azimuth, declination and time of a Solar System object
 for a given location and day}
 \usage{
-riseset(body = "sun", date, jd, calendar = "G", timezone = "", loc,
-  refraction = T, atm = 1013.25, temp = 15, verbose = T)
+riseset(obj = "sun", date, jd, calendar = "G", timezone = "", loc,
+  alt = 0, dec = "topo", refraction = T, atm = 1013.25,
+  temp = 15, verbose = T)
 }
 \arguments{
-\item{body}{(Optional) String containing name of the solar system body of interest. Can be
+\item{obj}{(Optional) String containing name of the solar system body of interest. Can be
 any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.}
 
 \item{date}{Either a string containing the date in the format "YYYY/MM/DD"
