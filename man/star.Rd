@@ -4,7 +4,7 @@
 \alias{star}
 \title{Create \emph{skyscapeR.star} object}
 \usage{
-star(string, year = 2000)
+star(string, year = cur.year)
 }
 \arguments{
 \item{string}{This can be either: 1) the common name for the star,
@@ -15,7 +15,7 @@ star(string, year = 2000)
  the second of which is a space).}
 
 \item{year}{Year for which to calculate the coordinates.
-Defaults to J2000.0 epoch.}
+Defaults to current year.}
 }
 \description{
 This function retrieves information for a given star

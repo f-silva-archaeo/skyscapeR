@@ -1,6 +1,6 @@
 #jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
-swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
+#swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
 
 #' Calculates declination from azimuth and altitude measurements
 #'
@@ -99,6 +99,50 @@ obliquity = function(year = cur.year) {
   return(aux)
 }
 
+#' @noRd
+body.position.unvec = function(obj='sun', time, timezone, calendar, dec, loc = NULL, refraction, atm, temp, verbose=T) {
+
+  if (is.null(loc)) {
+    cat('No location given. Forcing output to equatorial coordinates in the geocentric frame of reference.\n')
+    dec <- 'geo'
+    nohoriz <- T
+  } else { nohoriz <- F }
+
+  body <- checkbody(obj)
+
+  coords.eq <- data.frame(RA=NA, Dec=NA)
+  if (!nohoriz) { coords.hor <- data.frame(az=NA, alt=NA) }
+
+  if (class(time)=='character') { jd <- time2jd(time, timezone, calendar) } else { jd <- time }
+  if (dec == 'geo') {
+    coords.eq[1,] <- swephR::swe_calc_ut(jd, body, 2048)$xx[1:2]
+
+  } else if (dec == 'topo') {
+    if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
+    swephR::swe_set_topo(loc[2],loc[1],loc[3])
+    coords.eq[1,] <- swephR::swe_calc_ut(jd, body, 2048+32*1024+16)$xx[1:2]
+  }
+
+  if (!nohoriz) {
+    aux <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, as.numeric(coords.eq))$xaz
+
+    if (refraction) {
+      coords.hor[1,] <- aux[c(1,3)] ## apparent altitude
+      coords.eq[1,] <- swephR::swe_azalt_rev(jd, 1, c(loc[2],loc[1],loc[3]), aux)$xout[1:2] ## apparent declination
+    } else { coords.hor <- aux[1:2] }
+    coords.hor[1,1] <- coords.hor[1,1] - 180
+    if (coords.hor[1,1] > 360) { coords.hor[1,1] <- coords.hor[1,1] - 360 }
+    if (coords.hor[1,1] < 0) { coords.hor[1,1] <- coords.hor[1,1] + 360 }
+  }
+
+  out <- c()
+  out$equatorial <- coords.eq
+  if (!nohoriz) { out$horizontal <- coords.hor }
+  return(out)
+}
+
+#' @noRd
+body.position.vec <- Vectorize(body.position.unvec, 'time', SIMPLIFY = FALSE)
 
 
 #' Computes position of Solar System bodies in equatorial coordinates
@@ -106,7 +150,7 @@ obliquity = function(year = cur.year) {
 #' This function calculates the geocentric or topocentric declination and right ascension of solar
 #'  system bodies at a given time. It is a wrapper for function
 #'  \code{\link[swephR]{swe_calc_ut}} of package \emph{swephR}.
-#' @param body (Optional) String containing name of the solar system body of interest. Can be
+#' @param obj (Optional) String containing name of the solar system body of interest. Can be
 #' any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.
 #' @param time Either a string containing the date and time in the format "YYYY/MM/DD HH:MM:SS"
 #'  (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).
@@ -118,9 +162,10 @@ obliquity = function(year = cur.year) {
 #' @param dec (Optional) Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
 #' frame of reference. Defaults to topocentric.
 #' @param loc (Optional) Location, only needed if output is in topocentric declination.
-#' @param refraction
-#' @param atm
-#' @param temp
+#' @param refraction (Optional) Whether atmospheric refraction is to be taken into account. Default is TRUE.
+#' @param atm (Optional) Atmospheric pressure for refraction calculation. Default is 1013.25 mbar.
+#' @param temp (Optional) Atmospheric temprature for erfraction calculation. Default is 15 degrees.
+#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @import swephR
 #' @export
 #' @seealso \code{\link[swephR]{swe_calc_ut}}, \code{\link{timestring}}, \code{\link{time2jd}}
@@ -130,50 +175,24 @@ obliquity = function(year = cur.year) {
 #'
 #' # Declination of the moon at same time
 #' body.position('moon', '2018/12/25 12:00:00', timezone='GMT')$equatorial$Dec
-body.position = function(obj='sun', time, timezone='', calendar='G', dec='topo', loc, refraction=T, atm=1013.25, temp=15, verbose=T) {
-  if (missing(loc)) {
-    cat('No location given. Forcing output to equatorial coordinates in the geocentric frame of reference.\n')
-    dec <- 'geo'
-    nohoriz <- T
-  } else { nohoriz <- F }
+body.position <- function(obj='sun', time, timezone, calendar, dec, loc=NULL, refraction, atm, temp, verbose=T) {
+  if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
+  if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
+  if (missing(dec)) { dec <- skyscapeR.env$dec }
+  if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
+  if (missing(atm)) { atm <- skyscapeR.env$atm }
+  if (missing(temp)) { temp <- skyscapeR.env$temp }
 
-  body <- checkbody(obj)
-
-  coords.eq <- data.frame(RA=NA, Dec=NA)
-  if (!nohoriz) { coords.hor <- data.frame(az=NA, alt=NA) }
-  if (length(time) > 1 & verbose) { pb <- txtProgressBar(max = length(time), style=3) }
-  for (i in 1:length(time)) {
-    if (class(time[i])=='character') { jd <- time2jd(time[i], timezone, calendar) } else { jd <- time[i] }
-    if (dec == 'geo') {
-      coords.eq[i,] <- swephR::swe_calc_ut(jd, body, 2048)$xx[1:2]
-
-    } else if (dec == 'topo') {
-      if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
-      swephR::swe_set_topo(loc[2],loc[1],loc[3])
-      coords.eq[i,] <- swephR::swe_calc_ut(jd, body, 2048+32*1024+16)$xx[1:2]
-    }
-
-    if (!nohoriz) {
-      aux <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, as.numeric(coords.eq[i,]))$xaz
-
-      if (refraction) {
-        coords.hor[i,] <- aux[c(1,3)] ## apparent altitude
-        coords.eq[i,] <- swephR::swe_azalt_rev(jd, 1, c(loc[2],loc[1],loc[3]), aux)$xout[1:2] ## apparent declination
-      } else { coords.hor[i,] <- aux[1:2] }
-      coords.hor[i,1] <- coords.hor[i,1] - 180
-      if (coords.hor[i,1] > 360) { coords.hor[i,1] <- coords.hor[i,2] - 360 }
-      if (coords.hor[i,1] < 0) { coords.hor[i,1] <- coords.hor[i,2] + 360 }
-    }
-
-    if (length(time) > 1 & verbose) { setTxtProgressBar(pb, i) }
+  if (length(time)==1) {
+    return(body.position.unvec(obj, time, timezone, calendar, dec, loc, refraction, atm, temp, verbose))
+  } else {
+    aux <- body.position.vec(obj, time, timezone, calendar, dec, loc, refraction, atm, temp, verbose)
+    out <- c()
+    out$equatorial <- as.data.frame(matrix(unlist(lapply(aux,'[[', 'equatorial')), ncol=2, byrow=T)); names(out$equatorial) <- names(aux[[1]]$equatorial)
+    if (!is.null(loc)) { out$horizontal <- as.data.frame(matrix(unlist(lapply(aux,'[[', 'horizontal')), ncol=2, byrow=T)); names(out$horizontal) <- names(aux[[1]]$horizontal) }
+    return(out)
   }
-  # TODO: output special object with more information, including fame of reference, object and time
-  out <- c()
-  out$equatorial <- coords.eq
-  if (!nohoriz) { out$horizontal <- coords.hor }
-  return(out)
 }
-
 
 
 
@@ -194,7 +213,10 @@ body.position = function(obj='sun', time, timezone='', calendar='G', dec='topo',
 #' @examples
 #' # Moonphase at noon GMT on Christmas day 2018:
 #' moonphase('2018/12/25 12:00:00', 'GMT')
-moonphase <- function(time, timezone='', calendar='G') {
+moonphase <- function(time, timezone, calendar) {
+  if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
+  if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
+
   aux <- c()
   for (i in 1:length(time)) {
     if (class(time)=='character') { jd <- time2jd(time[i], timezone, calendar) } else { jd <- time[i] }
@@ -243,7 +265,14 @@ moonphase <- function(time, timezone='', calendar='G') {
 #'
 #' # Rising and setting of the sun throughout 3000 BC, from the location of London
 #' riseset('sun', -3000, loc=c(51.5, 0.11, 100))
-riseset <- function(obj = 'sun', date, jd, calendar='G', timezone='', loc, alt=0, dec='topo', refraction=T, atm=1013.25, temp=15, verbose=T) {
+riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, refraction, atm, temp, verbose=T) {
+  if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
+  if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
+  if (missing(dec)) { dec <- skyscapeR.env$dec }
+  if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
+  if (missing(atm)) { atm <- skyscapeR.env$atm }
+  if (missing(temp)) { temp <- skyscapeR.env$temp }
+
   out <- c()
   out$object <- obj
   body <- checkbody(obj) ## TODO add stars
@@ -331,14 +360,18 @@ riseset <- function(obj = 'sun', date, jd, calendar='G', timezone='', loc, alt=0
 #' loc <- c( london.lat, london.lon, 0 )
 #' path <- orbit(sun.dec, loc)
 #' plot(path$az, path$alt, ylim=c(0,90), type='l', xlab='AZ', ylab='ALT', col='red', lwd=2)
-orbit = function(dec, loc, res=0.25, refraction=T, ...) {
+orbit = function(dec, loc, res=0.25, refraction, atm, temp) {
+  if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
+  if (missing(atm)) { atm <- skyscapeR.env$atm }
+  if (missing(temp)) { temp <- skyscapeR.env$temp }
+
   if (class(loc)=='skyscapeR.horizon') { loc <- loc$metadata$georef }
 
   ra <- seq(0, 360, by=res)
   aux <- array(NA, c(NROW(ra),2))
 
   for (i in 1:NROW(ra)) {
-    tmp <- eq2hor(ra[i], dec, loc, refraction, ...)
+    tmp <- eq2hor(ra[i], dec, loc, refraction, atm, temp)
 
     aux[i,] <- c(tmp$az,tmp$alt)
   }
@@ -382,8 +415,10 @@ orbit = function(dec, loc, res=0.25, refraction=T, ...) {
 #' @seealso \code{\link{reduct.theodolite}}
 #' @examples
 #' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
-sunAz = function(loc, time, timezone = 'Europe/London', limb, alt=F) {
-  if (class(loc)=='skyscapeR.horizon') { loc <- c(hor$metadata$georef, hor$metadata$elevation) }
+sunAz = function(loc, time, timezone, limb, alt=F) {
+  if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
+
+  if (class(loc)=='skyscapeR.horizon') { loc <- c(loc$metadata$georef, loc$metadata$elevation) }
   if (is.null(dim(loc))) { dim(loc) <- c(1, NROW(loc)) }
 
   az <- c(); at <- c()
@@ -427,14 +462,16 @@ sunAz = function(loc, time, timezone = 'Europe/London', limb, alt=F) {
 #' solar.date(-23, 2018)
 #' solar.date(-23, 1200, calendar='G')
 #' solar.date(-23, 1200, calendar='J')
-solar.date <- function(dec, year, calendar='G'){
+solar.date <- function(dec, year, calendar){
+  if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
+
 
   jd0 <- time2jd(timestring(year,1,1,12), timezone='UTC', calendar)
 
   out <- c(); cdate <- c()
   for (i in 1:366) {
     cdate[i] <- substr(jd2time(jd0+i-1, calendar=calendar),6,10)
-    out[i] <- body.position(body='sun', jd0+i-1, timezone='UTC', calendar=calendar)$Dec
+    out[i] <- body.position(obj='sun', jd0+i-1, timezone='UTC', calendar=calendar)$Dec
   }
   rr <- range(out)
 

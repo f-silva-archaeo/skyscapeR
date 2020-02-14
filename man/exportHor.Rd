@@ -4,8 +4,7 @@
 \alias{exportHor}
 \title{Exports a \emph{skyscapeR.horizon} object into \emph{Stellarium} format}
 \usage{
-exportHor(hor, name, author = "skyscapeR", description, ground_col,
-  hor_col)
+exportHor(hor, name, author = "skyscapeR", description, ground_col, hor_col)
 }
 \arguments{
 \item{hor}{Horizon data in \emph{skyscapeR.horizon} format.}

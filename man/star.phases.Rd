@@ -4,8 +4,18 @@
 \alias{star.phases}
 \title{Calculate the seasons and phases of a star}
 \usage{
-star.phases(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600,
-  refraction = T, atm = 1013.25, temp = 15)
+star.phases(
+  star,
+  year,
+  loc,
+  alt.hor = 0,
+  alt.rs = 10,
+  res = 24/3600,
+  refraction,
+  atm,
+  temp,
+  verbose = T
+)
 }
 \arguments{
 \item{star}{Either the star name or a \emph{skyscapeR.star} object.}

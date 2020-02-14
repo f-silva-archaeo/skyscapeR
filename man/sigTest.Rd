@@ -4,8 +4,17 @@
 \alias{sigTest}
 \title{Perform a null hypothesis significance test of a given curvigram}
 \usage{
-sigTest(data, type = "curv", ncores = parallel::detectCores() - 1,
-  nsims = 2000, conf = 0.95, prec = 0.01, range, verbose = T, ...)
+sigTest(
+  data,
+  type = "curv",
+  ncores = parallel::detectCores() - 1,
+  nsims = 2000,
+  conf = 0.95,
+  prec = 0.01,
+  range,
+  verbose = T,
+  ...
+)
 }
 \arguments{
 \item{data}{Data frame including latitude, azimuth and horizon altitude of sites, created

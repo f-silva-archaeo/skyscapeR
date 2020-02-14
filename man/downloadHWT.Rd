@@ -16,7 +16,7 @@ from \emph{HeyWhatsThat}, given its ID, and saves it as
 a \emph{skyscapeR.horizon} object.
 }
 \examples{
-# Retrieve horizon data for \\href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:
+# Retrieve horizon data for \href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:
 hor <- downloadHWT('HIFVTBGK')
 }
 \references{

@@ -4,7 +4,7 @@
 \alias{jd2time}
 \title{Converts Julian date and time (in any timezone) to julian date}
 \usage{
-jd2time(jd, timezone = "", calendar = "G", verbose = T)
+jd2time(jd, timezone, calendar, verbose = F)
 }
 \arguments{
 \item{jd}{Julian date in numeric format}
@@ -16,7 +16,7 @@ a string with continent followed by country capital (eg. "Europe/London"). See
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 Only needed if \emph{time} is a string. Defaults to \emph{Gregorian}.}
 
-\item{verbose}{(Optional) Controls whether messages should be displayed. Default is \emph{TRUE}.}
+\item{verbose}{(Optional) Controls whether messages should be displayed. Default is \emph{FALSE}.}
 }
 \description{
 Converts Julian date and time (in any timezone) to julian date

@@ -9,7 +9,7 @@
 #' \code{\link{timezones}} for details. Default is the system timezone
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' Defaults to \emph{Gregorian}.
-#' @param verbose (Optional) Controls whether messages should be displayed. Default is \emph{TRUE}.
+#' @param verbose (Optional) Controls whether messages should be displayed. Default is \emph{FALSE}.
 #' @import swephR
 #' @export
 #' @seealso \code{\link[swephR]{swe_julday}}, \code{\link{as.POSIXlt}}, \code{\link{timezones}},
@@ -17,7 +17,10 @@
 #' @examples
 #' # Julian date at noon GMT on Christmas day 2018
 #' time2jd('2018-12-25 12:00:00', 'GMT')
-time2jd <- function(time, timezone = '', calendar='G', verbose=T) {
+time2jd <- function(time, timezone, calendar, verbose=F) {
+  if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
+  if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
+
   cal <- switch(calendar,  G = 1, Gregorian = 1, J = 0, Julian = 0, -1)
 
   out <- rep(NA, length(time))
@@ -61,14 +64,17 @@ time2jd <- function(time, timezone = '', calendar='G', verbose=T) {
 #' \code{\link{timezones}} for details. Default is system timezone.
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' Only needed if \emph{time} is a string. Defaults to \emph{Gregorian}.
-#' @param verbose (Optional) Controls whether messages should be displayed. Default is \emph{TRUE}.
+#' @param verbose (Optional) Controls whether messages should be displayed. Default is \emph{FALSE}.
 #' @import swephR
 #' @export
 #' @seealso \code{\link[swephR]{swe_julday}}, \code{\link{as.POSIXlt}}, \code{\link{timezones}}
 #' @examples
 #' jd <- time2jd('2018-12-25 12:00:00', 'GMT') # Julian date at noon GMT on Christmas day 2018
 #' jd2time(jd, 'CET') # converts julian date to Central European timezone
-jd2time <- function(jd, timezone='', calendar='G', verbose=T) {
+jd2time <- function(jd, timezone, calendar, verbose=F) {
+  if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
+  if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
+
   cal <- switch(calendar,  G = 1, Gregorian = 1, J = 0, Julian = 0, -1)
 
   out <- rep(NA, length(jd))
@@ -135,7 +141,9 @@ long.date <- function(date){
 
 
 #' @noRd
-findWS <- function(year, calendar='G') {
+findWS <- function(year, calendar) {
+  if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
+
   jd0 <- swephR::swe_julday(year, 1, 1, 12, 12)
   jd <- seq(jd0, jd0+365, length.out = 365*24)
   dec <- swephR::swe_calc_ut(jd, 0, 2048)$xx[,2]
@@ -160,7 +168,6 @@ calWS <- function(WS) {
 
 
 #' @noRd
-#' @export
 dd.to.DD <- function(day, char=F) {
   if (char==F) {
     out <- matrix(NA, nrow=length(day), ncol=2)
@@ -189,7 +196,6 @@ dd.to.DD <- function(day, char=F) {
 }
 
 #' @noRd
-#' @export
 BCE <- function(year) {
   out <- year
   ind <- which(year<0); out[ind] <- paste(abs(year[ind]), 'BCE')
@@ -200,7 +206,6 @@ BCE <- function(year) {
 
 
 #' @noRd
-#' @export
 month <- function(date, as.char=F) {
   ind <- which(strsplit(date, "")[[1]]=="/")
   aux <- substr(date,ind[1]+1,ind[2]-1)

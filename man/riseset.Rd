@@ -5,9 +5,20 @@
 \title{Computes the rising and setting azimuth, declination and time of a Solar System object
 for a given location and day}
 \usage{
-riseset(obj = "sun", date, jd, calendar = "G", timezone = "", loc,
-  alt = 0, dec = "topo", refraction = T, atm = 1013.25,
-  temp = 15, verbose = T)
+riseset(
+  obj = "sun",
+  date,
+  jd,
+  alt = 0,
+  loc,
+  calendar,
+  timezone,
+  dec,
+  refraction,
+  atm,
+  temp,
+  verbose = T
+)
 }
 \arguments{
 \item{obj}{(Optional) String containing name of the solar system body of interest. Can be
@@ -21,14 +32,14 @@ year or month, respectively. Not necessary if \emph{jd} is given.}
 \item{jd}{(Optional) A numeric containing the julian date (see \code{\link{time2jd}}) for which to
 calculate rising and settings. Only needed if \emph{date} is not given.}
 
+\item{loc}{Location, either a \emph{skyscapeR.object} or a vector
+containing the latitude, longitude and elevation of location, in this order.}
+
 \item{calendar}{(Optional) Calendar used in parameter \emph{date}. G for gregorian and J for julian. Defaults to \emph{Gregorian}.}
 
 \item{timezone}{(Optional) Timezone for output of rising and setting time either as a known acronym
 (eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
 \link{timezones} for details. Defaults to system timezone}
-
-\item{loc}{Location, either a \emph{skyscapeR.object} or a vector
-containing the latitude, longitude and elevation of location, in this order.}
 
 \item{refraction}{(Optional) Boolean for whether or not atmospheric refraction should be taken into account.
 Defaults to \emph{TRUE}.}

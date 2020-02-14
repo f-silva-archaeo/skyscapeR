@@ -1,4 +1,4 @@
-swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
+#swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
 jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 
 #' @noRd
@@ -24,8 +24,11 @@ tWS <- function(days, year) {
 
 
 #' @noRd
-#' @export
-eq2hor <- function(ra, dec, loc, refraction=F, atm=1013.25, temp=15) {
+eq2hor <- function(ra, dec, loc, refraction, atm, temp) {
+  if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
+  if (missing(atm)) { atm <- skyscapeR.env$atm }
+  if (missing(temp)) { temp <- skyscapeR.env$temp }
+
   xx <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, c(ra,dec))$xaz
 
   if (refraction) { alt <- xx[3] } else { alt <- xx[2] }
@@ -139,9 +142,9 @@ epoch2yr <- function(epoch){
 #' @noRd
 checkbody <- function(body){
   body <- toupper(body)
-  data('SE', package='swephR', envir = environment()); nn <- names(SE[3:13]); nn[1] <- 'ECLIPTIC'
+  SE <- get(data('SE', package='swephR', envir = environment())); nn <- names(SE[3:13]); nn[1] <- 'ECLIPTIC'
   ind <- which(nn==body)+2
-  if (length(ind)==0) { stop('Solar System body name not recognised. Please recheck.')}
+  if (length(ind)==0) { stop('Solar System body not recognised. Please check name.')}
   body <- as.numeric(SE[ind])
   return(body)
 }

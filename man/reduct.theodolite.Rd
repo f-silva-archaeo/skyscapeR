@@ -4,8 +4,19 @@
 \alias{reduct.theodolite}
 \title{Data reduction for theodolite measurements using the sun-sight method}
 \usage{
-reduct.theodolite(loc, az, date, time, tz, az.sun = 0, limb, alt, name,
-  ID, HWT.ID)
+reduct.theodolite(
+  loc,
+  az,
+  date,
+  time,
+  tz,
+  az.sun = 0,
+  limb,
+  alt,
+  name,
+  ID,
+  HWT.ID
+)
 }
 \arguments{
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector

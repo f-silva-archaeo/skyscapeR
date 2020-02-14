@@ -4,7 +4,7 @@
 \alias{moonphase}
 \title{Computes the phase of the moon}
 \usage{
-moonphase(time, timezone = "", calendar = "G")
+moonphase(time, timezone, calendar)
 }
 \arguments{
 \item{time}{Either a string containing the date and time in the format "YYYY-MM-DD HH:MM:SS"

@@ -4,8 +4,7 @@
 \alias{plot.skyscapeR.curv}
 \title{Plot a curvigram}
 \usage{
-\method{plot}{skyscapeR.curv}(cc, obj, col = "blue", xrange,
-  legend = F)
+\method{plot}{skyscapeR.curv}(cc, obj, col = "blue", xrange, legend = F)
 }
 \arguments{
 \item{cc}{Object of \emph{skyscapeR.curv} format, created using \code{\link{curvigram}}.}

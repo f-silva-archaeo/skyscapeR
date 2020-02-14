@@ -4,9 +4,18 @@
 \alias{EFM}
 \title{Equinoctial Full Moons}
 \usage{
-EFM(season = "spring", rise = T, year, loc, min.phase = 0.99,
-  refraction = T, atm = 1013.25, temp = 15, timezone = "",
-  calendar = "G")
+EFM(
+  season = "spring",
+  rise = T,
+  year,
+  loc,
+  min.phase = 0.99,
+  refraction,
+  atm,
+  temp,
+  timezone,
+  calendar
+)
 }
 \arguments{
 \item{season}{(Optional) Either 'spring' or 'autumn'. Default is 'spring.}

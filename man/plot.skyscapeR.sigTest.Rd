@@ -4,8 +4,7 @@
 \alias{plot.skyscapeR.sigTest}
 \title{Plot significance test results}
 \usage{
-\method{plot}{skyscapeR.sigTest}(sig, obj, col = "blue", xrange,
-  show.pval = T, show.local = F, legend = F)
+\method{plot}{skyscapeR.sigTest}(sig, obj, col = "blue", xrange, show.pval = T, show.local = F, legend = F)
 }
 \arguments{
 \item{sig}{Object of \emph{skyscapeR.sigTest} format, created using \code{\link{sigTest}}.}

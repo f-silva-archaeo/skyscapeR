@@ -1,4 +1,4 @@
-swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
+# swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
 cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 
 #' Create \emph{skyscapeR.star} object
@@ -13,7 +13,7 @@ cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 #'  5) the Bayer designation (if string has exactly 5 characters,
 #'   the second of which is a space).
 #' @param year Year for which to calculate the coordinates.
-#' Defaults to J2000.0 epoch.
+#' Defaults to current year.
 #' @import swephR
 #' @export
 #' @seealso \code{\link[swephR]{swe_fixstar2_ut}}, \code{\link[swephR]{swe_fixstar2_mag}}
@@ -27,7 +27,7 @@ cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 #'
 #' # Retrieve data for Sirius on 2999 BC:
 #' ss <- star('Sirius', -3000)
-star <- function(string, year=2000) {
+star <- function(string, year=cur.year) {
 
   aux <- data.frame(year=NA, RA=NA, Dec=NA)
   for (i in 1:length(year)) {
@@ -95,7 +95,11 @@ star <- function(string, year=2000) {
 #' # You can play with the parameters and see how predictions change:
 #' ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200), alt.hor=2, alt.rs=5)
 #' plot(ss1)
-star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600, refraction=T, atm=1013.25, temp=15) {
+star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600, refraction, atm, temp, verbose=T) {
+  if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
+  if (missing(atm)) { atm <- skyscapeR.env$atm }
+  if (missing(temp)) { temp <- skyscapeR.env$temp }
+
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$metadata$georef[1]
     lon <- loc$metadata$georef[2]
@@ -118,12 +122,15 @@ star.phases <- function(star, year, loc, alt.hor = 0, alt.rs = 10, res = 24/3600
 
   # Sun
   #Sun.alt <- sapply(jd.t, vecAzAlt, 0, loc=c(lon,lat,elev), refraction=refraction, atm=atm, temp=temp)[4,]
-  Sun.alt <- body.position('sun', jd.t, loc=loc, refraction=refraction, atm=atm, temp=temp, verbose=F)$horizontal$alt
-  ### TODO must speed this up
+  if (verbose) { cat('Calculating sun position...\n') }
+  Sun.alt <- body.position('sun', jd.t, loc=loc, refraction=refraction, atm=atm, temp=temp, verbose=verbose)$horizontal$alt
+  if (verbose) { cat('Done.\n') }
 
   # Star
+  if (verbose) { cat('Calculating star position...\n') }
   ff <- function(x, loc, atm, temp, star) { return(swephR::swe_azalt(x, 1, c(loc[2],loc[1],0), atm, temp, c(star$coord$RA, star$coord$Dec))$xaz) }
   Star.alt <- sapply(jd.t, ff, c(lat, lon), atm, temp, star)[3,]
+  if (verbose) { cat('Done.\n') }
 
   day <- which(Sun.alt >= alt.hor)
   civ <- which(Sun.alt >= -6 & Sun.alt < alt.hor)

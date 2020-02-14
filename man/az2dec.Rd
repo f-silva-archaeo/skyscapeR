@@ -16,14 +16,6 @@ an array of latitude values.}
 
 \item{alt}{Altitude of orientation. Optional, if left empty and a skyscapeR.object
 is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}}
-
-\item{az}{Azimuth(s) for which to calculate declination(s). See examples below.}
-
-\item{loc}{Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
-an array of latitude values.}
-
-\item{alt}{Altitude of orientation. Optional, if left empty and a skyscapeR.object
-is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}}
 }
 \description{
 This function calculates the declination corresponding to an

@@ -4,8 +4,17 @@
 \alias{plot.skyscapeR.horizon}
 \title{Plot horizon data}
 \usage{
-\method{plot}{skyscapeR.horizon}(hor, obj, data, show.unc = F,
-  show.ground = T, show.axes = F, xrange, yrange, legend = F)
+\method{plot}{skyscapeR.horizon}(
+  hor,
+  obj,
+  data,
+  show.unc = F,
+  show.ground = T,
+  show.axes = F,
+  xrange,
+  yrange,
+  legend = F
+)
 }
 \arguments{
 \item{hor}{Object of \emph{skyscapeR.horizon} format.}

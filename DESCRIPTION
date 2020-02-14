@@ -1,11 +1,11 @@
 Package: skyscapeR
 Type: Package
-Title: Skyscape Archaeology Data Reduction, Visualization and Analysis
-Version: 0.3.6.9000
-Date: 2019-07-29
-Authors@R: c(person("Silva", "Fabio", email = "f.silva@uwtsd.ac.uk", role = c("aut", "cre")), person("Reijs", "Victor", role = "ctb"))
-Description: A toolset for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy.
-Depends: R (>= 2.10), swephR, swephRdata, plotly
+Title: Skyscape Archaeology Data Analysis
+Version: 0.5.9000
+Date: 2020-02-14
+Authors@R: c(person("Silva", "Fabio", email = "fsilva@bournemouth.ac.uk", role = c("aut", "cre")), person("Reijs", "Victor", role = "ctb"))
+Description: Data reduction, visualization and analysis in skyscape archaeology.
+Depends: R (>= 2.10), swephR, plotly
 Imports: png,
     oce,
     utils,
@@ -20,11 +20,10 @@ Imports: png,
     doParallel,
     rootSolve,
     httr
-Remotes: rstub/swephRdata
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Suggests: testthat,
     knitr,
     rmarkdown

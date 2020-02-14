@@ -4,11 +4,23 @@
 \alias{body.position}
 \title{Computes position of Solar System bodies in equatorial coordinates}
 \usage{
-body.position(obj = "sun", time, timezone = "", calendar = "G",
-  dec = "topo", loc, refraction = T, atm = 1013.25, temp = 15,
-  verbose = T)
+body.position(
+  obj = "sun",
+  time,
+  timezone,
+  calendar,
+  dec,
+  loc = NULL,
+  refraction,
+  atm,
+  temp,
+  verbose = T
+)
 }
 \arguments{
+\item{obj}{(Optional) String containing name of the solar system body of interest. Can be
+any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.}
+
 \item{time}{Either a string containing the date and time in the format "YYYY/MM/DD HH:MM:SS"
 (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).}
 
@@ -24,8 +36,13 @@ frame of reference. Defaults to topocentric.}
 
 \item{loc}{(Optional) Location, only needed if output is in topocentric declination.}
 
-\item{body}{(Optional) String containing name of the solar system body of interest. Can be
-any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.}
+\item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account. Default is TRUE.}
+
+\item{atm}{(Optional) Atmospheric pressure for refraction calculation. Default is 1013.25 mbar.}
+
+\item{temp}{(Optional) Atmospheric temprature for erfraction calculation. Default is 15 degrees.}
+
+\item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 }
 \description{
 This function calculates the geocentric or topocentric declination and right ascension of solar

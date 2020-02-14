@@ -4,7 +4,7 @@
 \alias{solar.date}
 \title{Solar Date}
 \usage{
-solar.date(dec, year, calendar = "G")
+solar.date(dec, year, calendar)
 }
 \arguments{
 \item{dec}{Single value or array of declinations.}

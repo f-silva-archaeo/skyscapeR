@@ -4,8 +4,20 @@
 \alias{plotBars}
 \title{Bar plot of orientations (declinations)}
 \usage{
-plotBars(val, unc, names, unit = "Declination", obj, obj.label = T,
-  col = "blue", shade = T, mark = T, sort = F, xrange, yrange)
+plotBars(
+  val,
+  unc,
+  names,
+  unit = "Declination",
+  obj,
+  obj.label = T,
+  col = "blue",
+  shade = T,
+  mark = T,
+  sort = F,
+  xrange,
+  yrange
+)
 }
 \arguments{
 \item{val}{Array of declinations or azimuths.}

@@ -4,8 +4,7 @@
 \alias{plotAz}
 \title{Polar plot of orientations (azimuths)}
 \usage{
-plotAz(az, obj, loc, col = "blue", lwd = 1, lty = 1, len = 1,
-  legend = F)
+plotAz(az, obj, loc, col = "blue", lwd = 1, lty = 1, len = 1, legend = F)
 }
 \arguments{
 \item{az}{Array of azimuths or data frame with column named \emph{True.Azimuth}. Values

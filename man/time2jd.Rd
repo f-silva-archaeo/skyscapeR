@@ -4,7 +4,7 @@
 \alias{time2jd}
 \title{Converts date and time (in any timezone) to Julian date}
 \usage{
-time2jd(time, timezone = "", calendar = "G", verbose = T)
+time2jd(time, timezone, calendar, verbose = F)
 }
 \arguments{
 \item{time}{String containing the date and time in the format "YYYYY/MM/DD HH:MM:SS". BCE dates
@@ -17,7 +17,7 @@ a string with continent followed by country capital (eg. "Europe/London"). See
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 Defaults to \emph{Gregorian}.}
 
-\item{verbose}{(Optional) Controls whether messages should be displayed. Default is \emph{TRUE}.}
+\item{verbose}{(Optional) Controls whether messages should be displayed. Default is \emph{FALSE}.}
 }
 \description{
 Converts date and time (in any timezone) to Julian date

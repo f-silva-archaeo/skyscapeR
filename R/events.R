@@ -484,7 +484,12 @@ sMjLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
 #'
 #' # Autumn Full Moons in the last ten years
 #' EFM(season='autumn', year=c(2009,2019), loc=c(35,-8,100))
-EFM <- function(season='spring', rise=T, year, loc, min.phase=.99, refraction=T, atm=1013.25, temp=15, timezone='', calendar='G') {
+EFM <- function(season='spring', rise=T, year, loc, min.phase=.99, refraction, atm, temp, timezone, calendar) {
+  if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
+  if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
+  if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
+  if (missing(atm)) { atm <- skyscapeR.env$atm }
+  if (missing(temp)) { temp <- skyscapeR.env$temp }
 
   if (length(year)==2) { year <- seq(year[1], year[2], 1) }
 
@@ -496,8 +501,10 @@ EFM <- function(season='spring', rise=T, year, loc, min.phase=.99, refraction=T,
 
     # find celestial crossovers (i.e. declination-based)
     jd <- seq(jd0, jd0+365, 1)
-    sun <- sapply(jd, vecAzAlt, 0, loc=loc, refraction=refraction, atm=atm, temp=temp)[2,]
-    moon <- sapply(jd, vecAzAlt, 1, loc=loc, refraction=refraction, atm=atm, temp=temp)[2,]
+    # sun <- sapply(jd, vecAzAlt, 0, loc=loc, refraction=refraction, atm=atm, temp=temp)[2,]
+    sun <- body.position('sun', jd, loc=loc, refraction = refraction, atm=atm, temp=temp)$equatorial[,2]
+    # moon <- sapply(jd, vecAzAlt, 1, loc=loc, refraction=refraction, atm=atm, temp=temp)[2,]
+    moon <- body.position('moon', jd, loc=loc, refraction = refraction, atm=atm, temp=temp)$equatorial[,2]
     phase <- moonphase(jd, timezone, calendar)
 
     ind <- which(c(0,diff(sign(sun[phase >= min.phase] - moon[phase >= min.phase]))) != 0)

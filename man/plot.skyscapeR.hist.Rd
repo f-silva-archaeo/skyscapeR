@@ -4,8 +4,7 @@
 \alias{plot.skyscapeR.hist}
 \title{Plot a histogram}
 \usage{
-\method{plot}{skyscapeR.hist}(hh, obj, col = "blue", xrange,
-  legend = F)
+\method{plot}{skyscapeR.hist}(hh, obj, col = "blue", xrange, legend = F)
 }
 \arguments{
 \item{hh}{Object of \emph{skyscapeR.hist} format, created using \code{\link{histogram}}.}

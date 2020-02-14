@@ -4,8 +4,7 @@
 \alias{createHWT}
 \title{Create and download horizon data from \emph{HeyWhatsThat}}
 \usage{
-createHWT(lat, lon, elevation = 1.6, name, src = "skyscapeR",
-  verbose = T)
+createHWT(lat, lon, elevation = 1.6, name, src = "skyscapeR", verbose = T)
 }
 \arguments{
 \item{lat}{The latitude of the location.}
