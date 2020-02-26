@@ -9,14 +9,14 @@ plotBars(
   unc,
   names,
   unit = "Declination",
-  obj,
-  obj.label = T,
   col = "blue",
-  shade = T,
-  mark = T,
-  sort = F,
+  shade = TRUE,
+  mark = TRUE,
+  sort = FALSE,
   xrange,
-  yrange
+  yrange,
+  obj,
+  show.obj.label = TRUE
 )
 }
 \arguments{
@@ -27,12 +27,6 @@ plotBars(
 \item{names}{(Optional) Array of names of measurements in \emph{val}}
 
 \item{unit}{(Optional). Either 'Declination' or 'Azimuth'. Defaults to 'Declination'.}
-
-\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-for displaying the declinations of celestial objects.}
-
-\item{obj.label}{(Optional) Boolean to control whether to label the celestial objects in
-the polar plot. Defaults to \emph{TRUE}.}
 
 \item{col}{(Optional) Colour to plot measurments in. Defaults to \emph{blue}.}
 
@@ -48,6 +42,12 @@ value. Defaults to \emph{FALSE}}
 \item{xrange}{(Optional) Array of limits for x-axis.}
 
 \item{yrange}{(Optional) Array of limits for y-axis.}
+
+\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
+for displaying the declinations of celestial objects.}
+
+\item{show.obj.label}{(Optional) Boolean to control whether to label the celestial objects in
+the polar plot. Defaults to \emph{TRUE}.}
 }
 \description{
 This function creates a bar plot of orientation data.
@@ -58,7 +58,7 @@ decs <- c(10, 12, -5, 4)
 plotBars(decs, unc=5)
 
 # To visualize this data against the common solar and lunar targets:
-tt <- sky.objects(c('sun','moon'), epoch=-2000, lty=c(2,3))
+tt <- sky.objects(c('solar extremes','lunar extremes'), epoch=-2000, lty=c(2,3))
 plotBars(decs, unc=5, obj=tt)
 }
 \seealso{

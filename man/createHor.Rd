@@ -4,7 +4,7 @@
 \alias{createHor}
 \title{Create .\emph{skyscapeR.horizon} object from Az/Alt data}
 \usage{
-createHor(az, alt, alt.unc, loc, name)
+createHor(az, alt, alt.unc = 0.5, loc, name = "", smooth = F, .scale = 1000)
 }
 \arguments{
 \item{az}{Array of azimuth values}
@@ -14,10 +14,15 @@ createHor(az, alt, alt.unc, loc, name)
 \item{alt.unc}{(Optional) Either a single value or an array of altitude
 uncertainty.}
 
-\item{loc}{Location, a vector containing the latitude and longitude of
+\item{loc}{Location, a vector containing the latitude, longitude and elevation of
 the location, in this order.}
 
 \item{name}{Name of site.}
+
+\item{smooth}{Boolean to control whether to smooth horizon profile using rolling mean.
+Defaults to FALSE}
+
+\item{.scale}{Rolling mean window for smoothing. See \code{\link{createHWT}}}
 }
 \description{
 This function creates a \emph{skyscapeR.horizon} object from measurements of

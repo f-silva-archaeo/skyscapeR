@@ -26,21 +26,25 @@ any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 
 
 \item{timezone}{(Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
 a string with continent followed by country capital (eg. "Europe/London"). See
-\link{timezones} for details. Only needed if \emph{time} is a string. Defaults to system timezone.}
+\link{timezones} for details. Only needed if \emph{time} is a string. #' If not given the value set
+by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
-Only needed if \emph{time} is a string. Defaults to Gregorian.}
+Only needed if \emph{time} is a string. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{dec}{(Optional) Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
-frame of reference. Defaults to topocentric.}
+frame of reference. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{loc}{(Optional) Location, only needed if output is in topocentric declination.}
 
-\item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account. Default is TRUE.}
+\item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{atm}{(Optional) Atmospheric pressure for refraction calculation. Default is 1013.25 mbar.}
+\item{atm}{(Optional) Atmospheric pressure for refraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{temp}{(Optional) Atmospheric temprature for erfraction calculation. Default is 15 degrees.}
+\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 }

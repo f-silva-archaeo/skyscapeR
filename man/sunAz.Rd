@@ -28,7 +28,7 @@ useful for data reduction of theodolite measurements using the sunsight
 technique (\code{\link{reduct.theodolite}}).
 }
 \examples{
-sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
+sunAz(c(52,-3,100), '2017-10-04 12:32:14', 'Europe/London')
 }
 \seealso{
 \code{\link{reduct.theodolite}}

@@ -20,7 +20,7 @@ reduct.theodolite(
 }
 \arguments{
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
-containing the latitude and longitude of location, in this order.}
+containing the latitude, longitude and elevation of location, in this order.}
 
 \item{az}{Array of azimuths. Use \code{\link{ten}} to convert to
 decimal point format if necessary.}
@@ -55,18 +55,19 @@ a theodolite using the sunsight technique.
 \examples{
 lat <- ten(35,50,37.8)
 lon <- ten(14,34,6.4)
+elev <- 100
 az <- c( ten(298,24,10), ten(302,20,40))
 az.sun <- ten(327,29,50)
 date <- "2016/02/20"
 time <- "11:07:17"
 
-data <- reduct.theodolite(c(lat,lon), az, date , time, tz= "Europe/Malta", az.sun)
+data <- reduct.theodolite(c(lat,lon,elev), az, date , time, tz= "Europe/Malta", az.sun)
 
 # Declination will be automatically calculated if the altitude is also given:
-data <- reduct.theodolite(c(lat,lon), az, date , time, tz= "Europe/Malta", az.sun, alt=c(2,5))
+data <- reduct.theodolite(c(lat,lon,elev), az, date , time, tz= "Europe/Malta", az.sun, alt=c(2,5))
 
 # Alternatively, the altitude can be automatically retrieved from a horizon profile:
-hor <- downloadHWT('UFXERSLQ')
+hor <- downloadHWT('HIFVTBGK')
 data <- reduct.theodolite(hor, az, date, time, tz= "Europe/Malta", az.sun)
 }
 \references{

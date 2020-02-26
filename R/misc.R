@@ -2,6 +2,16 @@
 jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 
 #' @noRd
+extractLatitude <- function(loc){
+  if (class(loc)=='skyscapeR.horizon') { latitude <- loc$metadata$georef[1] }
+  if (class(loc)=='numeric') { latitude <- loc[1]}
+  # check
+  if (latitude > 90 | latitude < -90) { stop('Latitude must be between -90 and 90 degrees.')}
+  return(latitude)
+}
+
+
+#' @noRd
 stars.pval <- function(p.value) {
 if (class(p.value)=='character') { p.value <- as.numeric(substr(p.value, 3,nchar(p.value))) }
 out <- symnum(p.value, corr = FALSE, na = FALSE,
@@ -42,20 +52,22 @@ eq2hor <- function(ra, dec, loc, refraction, atm, temp) {
 
 
 #' @noRd
-minmaxdec = function(name, from, to) {
+minmaxdec = function(name, from, to, loc=FALSE) {
   xx <- seq(from, to, 100)
   dd <- c()
 
   # Stars
-  data(stars, envir=environment())
-  if (sum(as.character(stars$NAME) == name)) {
+  fpath <- system.file("ephemeris", "sefstars.txt", package="swephR")
+  cnames <- c('traditional name','nomenclature name','equinox','RA hr','RA min', 'RA sec', 'Dec deg', 'Dec min', 'Dec sec', 'pm RA', 'pm Dec', 'rad vel', 'ann plx', 'mag V', 'DM zone', 'DM number')
+  sefstars <- read.csv(fpath, as.is=T, header=F, comment.char='#', col.names=cnames, strip.white=T)
+  if (sum(as.character(sefstars$traditional.name) == name)) {
     for (i in 1: NROW(xx)) {
       dd[i] <- star(name, xx[i])$coord$Dec
     }
   } else {
     # Solar-Lunar targets
     for (i in 1: NROW(xx)) {
-      dd[i] <- do.call(name, list(xx[i]))
+      dd[i] <- do.call(name, list(year=xx[i], loc=loc, verbose=F))
     }
   }
   ff <- splinefun(xx,dd)
@@ -193,10 +205,10 @@ az2dec = function(az, loc, alt){
   if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az)[,1] }
   if (class(loc) != 'skyscapeR.horizon') {
     hor <- c()
-    if (length(loc) < length(az) & length(loc)==2) { hor$metadata$georef <- matrix(rep(loc,NROW(az)), ncol=2, byrow=T)}
-    if (length(loc) < length(az) & length(loc)==1) { hor$metadata$georef <- matrix(rep(c(loc,0),NROW(az)), ncol=2, byrow=T)}
+    if (length(loc) < length(az) & length(loc)==3) { hor$metadata$georef <- matrix(rep(loc,NROW(az)), ncol=3, byrow=T)}
+    if (length(loc) < length(az) & length(loc)==1) { hor$metadata$georef <- matrix(rep(c(loc,0,0),NROW(az)), ncol=3, byrow=T)}
     if (length(loc) == length(az)) { hor$metadata$georef <- cbind(loc, 0) }
-    if (length(loc) == 2*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),2) }
+    if (length(loc) == 3*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),3) }
   } else { hor <- loc }
 
   if (length(alt) == 1) { alt <- rep(alt, NROW(az)) }
@@ -205,7 +217,7 @@ az2dec = function(az, loc, alt){
 
   dec <- c()
   for (i in 1:NROW(az)) {
-    dec[i] <- round( swephR::swe_azalt_rev(jd, 1, c(hor$metadata$georef[2],hor$metadata$georef[1],0), c(az[i]-180, alt[i]))$xout[2], prec)
+    dec[i] <- round( swephR::swe_azalt_rev(jd, 1, c(hor$metadata$georef[2],hor$metadata$georef[1],hor$metadata$georef[3]), c(az[i]-180, alt[i]))$xout[2], prec)
   }
 
   return(dec)

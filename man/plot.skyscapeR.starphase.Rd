@@ -17,7 +17,7 @@ This function creates a plot of stellar seasonality and phases/events.
 \examples{
 # Plot the seasonality of Aldebaran for 3999 BCE:
 \dontrun{
-ss <- star.phases('Aldebaran',-4000, c(35,-8))
+ss <- star.phases('Aldebaran',-4000, c(35,-8, 200))
 plot(ss)
 }
 }

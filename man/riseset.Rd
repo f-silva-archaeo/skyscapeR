@@ -32,21 +32,29 @@ year or month, respectively. Not necessary if \emph{jd} is given.}
 \item{jd}{(Optional) A numeric containing the julian date (see \code{\link{time2jd}}) for which to
 calculate rising and settings. Only needed if \emph{date} is not given.}
 
+\item{alt}{(Optional) The altitude of the horizon to consider. Defaults to zero degrees.}
+
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
 containing the latitude, longitude and elevation of location, in this order.}
 
-\item{calendar}{(Optional) Calendar used in parameter \emph{date}. G for gregorian and J for julian. Defaults to \emph{Gregorian}.}
+\item{calendar}{(Optional) Calendar used in parameter \emph{date}. G for gregorian and J for julian.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{timezone}{(Optional) Timezone for output of rising and setting time either as a known acronym
 (eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
-\link{timezones} for details. Defaults to system timezone}
+\link{timezones} for details. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{refraction}{(Optional) Boolean for whether or not atmospheric refraction should be taken into account.
-Defaults to \emph{TRUE}.}
+\item{dec}{(Optional) Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
+frame of reference. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{atm}{(Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 1013.25 mbar.}
+\item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{temp}{(Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 15 degrees.}
+\item{atm}{(Optional) Atmospheric pressure for refraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
+
+\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.}
 
 \item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 }

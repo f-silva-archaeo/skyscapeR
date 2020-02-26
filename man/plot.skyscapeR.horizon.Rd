@@ -4,39 +4,23 @@
 \alias{plot.skyscapeR.horizon}
 \title{Plot horizon data}
 \usage{
-\method{plot}{skyscapeR.horizon}(
-  hor,
-  obj,
-  data,
-  show.unc = F,
-  show.ground = T,
-  show.axes = F,
-  xrange,
-  yrange,
-  legend = F
-)
+\method{plot}{skyscapeR.horizon}(hor, show.az = F, xlim, ylim, obj, refraction = F)
 }
 \arguments{
 \item{hor}{Object of \emph{skyscapeR.horizon} format.}
 
+\item{show.az}{(Optional) Boolean that controls whether to display azimuth values or cardinal
+directions. Defaults to FALSE.}
+
+\item{xlim}{(Optional) Azimuth rage for plotting.}
+
+\item{ylim}{(Optional) Altitude rage for plotting.}
+
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the paths of celestial objects.}
 
-\item{data}{(Optional) A data.frame object with columns \emph{True.Azimuth} and}
-
-\item{show.unc}{(Optional) Boolean that controls whether to display uncertainty in altitude.
-Default is \emph{FALSE}.}
-
-\item{show.ground}{(Optional) Boolean that controls whether to dispaly the ground. Default is \emph{TRUE}.}
-
-\item{show.axes}{(Optional) Boolean that controls whether to display azimuth values on horizontal
-axis and altitude on vertical axis. Default is \emph{FALSE}.}
-
-\item{xrange}{Range of azimuth axis. Defaults to c(0, 360).}
-
-\item{yrange}{Range of altitude axis. Defaults to c(-10, 45).}
-
-\item{legend}{(Optional) Show legend. Defaults to FALSE.}
+\item{refraction}{(Optional) Wheter to take refraction into account when displayingisplaying
+the paths of celestial objects.}
 }
 \description{
 This function creates a plot of horizon data.
@@ -47,7 +31,7 @@ hor <- downloadHWT('HIFVTBGK')
 plot(hor)
 
 # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
-tt <- sky.objects('sun', -2000, 'blue')
+tt <- sky.objects('solar extremes', epoch=-2000, col='blue')
 plot(hor, obj=tt)
 }
 \seealso{

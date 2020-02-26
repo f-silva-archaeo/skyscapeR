@@ -4,7 +4,7 @@
 \alias{skyscapeR.vars}
 \title{See and change the global variables used by skyscapeR}
 \usage{
-skyscapeR.vars(timezone, calendar, refraction, atm, temp, dec)
+skyscapeR.vars(timezone, calendar, year, refraction, atm, temp, dec)
 }
 \arguments{
 \item{timezone}{Timezone of input either as a known acronym (eg. "GMT", "CET") or
@@ -13,6 +13,10 @@ a string with continent followed by country capital (eg. "Europe/London"). See
 
 \item{calendar}{Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 Defaults to \emph{Gregorian}.}
+
+\item{year}{How to interpret years in time input. Either 'BC/AD' or '+/-', the difference
+being that in 'BC/AD' there is no year zero, whereas in '+/-' year 0 corresponds to 1 BC.
+Default is 'BC/AD'}
 
 \item{refraction}{Whether atmospheric refraction is to be taken into account. Default is TRUE.}
 

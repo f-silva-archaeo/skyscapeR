@@ -4,7 +4,7 @@
 \alias{eq}
 \title{Declination of the sun at the Equinox}
 \usage{
-eq(loc, parallax = 0.00224, altitude = 0)
+eq(loc = FALSE, parallax = 0.00224, altitude = 0, verbose = TRUE)
 }
 \arguments{
 \item{loc}{(Optional) This can be either the latitude of the
@@ -15,6 +15,9 @@ function will output geocentric declination.}
 Defaults to 0.00224.}
 
 \item{altitude}{(Optional) Altitude of the sun. Defaults to 0 degrees.}
+
+\item{verbose}{(Optional) Boolean to control output of warnings and messages.
+Defaults to TRUE.}
 }
 \description{
 This function calculates the declination of the sun

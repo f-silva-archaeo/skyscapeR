@@ -1,11 +1,11 @@
 Package: skyscapeR
 Type: Package
 Title: Skyscape Archaeology Data Analysis
-Version: 0.5.9000
-Date: 2020-02-14
+Version: 0.5.9001
+Date: 2020-02-27
 Authors@R: c(person("Silva", "Fabio", email = "fsilva@bournemouth.ac.uk", role = c("aut", "cre")), person("Reijs", "Victor", role = "ctb"))
 Description: Data reduction, visualization and analysis in skyscape archaeology.
-Depends: R (>= 2.10), swephR, plotly
+Depends: R (>= 2.10), swephR
 Imports: png,
     oce,
     utils,
@@ -19,7 +19,9 @@ Imports: png,
     foreach,
     doParallel,
     rootSolve,
-    httr
+    httr,
+    plotrix,
+    zoo
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true

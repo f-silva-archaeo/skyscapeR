@@ -7,10 +7,14 @@
 #' @param alt Array of altitude values.
 #' @param alt.unc (Optional) Either a single value or an array of altitude
 #' uncertainty.
-#' @param loc Location, a vector containing the latitude and longitude of
+#' @param loc Location, a vector containing the latitude, longitude and elevation of
 #' the location, in this order.
 #' @param name Name of site.
+#' @param smooth Boolean to control whether to smooth horizon profile using rolling mean.
+#' Defaults to FALSE
+#' @param .scale Rolling mean window for smoothing. See \code{\link{createHWT}}
 #' @seealso \code{\link{plot.skyscapeR.horizon}}
+#' @import zoo
 #' @export
 #' @seealso \code{\link{createHWT}}, \code{\link{downloadHWT}}
 #' @examples
@@ -19,20 +23,29 @@
 #' alt <- c(0,5,5,0,0)
 #' hor <- createHor(az, alt, 0.1, c(40.1,-8), 'Test')
 #' plot(hor)
-createHor = function(az, alt, alt.unc, loc, name) {
+createHor <- function(az, alt, alt.unc=0.5, loc, name='', smooth=F, .scale=1000) {
   # return result
   hor <- c()
   hor$metadata$name <- name
-  hor$metadata$georef <- loc; names(hor$metadata$georef) <- c('Lat','Lon'); dim(hor$metadata$georef) <- c(1,2)
+  if (length(loc)<3) { cat('No site elevation given. Assuming 0 metres above sea level.'); loc <- c(loc,0) }
+  if (length(loc)<2) { stop('Site latitude, longitude and elevation needed.') }
+  hor$metadata$georef <- loc; names(hor$metadata$georef) <- c('Lat','Lon','Elev'); dim(hor$metadata$georef) <- c(1,3)
+  if (length(alt.unc) > 1 & length(alt.unc) < length(az)) { stop('Altitude uncertainty must be either a single value or have the same length as "az"') }
+  if (length(alt.unc) == 1 ) { alt.unc <- rep(alt.unc, length(az)) }
 
-  hor$data <- data.frame(az = az, alt = alt)
-  if (!missing(alt.unc)) {
-    if (length(alt.unc) > 1 & length(alt.unc) < length(az)) {
-      stop('Altitude uncertainty must be either a single value or have the same length as "az"')
-    } else {
-      if (length(alt.unc) == 1 ) { alt.unc <- rep(alt.unc, length(az)) }
-      hor$data$alt.unc <- alt.unc
-    }
+  az <- c(az-360, az, az+360); alt <- rep(alt, 3); alt.unc <- rep(alt.unc, 3)
+  ind <- which(duplicated(az)); if (length(ind)>0) { az <- az[-ind]; alt <- alt[-ind]; alt.unc <- alt.unc[-ind] }
+  xx <- seq(0-90, 360+90, 0.01)
+  alt <- approx(az, alt, xx)$y
+  alt.unc <- approx(az, alt.unc, xx)$y
+  hor$data <- data.frame(az = xx, alt = alt, alt.unc = alt.unc)
+
+  if (smooth) {
+    yy <- zoo::rollmean(alt, .scale, fill=0)
+    hor$data$alt <- yy
+
+    yy <- zoo::rollmean(alt.unc, .scale, fill=0)
+    hor$data$alt.unc <- yy
   }
   class(hor) <- "skyscapeR.horizon"
   return(hor)

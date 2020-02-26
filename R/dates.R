@@ -196,11 +196,11 @@ dd.to.DD <- function(day, char=F) {
 }
 
 #' @noRd
-BCE <- function(year) {
+BC.AD <- function(year) {
   out <- year
-  ind <- which(year<0); out[ind] <- paste(abs(year[ind]), 'BCE')
-  ind <- which(year>0); out[ind] <- paste(abs(year[ind]), 'CE')
-  ind <- which(year==0); out[ind] <- paste(year[ind])
+  ind <- which(year<0); out[ind] <- paste(abs(year[ind]+1), 'BC')
+  ind <- which(year>0); out[ind] <- paste(abs(year[ind]), 'AD')
+  ind <- which(year==0); out[ind] <- paste(abs(year[ind]+1), 'BC')
   return(out)
 }
 

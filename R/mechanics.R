@@ -1,6 +1,4 @@
-#jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
-#swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
 
 #' Calculates declination from azimuth and altitude measurements
 #'
@@ -103,7 +101,7 @@ obliquity = function(year = cur.year) {
 body.position.unvec = function(obj='sun', time, timezone, calendar, dec, loc = NULL, refraction, atm, temp, verbose=T) {
 
   if (is.null(loc)) {
-    cat('No location given. Forcing output to equatorial coordinates in the geocentric frame of reference.\n')
+    if (verbose) { cat('No location given. Forcing output to equatorial coordinates in the geocentric frame of reference.\n') }
     dec <- 'geo'
     nohoriz <- T
   } else { nohoriz <- F }
@@ -156,15 +154,19 @@ body.position.vec <- Vectorize(body.position.unvec, 'time', SIMPLIFY = FALSE)
 #'  (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).
 #' @param timezone (Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
 #' a string with continent followed by country capital (eg. "Europe/London"). See
-#' \link{timezones} for details. Only needed if \emph{time} is a string. Defaults to system timezone.
+#' \link{timezones} for details. Only needed if \emph{time} is a string. #' If not given the value set
+#' by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
-#' Only needed if \emph{time} is a string. Defaults to Gregorian.
+#' Only needed if \emph{time} is a string. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param dec (Optional) Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
-#' frame of reference. Defaults to topocentric.
+#' frame of reference. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param loc (Optional) Location, only needed if output is in topocentric declination.
-#' @param refraction (Optional) Whether atmospheric refraction is to be taken into account. Default is TRUE.
-#' @param atm (Optional) Atmospheric pressure for refraction calculation. Default is 1013.25 mbar.
-#' @param temp (Optional) Atmospheric temprature for erfraction calculation. Default is 15 degrees.
+#' @param refraction (Optional) Whether atmospheric refraction is to be taken into account.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param atm (Optional) Atmospheric pressure for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param temp (Optional) Atmospheric temprature for erfraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @import swephR
 #' @export
@@ -238,16 +240,22 @@ moonphase <- function(time, timezone, calendar) {
 #'  year or month, respectively. Not necessary if \emph{jd} is given.
 #' @param jd (Optional) A numeric containing the julian date (see \code{\link{time2jd}}) for which to
 #' calculate rising and settings. Only needed if \emph{date} is not given.
-#' @param calendar (Optional) Calendar used in parameter \emph{date}. G for gregorian and J for julian. Defaults to \emph{Gregorian}.
+#' @param calendar (Optional) Calendar used in parameter \emph{date}. G for gregorian and J for julian.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param alt (Optional) The altitude of the horizon to consider. Defaults to zero degrees.
 #' @param timezone (Optional) Timezone for output of rising and setting time either as a known acronym
 #' (eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
-#' \link{timezones} for details. Defaults to system timezone
+#' \link{timezones} for details. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude, longitude and elevation of location, in this order.
-#' @param refraction (Optional) Boolean for whether or not atmospheric refraction should be taken into account.
-#' Defaults to \emph{TRUE}.
-#' @param atm (Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 1013.25 mbar.
-#' @param temp (Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 15 degrees.
+#' @param dec (Optional) Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
+#' frame of reference. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param refraction (Optional) Whether atmospheric refraction is to be taken into account.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param atm (Optional) Atmospheric pressure for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param temp (Optional) Atmospheric temprature for erfraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @import swephR
 #' @export
@@ -347,9 +355,12 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude and longitude of location, in this order.
 #' @param res The resolution (in degrees of RA) with which to calculate the path.
-#' @param refraction (Optional) If set to TRUE it will calculate apparent rather
-#' than true altitudes. Default is TRUE.
-#' @param ...  Any other parameters to be passed unto \code{\link[swephR]{swe_azalt}}.
+#' @param refraction (Optional) Whether atmospheric refraction is to be taken into account.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param atm (Optional) Atmospheric pressure for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param temp (Optional) Atmospheric temprature for erfraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @import swephR
 #' @export
 #' @examples
@@ -414,7 +425,7 @@ orbit = function(dec, loc, res=0.25, refraction, atm, temp) {
 #' @export
 #' @seealso \code{\link{reduct.theodolite}}
 #' @examples
-#' sunAz(c(52,-3), '2017-10-04 12:32:14', 'Europe/London')
+#' sunAz(c(52,-3,100), '2017-10-04 12:32:14', 'Europe/London')
 sunAz = function(loc, time, timezone, limb, alt=F) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
 
@@ -465,13 +476,12 @@ sunAz = function(loc, time, timezone, limb, alt=F) {
 solar.date <- function(dec, year, calendar){
   if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
 
-
   jd0 <- time2jd(timestring(year,1,1,12), timezone='UTC', calendar)
 
   out <- c(); cdate <- c()
   for (i in 1:366) {
     cdate[i] <- substr(jd2time(jd0+i-1, calendar=calendar),6,10)
-    out[i] <- body.position(obj='sun', jd0+i-1, timezone='UTC', calendar=calendar)$Dec
+    out[i] <- body.position(obj='sun', jd0+i-1, timezone='UTC', calendar=calendar, verbose = FALSE)$equatorial$Dec
   }
   rr <- range(out)
 
@@ -505,8 +515,7 @@ solar.date <- function(dec, year, calendar){
 #' # Parallax correction for the moon, as seen from latitude 50ºN and at 0º altitude
 #' parallax.corr(0.952, 50, 0)
 parallax.corr <- function(parallax, loc, altitude=0) {
-  if (class(loc)=='skyscapeR.horizon') { latitude <- loc$metadata$georef[1] }
-  if (class(loc)=='numeric') { latitude <- loc }
+  latitude <- extractLatitude(loc)
   return(parallax*cos(altitude/180*pi)*sin(latitude/180*pi)) # V Reijs/SE formula
   # return(parallax * cos(altitude/180*pi) * (1-sin(latitude/180*pi)^2/298.3)) # Nautical formula
 }

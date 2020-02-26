@@ -1,4 +1,3 @@
-# swephR::swe_set_ephe_path(system.file("ephemeris", "", package = "swephRdata"))
 cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 
 #' Create \emph{skyscapeR.star} object
@@ -63,13 +62,16 @@ star <- function(string, year=cur.year) {
 #' Defaults to ten degrees.
 #' @param res (Optional) Resolution of calculation. The smaller this
 #' figure the slower the computation. Defaults to 24/3600 = 1 sec.
-#' @param refraction (Optional) Boolean for whether or not atmospheric refraction should be taken into account.
-#' Defaults to \emph{TRUE}.
-#' @param atm (Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 1013.25 mbar.
-#' @param temp (Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 15 degrees.
+#' @param refraction (Optional) Whether atmospheric refraction is to be taken into account.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param atm (Optional) Atmospheric pressure for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param temp (Optional) Atmospheric temprature for erfraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
+#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @export
 #' @import parallel numDeriv swephR
-#' @seealso \code{\link{plotPhases}}
+#' @seealso \code{\link{plot.skyscapeR.starphase}}
 #' @references Purrington, Robert D. (1988) Heliacal Rising and Setting:
 #' Quantitative Aspects, \emph{Journal for the History of Astronomy
 #' (Archaeoastronomy Supplement 12)} 19, S72-S84. Available online at

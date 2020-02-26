@@ -14,10 +14,14 @@ containing the latitude and longitude of location, in this order.}
 
 \item{res}{The resolution (in degrees of RA) with which to calculate the path.}
 
-\item{refraction}{(Optional) If set to TRUE it will calculate apparent rather
-than true altitudes. Default is TRUE.}
+\item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{...}{Any other parameters to be passed unto \code{\link[swephR]{swe_azalt}}.}
+\item{atm}{(Optional) Atmospheric pressure for refraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
+
+\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 }
 \description{
 This function calculates the visible path of a celestial

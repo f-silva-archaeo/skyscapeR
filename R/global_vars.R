@@ -3,6 +3,7 @@ skyscapeR.env <- new.env(parent = emptyenv())
 # Timezone and Calendar
 skyscapeR.env$timezone <- ''
 skyscapeR.env$calendar <- 'Gregorian'
+skyscapeR.env$year <- 'BC/AD'
 
 # Atmospheric Refraction
 skyscapeR.env$refraction <- TRUE
@@ -28,6 +29,9 @@ skyscapeR.env$dec <- 'topo'
 #' \code{\link{timezones}} for details. Default is the system timezone
 #' @param calendar Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' Defaults to \emph{Gregorian}.
+#' @param year How to interpret years in time input. Either 'BC/AD' or '+/-', the difference
+#' being that in 'BC/AD' there is no year zero, whereas in '+/-' year 0 corresponds to 1 BC.
+#' Default is 'BC/AD'
 #' @param refraction  Whether atmospheric refraction is to be taken into account. Default is TRUE.
 #' @param atm Atmospheric pressure for refraction calculation. Default is 1013.25 mbar.
 #' @param temp Atmospheric temprature for erfraction calculation. Default is 15 degrees.
@@ -37,9 +41,10 @@ skyscapeR.env$dec <- 'topo'
 #' @examples
 #' # Julian date at noon GMT on Christmas day 2018
 #' time2jd('2018-12-25 12:00:00', 'GMT')
-skyscapeR.vars = function(timezone, calendar, refraction, atm, temp, dec) {
+skyscapeR.vars = function(timezone, calendar, year, refraction, atm, temp, dec) {
   if (!missing(timezone)) { skyscapeR.env$timezone <- timezone }
   if (!missing(calendar)) { skyscapeR.env$calendar <- calendar }
+  if (!missing(year)) { skyscapeR.env$year <- year }
   if (!missing(refraction)) { skyscapeR.env$refraction <- refraction }
   if (!missing(atm)) { skyscapeR.env$atm <- atm }
   if (!missing(temp)) { skyscapeR.env$temp <- temp }

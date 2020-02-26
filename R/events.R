@@ -24,6 +24,8 @@ events <- function(name) {
 #' \emph{sun} and \emph{moon} can be used to represent all the above solar and lunar events,
 #' respectively. Alternatively, custom declination values can also be used.
 #' @param epoch The year or year range (as an array) one is interested in.
+#' @param loc (Optional) This can be either a vector with the latitude and longitude of the
+#' location, or a \emph{skyscapeR.horizon} object.
 #' @param col (Optional) The colour for plotting, and differentiating these objects.
 #' Defaults to red for all objects.
 #' @param lty (Optional) Line type (see \code{\link{par}}) used for differentiation.
@@ -34,7 +36,7 @@ events <- function(name) {
 #' @examples
 #' \dontrun{
 #' # Create a object with solar targets for epoch range 4000-2000 BC:
-#' tt <- sky.objects('sun', c(-4000,-2000))
+#' tt <- sky.objects('solar extremes', c(-4000,-2000))
 #'
 #' # Create an object with a few stars for same epoch:
 #' tt <- sky.objects(c('Sirius', 'Betelgeuse', 'Antares'), c(-4000,-2000),
@@ -43,18 +45,22 @@ events <- function(name) {
 #' # Create an object with solstices and a custom declination value:
 #' tt <- sky.objects(c('December Solstice','June Solstice', -13), c(-4000,-2000))
 #' }
-sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
+sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
+  if (length(names) > 1 & length(col)==1) { col <- rep(col, length(names)) }
+  if (length(names) > 1 & length(lty)==1) { lty <- rep(lty, length(names)) }
+  if (length(names) > 1 & length(lwd)==1) { lwd <- rep(lwd, length(names)) }
 
-  if (sum(names=='sun')) {
-    i <- which(names=='sun')
+
+  if (sum(names=='solar extremes')) {
+    i <- which(names=='solar extremes')
     names <- names[-i]
-    names <- c('December Solstice','June Solstice','Equinox',names)
-    aux <- col[i]; col <- col[-i]; col <- c(rep(aux,3),col)
-    aux <- lty[i]; lty <- lty[-i]; lty <- c(rep(aux,3),lty)
-    aux <- lwd[i]; lwd <- lwd[-i]; lwd <- c(rep(aux,3),lwd)
+    names <- c('December Solstice','June Solstice',names)
+    aux <- col[i]; col <- col[-i]; col <- c(rep(aux,2),col)
+    aux <- lty[i]; lty <- lty[-i]; lty <- c(rep(aux,2),lty)
+    aux <- lwd[i]; lwd <- lwd[-i]; lwd <- c(rep(aux,2),lwd)
   }
-  if (sum(names=='moon')) {
-    i <- which(names=='moon')
+  if (sum(names=='lunar extremes')) {
+    i <- which(names=='lunar extremes')
     names <- names[-i]
     names <- c('Major Lunar Extreme (southern)', 'Minor Lunar Extreme (southern)', 'Minor Lunar Extreme (northern)', 'Major Lunar Extreme (northern)',names)
     aux <- col[i]; col <- col[-i]; col <- c(rep(aux,4),col)
@@ -104,9 +110,9 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
         # try calling the functions
         aux <- array(NA, c(NROW(epoch),1))
         for (j in 1:NROW(epoch)) {
-          aux[j,] <- do.call(events(names[i]), list(epoch[j]))
+          aux[j,] <- do.call(events(names[i]), list(year=epoch[j], loc=loc))
         }
-        colnames(aux) <- names[i]
+        colnames(aux) <- events(names[i])
         tt <- cbind(tt, aux)
         tt.col <- c(tt.col, col[i])
         tt.lty <- c(tt.lty, lty[i])
@@ -128,6 +134,7 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
   object$n <- NCOL(tt)
   object$decs <- tt
   object$epoch <- epoch
+  object$loc <- loc
   object$col <- tt.col
   if (NROW(epoch)==1) {
     object$lty <- tt.lty
@@ -151,6 +158,8 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 #' @param parallax (Optional) Average parallax value for the sun.
 #'  Defaults to 0.00224.
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @param verbose (Optional) Boolean to control output of warnings and messages.
+#' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}},
 #' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
@@ -160,15 +169,13 @@ sky.objects = function(names, epoch, col = 'red', lty = 1, lwd = 1) {
 #'
 #' # Topocentric declination for same year and latitude of 50ºN:
 #' dS(-4000, loc=50)
-dS = function(year = cur.year, loc, parallax = 0.00224, altitude = 0) {
+dS = function(year = cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- -obliquity(year)
 
-  if (missing(loc)) {
-    cat('No location given, therefore outputting geocentric declination.\n')
+  if (class(loc)=='logical') {
+    if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
-    if (loc) {
-      aux <- aux - parallax.corr(parallax, loc, altitude)
-    }
+    aux <- aux - parallax.corr(parallax, loc, altitude)
   }
   return(aux)
 }
@@ -186,6 +193,8 @@ dS = function(year = cur.year, loc, parallax = 0.00224, altitude = 0) {
 #' @param parallax (Optional) Average parallax value for the sun.
 #'  Defaults to 0.00224.
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @param verbose (Optional) Boolean to control output of warnings and messages.
+#' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{obliquity}}, \code{\link{dS}}, \code{\link{eq}},
 #' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
@@ -195,15 +204,13 @@ dS = function(year = cur.year, loc, parallax = 0.00224, altitude = 0) {
 #'
 #' # Topocentric declination for same year and latitude of 50ºN:
 #' jS(-4000, loc=50)
-jS = function(year = cur.year, loc, parallax = 0.00224, altitude = 0) {
+jS = function(year = cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- obliquity(year)
 
-  if (missing(loc)) {
-    cat('No location given, therefore outputting geocentric declination.\n')
+  if (class(loc)=='logical') {
+    if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
-    if (loc) {
-      aux <- aux - parallax.corr(parallax, loc, altitude)
-    }
+    aux <- aux - parallax.corr(parallax, loc, altitude)
   }
   return(aux)
 }
@@ -218,6 +225,8 @@ jS = function(year = cur.year, loc, parallax = 0.00224, altitude = 0) {
 #' @param parallax (Optional) Average parallax value for the sun.
 #'  Defaults to 0.00224.
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @param verbose (Optional) Boolean to control output of warnings and messages.
+#' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}},
 #' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
@@ -227,15 +236,13 @@ jS = function(year = cur.year, loc, parallax = 0.00224, altitude = 0) {
 #'
 #' # Topocentric declination for same year and latitude of 50ºN:
 #' eq(loc=50)
-eq = function(loc, parallax = 0.00224, altitude = 0) {
+eq = function(loc=FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- 0
 
-  if (missing(loc)) {
-    cat('No location given, therefore outputting geocentric declination.\n')
+  if (class(loc)=='logical' & verbose) {
+    if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
-    if (loc) {
-      aux <- aux - parallax.corr(parallax, loc, altitude)
-    }
+    aux <- aux - parallax.corr(parallax, loc, altitude)
   }
   return(aux)
 }
@@ -326,6 +333,8 @@ antizenith = function(loc, parallax = 0.00224, altitude = 0) {
 #' @param parallax (Optional) Average parallax value for the moon
 #'  Defaults to 0.952.
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @param verbose (Optional) Boolean to control output of warnings and messages.
+#' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{smnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}},
 #' \code{\link{parallax.corr}}
@@ -335,14 +344,13 @@ antizenith = function(loc, parallax = 0.00224, altitude = 0) {
 #'
 #' # Topocentric declination for same year and latitude of 50ºN:
 #' nmnLX(-2500, loc=50)
-nmnLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
+nmnLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- obliquity(year) - (5.145+0.145)
-  if (missing(loc)) {
-    cat('No location given, therefore outputting geocentric declination.\n')
+
+  if (class(loc)=='logical') {
+    if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
-    if (loc) {
-      aux <- aux - parallax.corr(parallax, loc, altitude)
-    }
+    aux <- aux - parallax.corr(parallax, loc, altitude)
   }
   return(aux)
 }
@@ -361,6 +369,8 @@ nmnLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
 #' @param parallax (Optional) Average parallax value for the moon
 #'  Defaults to 0.952.
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @param verbose (Optional) Boolean to control output of warnings and messages.
+#' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{nmnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}},
 #' \code{\link{parallax.corr}}
@@ -370,14 +380,13 @@ nmnLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
 #'
 #' # Topocentric declination for same year and latitude of 50ºN:
 #' smnLX(-2500, loc=50)
-smnLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
+smnLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- -(obliquity(year) - (5.145+0.145))
-  if (missing(loc)) {
-    cat('No location given, therefore outputting geocentric declination.\n')
+
+  if (class(loc)=='logical') {
+    if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
-    if (loc) {
-      aux <- aux - parallax.corr(parallax, loc, altitude)
-    }
+    aux <- aux - parallax.corr(parallax, loc, altitude)
   }
   return(aux)
 }
@@ -396,6 +405,8 @@ smnLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
 #' @param parallax (Optional) Average parallax value for the moon
 #'  Defaults to 0.952.
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @param verbose (Optional) Boolean to control output of warnings and messages.
+#' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{sMjLX}},
 #' \code{\link{parallax.corr}}
@@ -405,14 +416,13 @@ smnLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
 #'
 #' # Topocentric declination for same year and latitude of 50ºN:
 #' nMjLX(-2500, loc=50)
-nMjLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
+nMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- obliquity(year) + (5.145+0.145)
-  if (missing(loc)) {
-    cat('No location given, therefore outputting geocentric declination.\n')
+
+  if (class(loc)=='logical') {
+    if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
-    if (loc) {
-      aux <- aux - parallax.corr(parallax, loc, altitude)
-    }
+    aux <- aux - parallax.corr(parallax, loc, altitude)
   }
   return(aux)
 }
@@ -431,6 +441,8 @@ nMjLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
 #' @param parallax (Optional) Average parallax value for the moon
 #'  Defaults to 0.952.
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
+#' @param verbose (Optional) Boolean to control output of warnings and messages.
+#' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{nMjLX}},
 #' \code{\link{parallax.corr}}
@@ -440,14 +452,13 @@ nMjLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
 #'
 #' # Topocentric declination for same year and latitude of 50ºN:
 #' sMjLX(-2500, loc=50)
-sMjLX = function(year = cur.year, loc, parallax = 0.952, altitude = 0) {
+sMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- -(obliquity(year) + (5.145+0.145))
-  if (missing(loc)) {
-    cat('No location given, therefore outputting geocentric declination.\n')
+
+  if (class(loc)=='logical') {
+    if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
-    if (loc) {
-      aux <- aux - parallax.corr(parallax, loc, altitude)
-    }
+    aux <- aux - parallax.corr(parallax, loc, altitude)
   }
   return(aux)
 }
@@ -501,9 +512,7 @@ EFM <- function(season='spring', rise=T, year, loc, min.phase=.99, refraction, a
 
     # find celestial crossovers (i.e. declination-based)
     jd <- seq(jd0, jd0+365, 1)
-    # sun <- sapply(jd, vecAzAlt, 0, loc=loc, refraction=refraction, atm=atm, temp=temp)[2,]
     sun <- body.position('sun', jd, loc=loc, refraction = refraction, atm=atm, temp=temp)$equatorial[,2]
-    # moon <- sapply(jd, vecAzAlt, 1, loc=loc, refraction=refraction, atm=atm, temp=temp)[2,]
     moon <- body.position('moon', jd, loc=loc, refraction = refraction, atm=atm, temp=temp)$equatorial[,2]
     phase <- moonphase(jd, timezone, calendar)
 

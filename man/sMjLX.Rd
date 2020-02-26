@@ -4,7 +4,13 @@
 \alias{sMjLX}
 \title{Declination of southern major Lunar Extreme for a given year}
 \usage{
-sMjLX(year = cur.year, loc, parallax = 0.952, altitude = 0)
+sMjLX(
+  year = cur.year,
+  loc = FALSE,
+  parallax = 0.952,
+  altitude = 0,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{year}{Year for which to calculate the declination.
@@ -18,6 +24,9 @@ function will output geocentric declination.}
 Defaults to 0.952.}
 
 \item{altitude}{(Optional) Altitude of the sun. Defaults to 0 degrees.}
+
+\item{verbose}{(Optional) Boolean to control output of warnings and messages.
+Defaults to TRUE.}
 }
 \description{
 This function calculates the declination of the southern

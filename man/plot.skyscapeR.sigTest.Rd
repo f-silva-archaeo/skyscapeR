@@ -4,7 +4,15 @@
 \alias{plot.skyscapeR.sigTest}
 \title{Plot significance test results}
 \usage{
-\method{plot}{skyscapeR.sigTest}(sig, obj, col = "blue", xrange, show.pval = T, show.local = F, legend = F)
+\method{plot}{skyscapeR.sigTest}(
+  sig,
+  obj,
+  col = "blue",
+  xrange,
+  show.pval = TRUE,
+  show.local = FALSE,
+  legend = FALSE
+)
 }
 \arguments{
 \item{sig}{Object of \emph{skyscapeR.sigTest} format, created using \code{\link{sigTest}}.}
@@ -34,7 +42,7 @@ data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
 data$Azimuth.Uncertainty <- 2  # adds the information on the preision of the azimuthal meaurement
 sig <- sigTest(data)
 
-plot(sig, show.local=T)
+plot(sig, show.local=TRUE)
 }
 }
 \seealso{

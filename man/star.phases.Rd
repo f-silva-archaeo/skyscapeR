@@ -35,12 +35,16 @@ Defaults to ten degrees.}
 \item{res}{(Optional) Resolution of calculation. The smaller this
 figure the slower the computation. Defaults to 24/3600 = 1 sec.}
 
-\item{refraction}{(Optional) Boolean for whether or not atmospheric refraction should be taken into account.
-Defaults to \emph{TRUE}.}
+\item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{atm}{(Optional) Atmospheric pressure (in mbar). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 1013.25 mbar.}
+\item{atm}{(Optional) Atmospheric pressure for refraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{temp}{(Optional) Atmospheric temperature (in Celsius). Only needed if \emph{refraction} is set to \emph{TRUE}. Default is 15 degrees.}
+\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.}
+
+\item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 }
 \description{
 This function calculates the seasons (Rising, Setting, etc.)
@@ -79,5 +83,5 @@ Pyramid Texts. In F Silva and N Campion (eds) \emph{Skyscapes: The Role and Impo
 the Sky in Archaeology}. Oxford: Oxbow Books, pp. 76-86.
 }
 \seealso{
-\code{\link{plotPhases}}
+\code{\link{plot.skyscapeR.starphase}}
 }
