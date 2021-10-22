@@ -2,9 +2,14 @@
 jd <- swephR::swe_julday(2000,1,1,12,1) # J2000.0
 
 #' @noRd
+checkYear <- function(year){
+  if (sum(year < -13201 | year > 17191)>0) { stop('Year(s) outside of Swiss Ephemeris range (13201 BCE to 17191 CE).')}
+}
+
+#' @noRd
 extractLatitude <- function(loc){
-  if (class(loc)=='skyscapeR.horizon') { latitude <- loc$metadata$georef[1] }
-  if (class(loc)=='numeric') { latitude <- loc[1]}
+  if (class(loc)[1]=='skyscapeR.horizon') { latitude <- loc$metadata$georef[1] }
+  if (class(loc)[1]=='numeric') { latitude <- loc[1]}
   # check
   if (latitude > 90 | latitude < -90) { stop('Latitude must be between -90 and 90 degrees.')}
   return(latitude)
@@ -21,8 +26,7 @@ return(as.character(out))
 }
 
 #' @noRd
-dnorm <- function(x, mean, sd) {
-  return(exp(-(x-mean)^2/(2*sd^2)) / sqrt(2*pi*sd^2)) }  ## replaces R function (twice as fast)
+dnorm <- function(x, mean, sd) { return(exp(-(x-mean)^2/(2*sd^2)) / sqrt(2*pi*sd^2)) }  ## replaces R function (twice as fast)
 
 #' @noRd
 tWS <- function(days, year) {
@@ -39,17 +43,19 @@ eq2hor <- function(ra, dec, loc, refraction, atm, temp) {
   if (missing(atm)) { atm <- skyscapeR.env$atm }
   if (missing(temp)) { temp <- skyscapeR.env$temp }
 
+  jd <- swephR::swe_julday(2000,1,1,12,1)
   xx <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],loc[3]), atm, temp, c(ra,dec))$xaz
 
   if (refraction) { alt <- xx[3] } else { alt <- xx[2] }
   az <- xx[1]-180
   if (az < 0) { az <- az + 360 }
   if (az > 360) { az <- az - 360 }
+
   return(list(alt = alt, az = az))
 }
 
-
-
+#' @noRd
+veq2hor <- Vectorize(eq2hor, 'ra', SIMPLIFY=T)
 
 #' @noRd
 minmaxdec = function(name, from, to, loc=FALSE) {
@@ -57,10 +63,8 @@ minmaxdec = function(name, from, to, loc=FALSE) {
   dd <- c()
 
   # Stars
-  fpath <- system.file("ephemeris", "sefstars.txt", package="swephR")
-  cnames <- c('traditional name','nomenclature name','equinox','RA hr','RA min', 'RA sec', 'Dec deg', 'Dec min', 'Dec sec', 'pm RA', 'pm Dec', 'rad vel', 'ann plx', 'mag V', 'DM zone', 'DM number')
-  sefstars <- read.csv(fpath, as.is=T, header=F, comment.char='#', col.names=cnames, strip.white=T)
-  if (sum(as.character(sefstars$traditional.name) == name)) {
+  sefstars <- skyscapeR.env$sefstars
+  if (sum(as.character(sefstars$traditional.name) == name) | sum(as.character(sefstars$nomenclature.name) == name)) {
     for (i in 1: NROW(xx)) {
       dd[i] <- star(name, xx[i])$coord$Dec
     }
@@ -76,31 +80,6 @@ minmaxdec = function(name, from, to, loc=FALSE) {
   mm <- c(min(dd),max(dd))
 
   return(mm)
-}
-
-#' Retrieves horizon altitude for a given azimuth from a given horizon profile
-#'
-#' This function retrieves the horizon altitude for a given azimuth from
-#' a previously created \emph{skyscapeR.horizon} object via spline interpolation.
-#' @param hor A \emph{skyscapeR.horizon} object from which to retrieve horizon altitude.
-#' @param az Array of azimuth(s) for which to retrieve horizon altitude(s).
-#' @export
-#' @import stats
-#' @seealso \code{\link{createHor}}, \code{\link{downloadHWT}}
-#' @examples
-#' hor <- downloadHWT('HIFVTBGK')
-#' hor2alt(hor, 90)
-hor2alt = function(hor, az) {
-  alt <- approx(c(hor$data$az-360,hor$data$az,hor$data$az+360), rep(hor$data$alt,3), xout=az)$y
-  alt <- round(alt, 2)
-
-  if (!is.null(hor$data$alt.unc)) {
-    hh <- approx(c(hor$data$az-360,hor$data$az,hor$data$az+360), rep(hor$data$alt.unc,3), xout=az)$y
-    alt.unc <- round(hh, 2)
-
-    alt <- data.frame(alt=alt, alt.unc=alt.unc)
-  }
-  return(alt)
 }
 
 #' Converts degree measurements in deg-min-sec (º ' ") format into decimal-point degree format.
@@ -177,53 +156,8 @@ mag2size <- function(mag) {
 }
 
 
-#' Calculates declination from azimuth and altitude measurements
-#'
-#' This function calculates the declination corresponding to an
-#' orientation , i.e. an azimuth. The altitude can either be given
-#'  or, alternatively, if a \emph{skyscapeR.horizon} object is provided,
-#'  the corresponding horizon altitude will be automatically retrieved.
-#' This function is a wrapper for function \code{\link[swephR]{swe_azalt_rev}}
-#' of package \emph{swephR}.
-#' @param az Azimuth(s) for which to calculate declination(s). See examples below.
-#' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
-#' an array of latitude values.
-#' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
-#' is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}
-#' @import swephR
-#' @export
-#' @seealso \code{\link[swephR]{swe_azalt_rev}}, \code{\link{hor2alt}}
-#' @examples
-#' hor <- downloadHWT('HIFVTBGK')
-#'
-#' dec <- az2dec(92, hor)
-#' dec <- az2dec(92, hor, alt=4)
-#'
-#' # Can also be used for an array of azimuths:
-#' decs <- az2dec( c(87,92,110), hor )
-az2dec = function(az, loc, alt){
-  if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az)[,1] }
-  if (class(loc) != 'skyscapeR.horizon') {
-    hor <- c()
-    if (length(loc) < length(az) & length(loc)==3) { hor$metadata$georef <- matrix(rep(loc,NROW(az)), ncol=3, byrow=T)}
-    if (length(loc) < length(az) & length(loc)==1) { hor$metadata$georef <- matrix(rep(c(loc,0,0),NROW(az)), ncol=3, byrow=T)}
-    if (length(loc) == length(az)) { hor$metadata$georef <- cbind(loc, 0) }
-    if (length(loc) == 3*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),3) }
-  } else { hor <- loc }
 
-  if (length(alt) == 1) { alt <- rep(alt, NROW(az)) }
-
-  prec <- max(nchar(sub('.*\\.', '', as.character(az))))
-
-  dec <- c()
-  for (i in 1:NROW(az)) {
-    dec[i] <- round( swephR::swe_azalt_rev(jd, 1, c(hor$metadata$georef[2],hor$metadata$georef[1],hor$metadata$georef[3]), c(az[i]-180, alt[i]))$xout[2], prec)
-  }
-
-  return(dec)
-}
-
-#' Estimates magnetics declination (diff. between true and magnetic
+#' Estimates magnetic declination (difference between true and magnetic
 #' north) based on IGRF 12th gen model
 #'
 #' This function estimates the magnetic declination at a given location
@@ -237,13 +171,74 @@ az2dec = function(az, loc, alt){
 #' @seealso \code{\link[oce]{magneticField}}
 #' @examples
 #' # Magnetic Declination for London on April 1st 2016:
-#' london.lat <- 51.5074 #N
-#' london.lon <- -0.1278 #W
-#' loc <- c( london.lat, london.lon )
+#' loc <- c( 51.5074, -0.1278 )
 #' mag.dec( loc, "2016/04/01" )
 mag.dec = function(loc, date) {
-  if (class(loc) == 'skyscapeR.horizon') { loc <- loc$metadata$georef }
+  if (class(loc)[1] == 'skyscapeR.horizon') { loc <- loc$metadata$georef }
+  if (length(loc) < length(date)) { loc <- matrix(loc,NROW(date),3, byrow=T) }
+  if (NROW(date) < NROW(loc)) { date <- matrix(date,NROW(loc),1, byrow=T) }
+
   if (is.null(dim(loc))) { dim(loc) <- c(1,NROW(loc)) }
-  aux <- oce::magneticField(loc[,2], loc[,1], as.POSIXlt(date, format="%Y/%m/%d"))$declination
+  aux <- rep(NA, NROW(loc))
+  for (i in 1:NROW(loc)) {
+    aux[i] <- oce::magneticField(loc[i,2], loc[i,1], as.POSIXlt(date[i], format="%Y/%m/%d"))$declination
+  }
   return(aux)
+}
+
+#' @noRd
+subset <- function(x, subset, ...){
+  if (class(x) == 'skyscapeR.pdf') {
+    dd <- x
+    dd$metadata$name <- dd$metadata$name[subset]
+    dd$metadata$az <- dd$metadata$az[subset]
+    dd$metadata$unc <- dd$metadata$unc[subset]
+    dd$metadata$horizon <- dd$metadata$horizon[subset]
+    dd$data <- dd$data[subset]
+    return(dd)
+  } else { return(subset(x, subset, ...)) }
+}
+
+
+#' @noRd
+sampleList <- function(ll) {
+  n <- NROW(ll)
+  out <- c()
+  for (i in 1:n){
+    out[i] <- sample(ll[[i]][,1], 1, prob=ll[[i]][,2])
+  }
+  return(out)
+}
+
+#' Returns the high-density region of a probability distribution
+#'
+#' @param x A \emph{skyscapeR.spd} or \emph{skyscapeR.pdf} object.
+#' @param mass (Optional) Probability mass of the region. Default is 0.954.
+#' @export
+hpdi <- function(x, mass=0.954){
+  if (class(x) == 'skyscapeR.spd') { grd <- x$data }
+  if (class(x) == 'skyscapeR.pdf' | class(x) == 'list' | class(x) == 'data.frame') { grd <- x }
+  sorted <- sort(grd$y, decreasing=TRUE)
+  heightIdx = min( which( cumsum( sorted) >= sum(grd$y, na.rm=T) * mass ) )
+  height = sorted[heightIdx]
+  indices = which( grd$y >= height )
+  gaps <- which(diff(indices) > 1)
+  starts <- indices[c(1, gaps + 1)]
+  ends <- indices[c(gaps, length(indices))]
+  result <- cbind(start = grd$x[ends], end = grd$x[starts])
+  if (result[2] < result[1]) { aux <- result[1]; result[1] <- result[2]; result[2] <- aux }
+  return(result)
+}
+
+
+#' Converts p-value into symbol
+#'
+#' @param p.value p-value
+#' @export
+pval2stars <- function(p.value) {
+  if (class(p.value)=='character') { p.value <- as.numeric(substr(p.value, 3,nchar(p.value))) }
+  out <- symnum(p.value, corr = FALSE, na = FALSE,
+                cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                symbols = c("***", "**", "*", "+", "ns"), legend=F)
+  return(as.character(out))
 }

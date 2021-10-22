@@ -9,8 +9,8 @@ jd2time(jd, timezone, calendar, verbose = F)
 \arguments{
 \item{jd}{Julian date in numeric format}
 
-\item{timezone}{(Optional) Desired timezone for output either as a known acronym (eg. "GMT", "CET") or
-a string with continent followed by country capital (eg. "Europe/London"). See
+\item{timezone}{(Optional) Desired timezone for output either as a known acronym (e.g. "GMT", "CET") or
+a string with continent followed by country capital (e.g. "Europe/London"). See
 \code{\link{timezones}} for details. Default is system timezone.}
 
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
@@ -22,7 +22,7 @@ Only needed if \emph{time} is a string. Defaults to \emph{Gregorian}.}
 Converts Julian date and time (in any timezone) to julian date
 }
 \examples{
-jd <- time2jd('2018-12-25 12:00:00', 'GMT') # Julian date at noon GMT on Christmas day 2018
+jd <- time2jd('2018/12/25 12:00:00', 'GMT') # Julian date at noon GMT on Christmas day 2018
 jd2time(jd, 'CET') # converts julian date to Central European timezone
 }
 \seealso{

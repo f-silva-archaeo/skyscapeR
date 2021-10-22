@@ -13,6 +13,6 @@
 #' @references Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}. Yale University Press.
 #' @examples
 #' data(RugglesRSC)
-#' curv <- curvigram(RugglesRSC$Dec, 2)
-#' plot(curv)
+#' kde <- density(RugglesRSC$Dec, 2)
+#' plot(kde)
 "RugglesRSC"

@@ -16,9 +16,9 @@ from one in \emph{skyscapeR.horizon} object.}
 
 \item{description}{(Optional) Description, to be included in \emph{landscape.ini} file.}
 
-\item{ground_col}{Colour of ground. Defaults to \emph{Stellarium}'s default.}
+\item{ground_col}{Color of ground. Defaults to \emph{Stellarium}'s default.}
 
-\item{hor_col}{Colour of horizon line. Defaults to \emph{Stellarium}'s default.}
+\item{hor_col}{Color of horizon line. Defaults to \emph{Stellarium}'s default.}
 }
 \description{
 This function exports any \emph{skyscapeR.horizon} object into the landscape
@@ -26,11 +26,13 @@ format of \emph{Stellarium}, ready to be imported.
 }
 \examples{
 # Downloads horizon data from HeyWhatsThat and exports it into Stellarium:
+\dontrun{
 hor <- downloadHWT('HIFVTBGK')
 exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 }
+}
 \references{
-\href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
+\href{https://stellarium.org/}{Stellarium: a free open source planetarium}
 }
 \seealso{
 \code{\link{createHor}}, \code{\link{downloadHWT}}, \code{\link{plot.skyscapeR.horizon}}

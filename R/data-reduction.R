@@ -1,18 +1,18 @@
 #' Data reduction for theodolite measurements using the sun-sight method
 #'
 #' This function calculates the true azimuth of a structure measured with
-#' a theodolite using the sunsight technique.
+#' a theodolite using the sun-sight technique.
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude, longitude and elevation of location, in this order.
 #' @param az Array of azimuths. Use \code{\link{ten}} to convert to
 #' decimal point format if necessary.
 #' @param date Date of measurements as a string in the format: 'YYYY/MM/DD'
 #' @param time Time of sun-sight measurement in the format: 'HH:MM:SS'
-#' @param tz Timezone of input wither as a known acronym (eg. "GMT", "CET") or
-#' a string with continent followed by country capital (eg. "Europe/London").
+#' @param tz Timezone of input wither as a known acronym (e.g. "GMT", "CET") or
+#' a string with continent followed by country capital (e.g. "Europe/London").
 #' @param az.sun (Optional) Measured azimuth of the sun. Defaults to zero.
 #' @param limb (Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
-#' If missing the centre of the sun will be used for calculations.
+#' If missing the center of the sun will be used for calculations.
 #' @param alt (Optional) Altitude, necessary for automatic declination calculation.
 #' If missing and \emph{loc} is a \emph{skyscapeR.horizon} object then the altitude
 #' will be automatically read from the horizon profile.
@@ -42,7 +42,7 @@
 #' hor <- downloadHWT('HIFVTBGK')
 #' data <- reduct.theodolite(hor, az, date, time, tz= "Europe/Malta", az.sun)
 reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, limb, alt, name, ID, HWT.ID) {
-  if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$metadata$georef } else { hor <- NULL }
+  if (class(loc)[1]=='skyscapeR.horizon') { hor <- loc; loc <- loc$metadata$georef } else { hor <- NULL }
 
   if (NROW(loc) < NROW(az)*3) { loc <- matrix(loc,NROW(az),3, byrow=T) }
   if (NROW(date) < NROW(az)) { date <- matrix(date,NROW(az),1, byrow=T) }
@@ -77,7 +77,7 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, limb, alt, nam
     dec <- az2dec(az.corr, loc, alt)
     df$Altitude = alt
     df$Declination <- dec
-  } else if (class(hor)=='skyscapeR.horizon') {
+  } else if (class(hor)[1]=='skyscapeR.horizon') {
     message('Horizon profile found. Obtaining altitude values and calculating declination...')
     dec <- az2dec(az.corr, hor)
     df$Altitude <- hor2alt(hor, az.corr)
@@ -120,7 +120,7 @@ reduct.theodolite = function(loc, az, date, time, tz, az.sun = 0, limb, alt, nam
 #' hor <- downloadHWT('HIFVTBGK')
 #' data <- reduct.compass(hor, mag.az, "2016/04/02")
 reduct.compass = function(loc, mag.az, date, magdec, alt, name, ID, HWT.ID) {
-  if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- loc$metadata$georef } else { hor <- NULL }
+  if (class(loc)[1]=='skyscapeR.horizon') { hor <- loc; loc <- loc$metadata$georef } else { hor <- NULL }
 
   if (length(loc) < length(mag.az)*3) { loc <- matrix(loc,NROW(mag.az),3, byrow=T) }
   if (!missing(date) & (NROW(date) < NROW(mag.az))) { date <- matrix(date,NROW(mag.az),1, byrow=T) }
@@ -147,10 +147,10 @@ reduct.compass = function(loc, mag.az, date, magdec, alt, name, ID, HWT.ID) {
     dec <- az2dec(true.az, loc, alt)
     df$Altitude = alt
     df$Declination <- dec
-  } else if (class(hor)=='skyscapeR.horizon') {
+  } else if (class(hor)[1]=='skyscapeR.horizon') {
     message('Horizon profile found. Obtaining altitude values and calculating declination...')
     dec <- az2dec(true.az, hor)
-    df$Altitude <- hor2alt(hor, true.az)$alt
+    df$Altitude <- hor2alt(hor, true.az)[1]
     df$Declination <- dec
   } else { message('No altitude values or horizon profile found. Declination values were not calculated.') }
 

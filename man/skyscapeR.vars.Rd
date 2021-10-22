@@ -4,25 +4,21 @@
 \alias{skyscapeR.vars}
 \title{See and change the global variables used by skyscapeR}
 \usage{
-skyscapeR.vars(timezone, calendar, year, refraction, atm, temp, dec)
+skyscapeR.vars(timezone, calendar, refraction, atm, temp, dec)
 }
 \arguments{
-\item{timezone}{Timezone of input either as a known acronym (eg. "GMT", "CET") or
-a string with continent followed by country capital (eg. "Europe/London"). See
+\item{timezone}{Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+a string with continent followed by country capital (e.g. "Europe/London"). See
 \code{\link{timezones}} for details. Default is the system timezone}
 
 \item{calendar}{Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 Defaults to \emph{Gregorian}.}
 
-\item{year}{How to interpret years in time input. Either 'BC/AD' or '+/-', the difference
-being that in 'BC/AD' there is no year zero, whereas in '+/-' year 0 corresponds to 1 BC.
-Default is 'BC/AD'}
-
 \item{refraction}{Whether atmospheric refraction is to be taken into account. Default is TRUE.}
 
 \item{atm}{Atmospheric pressure for refraction calculation. Default is 1013.25 mbar.}
 
-\item{temp}{Atmospheric temprature for erfraction calculation. Default is 15 degrees.}
+\item{temp}{Atmospheric temperature for refraction calculation. Default is 15 degrees.}
 
 \item{dec}{Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
 frame of reference. Defaults to topocentric.}

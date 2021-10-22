@@ -4,14 +4,16 @@
 \name{RugglesCKR}
 \alias{RugglesCKR}
 \title{Cork and Kerry Stone Row Data}
-\format{A data frame with 41 rows and 5 variables:
+\format{
+A data frame with 41 rows and 5 variables:
  \describe{
    \item{Ref}{Site Ref}
    \item{NE.SW}{String indicating whether they are towards the NE or SW}
    \item{Az.Hill}{Azimuth of hill towards which the Stone Rows are pointing}
    \item{Alt.Hill}{Altitude of hill towards which the Stone Rows are pointing}
    \item{Dec.Hill}{Declination of hill towards which the Stone Rows are pointing}
-   }}
+   }
+}
 \usage{
 data(RugglesCKR)
 }
@@ -20,8 +22,8 @@ Data from C.L.N. Ruggles' fieldwork on the Stone Rows of Cork and Kerry.
 }
 \examples{
 data(RugglesCKR)
-curv <- curvigram(RugglesCKR$Dec.Hill, 2)
-plot(curv)
+kde <- density(RugglesCKR$Dec.Hill, 2)
+plot(kde)
 }
 \references{
 Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}. Yale University Press.

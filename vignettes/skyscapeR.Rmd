@@ -1,0 +1,326 @@
+---
+title: "skyscapeR: Data Analysis and Visualization for Skyscape Archaeology"
+author: "Fabio Silva"
+date: "22/10/2021"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{skyscapeR: Data Analysis and Visualization for Skyscape Archaeology}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+skyscapeR is an open source R package for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy. It is intended to be a fully-fledged, transparent and peer-reviewed package offering a robust set of quantitative methods while retaining simplicity of use.
+
+It includes functions to transform horizontal (Az/Alt) to equatorial (Dec/RA) coordinates, create or download horizon profiles, plot them and overlay them with visible paths of common celestial objects/events for prehistoric or historic periods, as well as functions to test statistical significance and estimate stellar visibility and seasonality. It also includes the ability to easily construct azimuth polar plots and declination curvigrams. Future versions will add more data reduction and likelihood-based model selection facilities, as well as an easy-to-use Graphical User Interface.
+
+# 1. First Steps
+
+Like all vignettes this is neither intended for those inexperienced in R nor a fully-fledged and detailed manual for skyscapeR. Neither will it be understandable to those unfamiliar with the terminology and methodologies of cultural astronomy, archaeoastronomy or skyscape archaeology.
+
+This document is an entry-point to the package’s main functions and sets out workflows of what you can do with it. More detail, as well as more functions, can be found in the package’s manual pages. This is, therefore, not meant to be an exhaustive description of what's available, but merely a simple introduction to `skyscapeR` most important features.
+
+If you are new to R then I recommend the online free short course Data Carpentry's [Data Analysis and Visualization in R for Ecologists](https://datacarpentry.org/R-ecology-lesson/). For those who are already familiar with R, I apologize in advance for any patronizing bits (such as the next two sections). With some basic R skills, guidance from this vignette and autonomous exploration of the package’s manual pages, anyone with prior training in skyscape archaeology can become a master skyscapeR.
+
+### 1.1. Installation
+
+The package requires that the latest version of R is installed first. See the R Project website for details. Also suggested is the installation of RStudio [add link]. With R installed, you can install the latest skyscapeR release directly from CRAN [add link] by doing:
+```{r}
+# install.packages(skyscapeR)
+```
+
+This will install the package itself along with any dependencies. Upon successful completion you should see a line saying `* DONE (skyscapeR)` . If this doesn’t happen then there should be an error message explaining what went wrong.
+
+If you rather install the latest development version (often unstable ) you can do so directly from its GitHub repository [add link] by running:
+```{r}
+# install.packages('devtools', repos='https://cloud.r-project.org')
+# devtools::install_github('f-silva-archaeo/skyscapeR')
+```
+If you already have package `devtools` installed you can skip the first line above. At the end, you should see the same successful completion line.
+
+Also make sure to install the `swephRdata` package as follows:
+```{r}
+# install.packages("swephRdata", repos = "https://rstub.github.io/drat/", type = "source")
+```
+
+### 1.2 Initialization
+Every time you want to use the package it needs to be loaded. For this you need to type:
+```{r}
+library(skyscapeR)
+```
+
+The output should be the same as seen above. If there are any errors or warnings they need to be checked and corrected as needed.
+
+`skyscapeR` uses the `swephR` package for ephemeris calculations. Users are recommended to familiarize themselves with the [Swiss Ephemeris](https://www.astro.com/swisseph/swephinfo_e.htm), as well as the `swephR` package, before-hand. In particular, note that Swiss Ephemeris is only accurate in the time range 13,201 BC to 17,191 AD.
+
+### 1.3 Standards
+`skyscapeR` implements some standards to make the astronomical modelling easier to handle and use. This section introduces those standards which are necessary prior to using its many functions.
+
+*Locations and Georeferences*
+Most `skyscapeR` functions accept one or multiple locations to be entered in one of two different formats:
+* as a numeric array including the latitude, longitude and elevation of the site, in this order (e.g. `loc = c(51.17889, 1.826111, 10)`);
+* as a `skyscapeR.horizon` object, created using `createHor`, `createHWT` or `downloadHWT` functions.
+
+The latter, in particular, are especially useful, and often necessary, in order to take full advantage of the analytical capabilities of `skyscapeR` (see sec. 2.4 below for more detail).
+
+*Dae, Time and Calendars*
+Dates should be entered in the following format `YYYY/MM/DD` (e.g. `2021/10/25`). The brackets and order are non-negotiable, i.e. if one inputs `2021-10-25` or `2021/25/10` instead (or any other variation) the code will return an error.
+
+If one needs to specify a date and time this should use format `YYYY/MM/DD HH:MM:SS` (e.g. '2021/10/25 14:15:00'). Seconds can often be omitted.
+
+*Years and Epochs*
+`skyscapeR` uses the same epoch standard as `swephR`, in that the BC/AD western numbering is mapped unto, respectively negative/positive numbers. However, it uses the astronomical variation (found also in Stellarium) wherein year 0 exists. Therefore, one should keep in mind the following conversion table:
+* `skyscapeR` year 100 = 100 AD
+* `skyscapeR` year 99 = 99 AD
+* `skyscapeR` year 1 = 1 AD
+* `skyscapeR` year 0 = 1 BC
+* `skyscapeR` year -1 = 2 BC
+* `skyscapeR` year -99 = 101 BC
+* `skyscapeR` year -100 = 101 BC
+
+If in doubt, use function `BC.AD` to check what calendar year corresponds to what year number.
+```{r}
+BC.AD(1)
+BC.AD(0)
+BC.AD(-1)
+BC.AD(-99)
+BC.AD(-100)
+```
+
+*Global Variables*
+Most `skyscapeR` functions let you control parameters via input  However, some parameters may be more conveniently set globally, i.e. to work for all subsequent function calls. These include:
+* timezone (e.g. 'GMT' or 'Europe/London'). There is no default to force user to enter one;
+* calendar (e.g. 'G' for Gregorian, 'J' for Julian). Default is Gregorian;
+* refraction (whether to take atmospheric refraction into account in astronomical computations). Default is TRUE;
+* atm (atmospheric pressure for refraction computation). Default is 1013.25 mbar;
+* temp (atmospheric temperature for refraction computation). Default is 15 \u00b0;
+* dec (whether functions should output geocentric or topocentric declination, when location is available). Default is "topo".
+
+They can be set through the `skyscapeR.vars` function as follows:
+```{r}
+skyscapeR.vars() # shows current values
+skyscapeR.vars(timezone='CET') # to set timezone to Central European Time
+skyscapeR.vars(calendar='J') # to set calendar to Julian
+skyscapeR.vars(refraction=F) # to switch refraction calculations off
+```
+
+We will now reset to the defaults for the remainder of this vignette.
+```{r}
+skyscapeR.vars(timezone='GMT') # to set timezone to Central European Time
+skyscapeR.vars(calendar='G') # to set calendar to Julian
+skyscapeR.vars(refraction=T) # to switch refraction calculations off
+
+```
+
+## 2. Data Entry and Reduction
+
+### 2.1 Basic Functionality
+Basic functionality is achieved using `az2dec` to convert from horizontal (az/alt) to equatorial (dec) coordinates.
+```{r}
+az2dec(az=92, loc=c(35,-8,100), alt=2)
+```
+
+On the other hand, the declination of key celestial targets for a given time can be easily obtained as follows:
+```{r}
+# geocentric declination for june solstice at 2501 BC
+jS(-2500)
+
+# topocentric declination for december solstice at 2501 BC from Stonehenge
+dS(-2500, loc=c(51.17889,1.826111,10))
+
+# geocentric declination for northern minor lunar extreme at 3001 BC
+nmnLX(-3000)
+
+# topocentric declination for northern minor lunar extreme at 3001 BC from Stonehenge
+sMjLX(-3000, loc=c(51.17889,1.826111,10))
+
+# zenith sun for Teotihuacan
+zenith(loc=c(19.6925,98.84389,200))
+```
+
+When a horizon profile is given (see below), the declination of the spatial equinox can also be calculated using `spatial.equinox`.
+
+### 2.2 Data Reduction of Compass Measurements
+`skyscapeR` includes function `mag.dec` which uses IGRF 12 to estimate the magnetic declination at a location and date:
+```{r}
+mag.dec(loc=c(35,-8), date="2020/06/07")
+```
+
+This functionality is automated in `reduct.compass` which automates the data reduction process. Essentially, given a set of locations, magnetic azimuths, dates or previously obtained magnetic declination values, and horizon altitudes (if horizon profile is not given) it will perform all the background calculations to convert the magnetic azimuths to true azimuths, followed by conversion to declination. It outputs a neat table of results. 
+```{r}
+loc <- c(35,-8,100)
+mag.az <- c(89.5, 105, 109.5)
+data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
+data
+```
+
+### 2.3 Data Reduction of Theodolite Measurements
+For theodolite measurements, using the sun-sight technique, function `sunAz` can be used to obtain the azimuth of the sun at a given time and location. For ease of use, the timezone can be given as either a known acronym (eg. GMT, CET) or as continent and capital/country (eg Europe/London).
+```{r}
+loc <- c(52,-3,100)
+sunAz(loc, '2017-10-04 12:32:14', 'Europe/London')
+```
+Like with the compass measurements, this is automated in the `reduct.theodolite` function which takes in the location, theodolite measurements, date and time of fieldwork, measured azimuth of the sun and, if necessary, altitude in order to calculate declination. Note the use of function `ten` to quickly convert degree arcmin and arcsec measurements into decimal point values.
+```{r}
+lat <- ten(35,50,37.8) # latitude
+lon <- ten(14,34,6.4) # longitude
+elev <- 100
+az <- c(ten(298,24,10), ten(302,20,40))
+alt <- c(2, 5)
+az.sun <- ten(327,29,50)
+date <- "2016/02/20"
+time <- "11:07:17"
+data <- reduct.theodolite(c(lat,lon,elev), az, date , time, tz= "Europe/Malta", az.sun, alt=alt)
+data
+```
+
+### 2.4 Horizon Profiles
+Horizon profiles can be created from field measurements using `createHor`.
+```{r, fig.width = 6, fig.height=4}
+az <- c(0,90,180,270,360)
+alt <- c(0,5,5,0,0)
+loc <- c(51.17889,1.826111,10) 
+hor <- createHor(az, alt, alt.unc=0.5, loc=loc, name='Stonehenge Test')
+plot(hor)
+```
+Notice that the `alt.unc` parameter stands for uncertainty in measured altitude and be either a single value that applies to all azimuths or a vector of the same size as `az` and `alt`. This is an important parameter for the Probabilistic Approach (see sec. 4 below).
+
+Azimuths and horizon altitudes can be obtained from other sources (such as Andrew Smith's _Horizon_) and transformed into a `skyscapeR.horizon` object using `createHor` as above. Alternatively, `skyscapeR` interfaces with _HeyWhatsThat_ to automatically create a horizon panorama. This is done using functions `createHWT` (to create a new panorama) or `downloadHWT` (to download a previously created panorama).
+
+```{r, fig.width = 6, fig.height=4}
+hor <- createHWT(lat=ten(51,30,45), lon=ten(0,5,26.1), name='London Mithraeum')
+plot(hor)
+```
+
+## 3. The Discrete Approach
+
+### 3.1 Polar plots
+Once azimuths are given (and presumably corrected) one can visualize them using `plotAzimuth`.
+```{r, fig.width = 5, fig.height=5}
+az <- c(120, 100, 93, 97, 88, 115, 112, 67)
+plotAzimuth(az)
+```
+
+To visualize these against the common solar and lunar targets function `sky.objects` should be used to choose the celestial targets and how one wants to visualize them. This can be done as follows:
+```{r, fig.width = 5, fig.height=5}
+tt <- sky.objects('solar extremes', epoch=-2000, loc=c(35,-8), col='red')
+plotAzimuth(az, obj=tt)
+```
+
+Although one can also produce a plot of only the celestial targets:
+```{r, fig.width = 5, fig.height=5}
+tt <- sky.objects(c('solar extremes', 'lunar extremes'), epoch=-2000, loc=c(35,-8), col=c('red','blue'))
+plotAzimuth(obj=tt)
+```
+
+Measurement color and width can be controlled using parameters `col` and `lwd`.
+```{r, fig.width = 5, fig.height=5}
+plotAzimuth(az, obj=tt, lwd=2, col='black')
+```
+
+### 3.2 Density plots
+Density plots, such as curvigrams and kernel density estimates, can be obtained using the base R `density` function. This works for both azimuth and declination data. However, do note that these differ from the more accurate SPD plots that are covered in the next section.
+
+```{r, fig.width = 6, fig.height=4}
+az <- c(120, 100, 93, 97, 88, 115, 112, 67)
+hor <- createHWT(51.17889, 1.826111, name='Stonehenge')
+dec <- az2dec(az, loc=hor)
+kde <- density(dec)
+plot(kde)
+```
+
+The kernel shape and bandwidth (uncertainty) can also be controlled as follows. For more details check the manual pages for `density`.
+```{r, fig.width = 6, fig.height=4}
+kde <- density(dec, bw=2) # forces uncertainty to be a given value, in this case 2 degrees
+plot(kde)
+
+kde <- density(dec, bw=2, kernel='epanechnikov') # changes kernel to epanechnikov
+plot(kde)
+```
+
+### 3.3 Probabilities
+The probability of finding `r` structures out of `n` orientated to a band of the horizon of probability `p` can be calculated using the `bernouli.trial` function. In the above example there are 4 structures (out of 8 measured) which are orientated around east, spanning 12 degrees of azimuth. The probability `p` of that horizon band is `12/180` as there are 12 degrees out of 180 degrees (since both directions are possible). The probability of finding this (or an even more extreme situation) by chance is:
+```{r}
+bernoulli.trial(n=8, p=12/180, r=4)
+```
+The obtained p-value is well below 0.05 making this statistically significant.
+
+## 4. The Probabilistic Approach
+The discrete approach does not take measurement uncertainty (fully) seriously. To do this, Silva (2020) argued that one must recognize that any measurement of azimuth is a probability distribution. This can be done using `az.pdf`, where `pdf` stands for probability distribution function. Note that uncertainties must be given, either a single value that applies to all measurements, or one value per measurement, as below.
+```{r, fig.width = 6, fig.height=4}
+az <- c(120, 100, 93, 97, 88, 115, 112, 67) # same azimuths as before
+unc <- c(2, 3, 2, 2.5, 1.5, 3, 4, 3.5)
+az.prob <- az.pdf(az=az, unc=unc)
+plot(az.prob)
+```
+
+So far, this is not so different from what one would obtain with the discrete approach. It is the transformation to declination that needs to be handled differently and, preferentially, using full horizon profiles.
+```{r, fig.width = 6}
+dec.prob <- coordtrans(az.prob, hor) # same horizon as before
+plot(dec.prob)
+```
+
+To aggregate and visualize the entire dataset together, one can aggregate the individual pdf's into a Summed Probability Density (SPD for short). Notice the differences with the KDE's produced before.
+```{r, fig.width = 6, fig.height=4}
+ss <- spd(dec.prob)
+plot(ss)
+```
+
+This approach also opens up the possibility of doing more formal statistical significance tests that take measurement uncertainty into account, unlike `bernoulli.trial`. This method, developed in Silva (2020), explicitly compares the empirical SPD with SPD created from orientations taken at random. It then calculates a p-value from this.
+```{r, fig.width = 6, fig.height=4}
+# on azimuth data
+st.az <- randomTest(az.prob, nsims=10, ncores=1) 
+plot(st.az)
+
+# on declination data
+st.dec <- randomTest(dec.prob, nsims=10, ncores=1)
+plot(st.dec)
+```
+
+The regions of significance can be highlighted when plotting, and their values show as follows.
+```{r, fig.width = 6, fig.height=4}
+plot(st.dec, show.local=T)
+st.dec$metadata$local.pval
+```
+
+## 5. Other bits and bobs
+`skyscapeR` includes many other helpful functions for analysis of orientations and their potential skyscape relations. Below they are mentioned only briefly, explaining their purpose. Remember to explore the full range of their parameters by using the help facility `?`.
+
+### 5.1 Finding Celestial Targets
+Once one has a declination range of interest (for example, from a statistical test), it becomes essential to identify what celestial objects would have matched those values. Function `findTargets` makes this an easy job. Given a specific time range, it automatically looks for solstices, lunar extremes and stars upto a given magnitude that matched the declination range. For example, for declination values between -32\u00b0 and -35\u00b0 between 2500 BC and 1750 BC we get:
+```{r}
+findTargets(c(-25,-18), c(-2499,-1749))
+```
+If one wants to look at more stars one needs only change the `max.mag` parameter as follows:
+
+```{r}
+findTargets(c(-25,-18), c(-2499,-1749), max.mag=3)
+```
+
+### 5.2 Star Phases and Seasonality
+To estimate the phases, events and/or seasonality of stars, the function `star.phases` can be used. It works as follows, for the location of Cairo, the year 3000 BC, and a horizon altitude of 2\u00b0:
+```{r, results='hide'}
+sp <- star.phases('Sirius', -2999, loc=c(30.0, 31.2, 25), alt.hor=2)
+```
+One can then check the star’s phase type, events and seasons by simply typing:
+```{r}
+sp$metadata$type
+sp$metadata$events
+sp$metadata$seasons
+```
+These can be visualized using:
+```{r, fig.width = 6}
+plot(sp)
+```
+
+### 5.3 Planetarium
+A simplistic sketch of the sky can be produced (for example, for publications) using `sky.sketch`. It accurately plots the position of sun, moon, planets and brightest stars against a given horizon and for a particular time. The example below is for a location in Portugal at 9.30am on the 7th of January 2019. Notice the exaggerated yellow circle for the sun and white circle for the moon.
+```{r, fig.width = 6}
+sky.sketch(time='2019/01/07 09:30', loc=c(35,-8,100))
+```

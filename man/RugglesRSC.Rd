@@ -4,11 +4,13 @@
 \name{RugglesRSC}
 \alias{RugglesRSC}
 \title{Recumbent Stone Circle Data}
-\format{A data frame with 37 rows and 2 variables:
+\format{
+A data frame with 37 rows and 2 variables:
  \describe{
    \item{Dec}{Declination}
    \item{ID}{Site ID}
-   }}
+   }
+}
 \usage{
 data(RugglesRSC)
 }
@@ -17,8 +19,8 @@ Declination data from C.L.N. Ruggles' fieldwork on the Scottish Recumbent Stone 
 }
 \examples{
 data(RugglesRSC)
-curv <- curvigram(RugglesRSC$Dec, 2)
-plot(curv)
+kde <- density(RugglesRSC$Dec, 2)
+plot(kde)
 }
 \references{
 Ruggles, C.L.N. (1999). \emph{Astronomy in Prehistoric Britain and Ireland}. Yale University Press.

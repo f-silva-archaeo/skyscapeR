@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{plotBars}
 \alias{plotBars}
-\title{Bar plot of orientations (declinations)}
+\title{Bar plot of orientations (declination)}
 \usage{
 plotBars(
   val,
@@ -20,7 +20,7 @@ plotBars(
 )
 }
 \arguments{
-\item{val}{Array of declinations or azimuths.}
+\item{val}{Array of declination or azimuth values.}
 
 \item{unc}{Single value or array of measurement uncertainty}
 
@@ -28,7 +28,7 @@ plotBars(
 
 \item{unit}{(Optional). Either 'Declination' or 'Azimuth'. Defaults to 'Declination'.}
 
-\item{col}{(Optional) Colour to plot measurments in. Defaults to \emph{blue}.}
+\item{col}{(Optional) Color to plot measurements in. Defaults to \emph{blue}.}
 
 \item{shade}{(Optional) Boolean to control whether to shade a polygon of measurements. Defaults
 to \emph{TRUE}}
@@ -44,13 +44,13 @@ value. Defaults to \emph{FALSE}}
 \item{yrange}{(Optional) Array of limits for y-axis.}
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-for displaying the declinations of celestial objects.}
+for displaying the declination values of celestial objects.}
 
 \item{show.obj.label}{(Optional) Boolean to control whether to label the celestial objects in
 the polar plot. Defaults to \emph{TRUE}.}
 }
 \description{
-This function creates a bar plot of orientation data.
+Bar plot of orientations (declination)
 }
 \examples{
 # Plot some declination data:

@@ -2,25 +2,26 @@
 % Please edit documentation in R/stars.R
 \name{star.phases}
 \alias{star.phases}
-\title{Calculate the seasons and phases of a star}
+\title{Calculate the seasons and phase type of a star}
 \usage{
 star.phases(
   star,
   year,
   loc,
   alt.hor = 0,
+  k = 0.2,
+  limit = 6,
   alt.rs = 10,
-  res = 24/3600,
+  res = 1/24/6,
   refraction,
   atm,
-  temp,
-  verbose = T
+  temp
 )
 }
 \arguments{
 \item{star}{Either the star name or a \emph{skyscapeR.star} object.}
 
-\item{year}{The year of interest.}
+\item{year}{The year of interest. Must be in the \emph{swephR} range of 13201 cal BC to 17191 AD}
 
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
 containing the latitude and longitude of location, in this order.}
@@ -28,12 +29,19 @@ containing the latitude and longitude of location, in this order.}
 \item{alt.hor}{(Optional) The altitude of the horizon to consider.
 Defaults to zero degrees.}
 
+\item{k}{(Optional) Extinction coefficient (see Schaefer 1989).
+Defaults to 0.2, corresponding to a poor night on mountain top
+or best night at a dry sea level site.}
+
+\item{limit}{(Optional) The maximum magnitude of a star that can be
+visible with the naked eye. Defaults to 6.}
+
 \item{alt.rs}{(Optional) The maximum altitude of a star's first or last
 visibility for it to still be considered to be as rising or setting.
 Defaults to ten degrees.}
 
 \item{res}{(Optional) Resolution of calculation. The smaller this
-figure the slower the computation. Defaults to 24/3600 = 1 sec.}
+figure the slower the computation. Defaults to 1/24/6, i.e. every 10 minutes.}
 
 \item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
@@ -41,29 +49,29 @@ If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 \item{atm}{(Optional) Atmospheric pressure for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
-If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.}
-
-\item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
+\item{temp}{(Optional) Atmospheric temperature for refraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 }
 \description{
 This function calculates the seasons (Rising, Setting, etc.)
-and phases (Arising and Lying Hidden, Curtailed Passage) of a
+and phase types (Arising and Lying Hidden, Curtailed Passage) of a
 star for a given location and epoch. This functions uses the
-\emph{arcus visionis} approximation of Purrington (1988). For
-the nomenclature used, and description of star phases, see Brady (2015).
+\emph{arcus visionis} approximation of Purrington (1988) and
+the atmospheric extinction approximation of Schaefer (1989). For
+the nomenclature used, and description of star phase types, see Brady (2015).
 }
 \examples{
+\dontrun{
 ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200))
 
-# One can then look at the star's phase:
-ss1$phase
+# One can then look at the star's phase type:
+ss1$metadata$type
 
 # Date range of seasons:
-ss1$seasons
+ss1$metadata$seasons
 
-# Date range of events/phases:
-ss1$events
+# Date range of phase-type events:
+ss1$metadata$events
 
 # And plot them:
 plot(ss1)
@@ -71,6 +79,7 @@ plot(ss1)
 # You can play with the parameters and see how predictions change:
 ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200), alt.hor=2, alt.rs=5)
 plot(ss1)
+}
 }
 \references{
 Purrington, Robert D. (1988) Heliacal Rising and Setting:
@@ -83,5 +92,5 @@ Pyramid Texts. In F Silva and N Campion (eds) \emph{Skyscapes: The Role and Impo
 the Sky in Archaeology}. Oxford: Oxbow Books, pp. 76-86.
 }
 \seealso{
-\code{\link{plot.skyscapeR.starphase}}
+\code{\link{plot.skyscapeR.starphases}}
 }

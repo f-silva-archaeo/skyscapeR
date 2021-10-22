@@ -26,7 +26,7 @@ events <- function(name) {
 #' @param epoch The year or year range (as an array) one is interested in.
 #' @param loc (Optional) This can be either a vector with the latitude and longitude of the
 #' location, or a \emph{skyscapeR.horizon} object.
-#' @param col (Optional) The colour for plotting, and differentiating these objects.
+#' @param col (Optional) The color for plotting, and differentiating these objects.
 #' Defaults to red for all objects.
 #' @param lty (Optional) Line type (see \code{\link{par}}) used for differentiation.
 #' Only activated for single year epochs.
@@ -34,7 +34,6 @@ events <- function(name) {
 #' Only activated for single year epochs.
 #' @export
 #' @examples
-#' \dontrun{
 #' # Create a object with solar targets for epoch range 4000-2000 BC:
 #' tt <- sky.objects('solar extremes', c(-4000,-2000))
 #'
@@ -44,23 +43,22 @@ events <- function(name) {
 #'
 #' # Create an object with solstices and a custom declination value:
 #' tt <- sky.objects(c('December Solstice','June Solstice', -13), c(-4000,-2000))
-#' }
 sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
   if (length(names) > 1 & length(col)==1) { col <- rep(col, length(names)) }
   if (length(names) > 1 & length(lty)==1) { lty <- rep(lty, length(names)) }
   if (length(names) > 1 & length(lwd)==1) { lwd <- rep(lwd, length(names)) }
 
-
-  if (sum(names=='solar extremes')) {
-    i <- which(names=='solar extremes')
+  i <- which(names=='solar extremes')
+  if (length(i)>0) {
     names <- names[-i]
     names <- c('December Solstice','June Solstice',names)
     aux <- col[i]; col <- col[-i]; col <- c(rep(aux,2),col)
     aux <- lty[i]; lty <- lty[-i]; lty <- c(rep(aux,2),lty)
     aux <- lwd[i]; lwd <- lwd[-i]; lwd <- c(rep(aux,2),lwd)
   }
-  if (sum(names=='lunar extremes')) {
-    i <- which(names=='lunar extremes')
+
+  i <- which(names=='lunar extremes')
+  if (length(i)>0) {
     names <- names[-i]
     names <- c('Major Lunar Extreme (southern)', 'Minor Lunar Extreme (southern)', 'Minor Lunar Extreme (northern)', 'Major Lunar Extreme (northern)',names)
     aux <- col[i]; col <- col[-i]; col <- c(rep(aux,4),col)
@@ -81,8 +79,7 @@ sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
 
   for (i in 1:N) {
     # stars
-    data(stars, envir=environment())
-    if (sum(as.character(stars$NAME) == names[i])) {
+    if (swephR::swe_fixstar2_ut(names[i], swephR::swe_julday(2000, 1, 1, 12.,1), 2048+16384+16)$serr=="") {
       aux <- array(NA, c(NROW(epoch),1))
       for (j in 1:NROW(epoch)) {
         aux[j,] <- star(names[i], epoch[j])$coord$Dec
@@ -94,7 +91,6 @@ sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
       tt.lwd <- c(tt.lwd, lwd[i])
       next
     } else
-
       # custom dec
       if (!is.na(suppressWarnings(as.numeric(names[i])))) {
         aux <- array(NA, c(NROW(epoch),1))
@@ -151,7 +147,7 @@ sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
 #' at December Solstice for a given year, based upon
 #' obliquity estimation and corrected average parallax.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
+#' Defaults to present year as given by \emph{Sys.Date}.
 #' @param loc (Optional) This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
 #' function will output geocentric declination.
@@ -162,14 +158,15 @@ sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
 #' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}},
-#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
+#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{spatial.equinox}},
+#' \code{\link{parallax.corr}}
 #' @examples
-#' # December Solstice geocentric declination for year 3999 BC:
+#' # December Solstice geocentric declination for year 4001 BC:
 #' dS(-4000)
 #'
-#' # Topocentric declination for same year and latitude of 50ºN:
+#' # Topocentric declination for same year and latitude of 50 degrees N:
 #' dS(-4000, loc=50)
-dS = function(year = cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
+dS = function(year = skyscapeR.env$cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- -obliquity(year)
 
   if (class(loc)=='logical') {
@@ -186,7 +183,7 @@ dS = function(year = cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, ve
 #' at June Solstice for a given year, based upon
 #' obliquity estimation and corrected average parallax.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
+#' Defaults to present year as given by \emph{Sys.Date}.
 #' @param loc (Optional) This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
 #' function will output geocentric declination.
@@ -197,14 +194,15 @@ dS = function(year = cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, ve
 #' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{obliquity}}, \code{\link{dS}}, \code{\link{eq}},
-#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
+#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{spatial.equinox}},
+#' \code{\link{parallax.corr}}
 #' @examples
-#' # June Solstice geocentric declination for year 3999 BC:
+#' # June Solstice geocentric declination for year 4001 BC:
 #' jS(-4000)
 #'
-#' # Topocentric declination for same year and latitude of 50ºN:
+#' # Topocentric declination for same year and latitude of 50 degres N:
 #' jS(-4000, loc=50)
-jS = function(year = cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
+jS = function(year = skyscapeR.env$cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- obliquity(year)
 
   if (class(loc)=='logical') {
@@ -229,12 +227,12 @@ jS = function(year = cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, ve
 #' Defaults to TRUE.
 #' @export
 #' @seealso \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}},
-#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
+#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{spatial.equinox}}, \code{\link{parallax.corr}}
 #' @examples
 #' # Equinoctial geocentric declination:
 #' eq()
 #'
-#' # Topocentric declination for same year and latitude of 50ºN:
+#' # Topocentric declination for same year and latitude of 50 degrees N:
 #' eq(loc=50)
 eq = function(loc=FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- 0
@@ -262,19 +260,19 @@ eq = function(loc=FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
 #' @export
 #' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}},
-#' \code{\link{antizenith}}, \code{\link{parallax.corr}}
+#' \code{\link{antizenith}}, \code{\link{spatial.equinox}}, \code{\link{parallax.corr}}
 #' @examples
 #' # Zenith sun declination for Mexico City:
 #' zenith(19.419)
 #'
-#' # There is no zenith sun phenomena in London:
+#' # There is no zenith sun phenomenon in London:
 #' zenith(51.507)
 zenith = function(loc, parallax = 0.00224, altitude = 0) {
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$metadata$georef[1]
-  } else { lat <- loc }
+  } else { lat <- loc[1] }
 
-  if (lat > jS() | lat < dS()) {
+  if (lat > jS(loc=loc) | lat < dS(loc=loc)) {
     return(NULL)
   } else {
     aux <- lat
@@ -298,7 +296,7 @@ zenith = function(loc, parallax = 0.00224, altitude = 0) {
 #' @param altitude (Optional) Altitude of the sun. Defaults to 0 degrees.
 #' @export
 #' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}},
-#' \code{\link{zenith}}, \code{\link{parallax.corr}}
+#' \code{\link{zenith}}, \code{\link{spatial.equinox}}, \code{\link{parallax.corr}}
 #' @examples
 #' # Anti-zenith sun declination for Mexico City:
 #' antizenith(19.419)
@@ -308,9 +306,9 @@ zenith = function(loc, parallax = 0.00224, altitude = 0) {
 antizenith = function(loc, parallax = 0.00224, altitude = 0) {
   if (class(loc)=='skyscapeR.horizon') {
     lat <- loc$metaata$georef[1]
-  } else { lat <- loc }
+  } else { lat <- loc[1] }
 
-  if (lat > jS() | lat < dS()) {
+  if (lat > jS(loc=loc) | lat < dS(loc=loc)) {
     return(NULL)
   } else {
     aux <- -lat
@@ -319,6 +317,39 @@ antizenith = function(loc, parallax = 0.00224, altitude = 0) {
   }
 }
 
+#' Declination of the spatial equinox for a given location
+#'
+#' @param hor This should be a \emph{skyscapeR.horizon} object.
+#' @param parallax (Optional) Average parallax value for the sun.
+#'  Defaults to 0.00224.
+#' @export
+#' @seealso \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}},
+#' \code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
+#' @examples
+#' \dontrun{
+#' hor <- createHWT(34.174051531543405, 110.81299818694872, name='Xipo, Lingbao')
+#' spatial.equinox(hor)
+#' }
+spatial.equinox = function(hor, parallax = 0.00224) {
+  if (class(hor)!='skyscapeR.horizon') stop('Full horizon profile required for spatial equinox calculation.')
+
+  options(warn=-1)
+  obj <- sky.objects('solar extremes', 2000, loc=hor)
+  rise <- c(); set <- c();
+  for (i in 1:2) {
+    orb <- orbit(obj$decs[i], obj$loc, refraction=FALSE)
+    forb <- approxfun(orb$az, orb$alt, yleft=-9999, yright=-9999)
+    riset <- approxfun(hor$data$az,forb(hor$data$az)-hor$data$alt, yleft=-9999, yright=-9999)
+    rise[i] <- uniroot(riset, interval=c(0, 180))$root
+    set[i] <- uniroot(riset, interval=c(180, 360))$root
+  }
+  options(warn=0)
+  out <- c()
+  out$rise <- az2dec(mean(rise), loc=hor) - parallax.corr(parallax, hor, hor2alt(hor, mean(rise)))
+  out$set <- az2dec(mean(set), loc=hor) - parallax.corr(parallax, hor, hor2alt(hor, mean(set)))
+
+  return(out)
+}
 
 #' Declination of northern minor Lunar Extreme for a given year
 #'
@@ -326,7 +357,7 @@ antizenith = function(loc, parallax = 0.00224, altitude = 0) {
 #' minor Lunar Extreme for a given year, based upon
 #' obliquity estimation and corrected average parallax.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
+#' Defaults to present year as given by \emph{Sys.Date}.
 #' @param loc (Optional) This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
 #' function will output geocentric declination.
@@ -339,12 +370,12 @@ antizenith = function(loc, parallax = 0.00224, altitude = 0) {
 #' @seealso \code{\link{smnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}},
 #' \code{\link{parallax.corr}}
 #' @examples
-#' # Northern minor Lunar Extreme geocentric declination for year 2499 BC:
+#' # Northern minor Lunar Extreme geocentric declination for year 2501 BC:
 #' nmnLX(-2500)
 #'
-#' # Topocentric declination for same year and latitude of 50ºN:
+#' # Topocentric declination for same year and latitude of 50 degrees N:
 #' nmnLX(-2500, loc=50)
-nmnLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
+nmnLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- obliquity(year) - (5.145+0.145)
 
   if (class(loc)=='logical') {
@@ -362,7 +393,7 @@ nmnLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' minor Lunar Extreme for a given year, based upon
 #' obliquity estimation and corrected average parallax.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
+#' Defaults to present year as given by \emph{Sys.Date}.
 #' @param loc (Optional) This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
 #' function will output geocentric declination.
@@ -375,12 +406,12 @@ nmnLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' @seealso \code{\link{nmnLX}}, \code{\link{nMjLX}}, \code{\link{sMjLX}},
 #' \code{\link{parallax.corr}}
 #' @examples
-#' # Southern minor Lunar Extreme geocentric declination for year 2499 BC:
+#' # Southern minor Lunar Extreme geocentric declination for year 2501 BC:
 #' smnLX(-2500)
 #'
-#' # Topocentric declination for same year and latitude of 50ºN:
+#' # Topocentric declination for same year and latitude of 50 degrees N:
 #' smnLX(-2500, loc=50)
-smnLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
+smnLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- -(obliquity(year) - (5.145+0.145))
 
   if (class(loc)=='logical') {
@@ -398,7 +429,7 @@ smnLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' major Lunar Extreme for a given year, based upon
 #' obliquity estimation and corrected average parallax.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
+#' Defaults to present year as given by \emph{Sys.Date}.
 #' @param loc (Optional) This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
 #' function will output geocentric declination.
@@ -411,12 +442,12 @@ smnLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' @seealso \code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{sMjLX}},
 #' \code{\link{parallax.corr}}
 #' @examples
-#' # Northern major Lunar Extreme geocentric declination for year 2499 BC:
+#' # Northern major Lunar Extreme geocentric declination for year 2501 BC:
 #' nMjLX(-2500)
 #'
-#' # Topocentric declination for same year and latitude of 50ºN:
+#' # Topocentric declination for same year and latitude of 50 degrees N:
 #' nMjLX(-2500, loc=50)
-nMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
+nMjLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- obliquity(year) + (5.145+0.145)
 
   if (class(loc)=='logical') {
@@ -434,7 +465,7 @@ nMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' major Lunar Extreme for a given year, based upon
 #' obliquity estimation and corrected average parallax.
 #' @param year Year for which to calculate the declination.
-#' Defaults to present year as given by \emph{Sys.Date()}.
+#' Defaults to present year as given by \emph{Sys.Date}.
 #' @param loc (Optional) This can be either the latitude of the
 #' location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
 #' function will output geocentric declination.
@@ -447,12 +478,12 @@ nMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' @seealso \code{\link{nmnLX}}, \code{\link{smnLX}}, \code{\link{nMjLX}},
 #' \code{\link{parallax.corr}}
 #' @examples
-#' # Southern major Lunar Extreme geocentric declination for year 2499 BC:
+#' # Southern major Lunar Extreme geocentric declination for year 2501 BC:
 #' sMjLX(-2500)
 #'
-#' # Topocentric declination for same year and latitude of 50ºN:
+#' # Topocentric declination for same year and latitude of 50 degrees N:
 #' sMjLX(-2500, loc=50)
-sMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
+sMjLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- -(obliquity(year) + (5.145+0.145))
 
   if (class(loc)=='logical') {
@@ -465,7 +496,7 @@ sMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 
 #' Equinoctial Full Moons
 #'
-#' This function calculates the date, rise/set times, azimuths and declinations
+#' This function calculates the date, rise/set times, azimuth and declination
 #' for sun and moon on the days of the Spring Full Moon (SFM) and Autumn Full
 #' Moon (AFM), for a given year and location.
 #' @param season (Optional) Either 'spring' or 'autumn'. Default is 'spring.
@@ -475,7 +506,7 @@ sMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' two values (range of years), or a vector of years.
 #' @param loc This can be either a \emph{skyscapeR.horizon} object, or a vector with the
 #' latitude, longitude and elevation of the site, in this order.
-#' @param min.phase (Optional) Minimun lunar phase (between 0 and 1) for which a
+#' @param min.phase (Optional) Minimum lunar phase (between 0 and 1) for which a
 #' moon is considered to be full. Defaults to 0.99.
 #' @param refraction (Optional) Boolean for whether or not atmospheric refraction should be taken into account.
 #' Defaults to \emph{TRUE}.
@@ -485,7 +516,7 @@ sMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' Default is 15 degrees.
 #' @param calendar (Optional) Calendar used to output dates. G for gregorian and J for julian. Defaults to \emph{Gregorian}.
 #' @param timezone (Optional) Timezone for output of rising and setting time either as a known acronym
-#' (eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
+#' (e.g. "GMT", "CET") or a string with continent followed by country capital (e.g. "Europe/London"). See
 #' \link{timezones} for details. Defaults to system timezone.
 #' @import swephR parallel foreach doParallel
 #' @export
@@ -493,14 +524,17 @@ sMjLX = function(year = cur.year, loc=FALSE, parallax = 0.952, altitude = 0, ver
 #' # Spring Full Moon from a location in Portugal in the year 2018
 #' EFM(year=2018, loc=c(35,-8,100))
 #'
-#' # Autumn Full Moons in the last ten years
-#' EFM(season='autumn', year=c(2009,2019), loc=c(35,-8,100))
+#' # Autumn Full Moons in the last three years
+#' \dontrun{
+#' EFM(season='autumn', year=c(2019,2021), loc=c(35,-8,100))
+#' }
 EFM <- function(season='spring', rise=T, year, loc, min.phase=.99, refraction, atm, temp, timezone, calendar) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
   if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
   if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
   if (missing(atm)) { atm <- skyscapeR.env$atm }
   if (missing(temp)) { temp <- skyscapeR.env$temp }
+  checkYear(year)
 
   if (length(year)==2) { year <- seq(year[1], year[2], 1) }
 

@@ -12,12 +12,12 @@ createHWT(lat, lon, elevation = 1.6, name, src = "skyscapeR", verbose = T)
 \item{lon}{The longitude of the location.}
 
 \item{elevation}{(Optional) The elevation of the observer above
-ground level in metres. Default is 1.6 metres (eye level).}
+ground level in meters. Default is 1.6 meters (eye level).}
 
 \item{name}{(Optional) Name for horizon.}
 
 \item{src}{(Optional) Request source ID for \emph{HeyWhatsThat}. Default is
-'skyscapeR'. Only change this if you have ben given a source ID by the
+'skyscapeR'. Only change this if you have been given a source ID by the
 creator of \emph{HeyWhatsThat}.}
 
 \item{verbose}{(Optional) Boolean switch to control output. Default is \emph{TRUE}.}
@@ -30,7 +30,7 @@ creation of a horizon profile for a give Lat/Lon and elevation. It
 }
 \examples{
 \dontrun{
-# Create and retrive horizon data for the London Mithraeum:
+# Create and retrieve horizon data for the London Mithraeum:
 hor <- createHWT(lat=ten(51,30,45), lon=ten(0,5,26.1), name='London Mithraeum')
 }
 }

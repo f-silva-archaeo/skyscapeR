@@ -2,62 +2,13 @@
 % Please edit documentation in R/sig-test.R
 \name{sigTest}
 \alias{sigTest}
-\title{Perform a null hypothesis significance test of a given curvigram}
+\title{(Defunct) Perform a null hypothesis significance test of a given curvigram}
 \usage{
-sigTest(
-  data,
-  type = "curv",
-  ncores = parallel::detectCores() - 1,
-  nsims = 2000,
-  conf = 0.95,
-  prec = 0.01,
-  range,
-  verbose = T,
-  ...
-)
-}
-\arguments{
-\item{data}{Data frame including latitude, azimuth and horizon altitude of sites, created
-using \code{\link{reduct.compass}} or \code{\link{reduct.theodolite}}, plus the uncertainty in
-azimuthal measurement, which should be added into a column named \emph{Azimuth.Uncertainty}.}
-
-\item{type}{(Optional) Type of data visualizarion you want to conduct the test on. Current
-options are 'curv' for \code{\link{curvigram}} and 'hist' for \code{\link{histogram}}. Defaults to 'curv' for curvigram.}
-
-\item{ncores}{(Optional) Number of processing cores to use for parallelisation. Defaults to the number of
-available cores minus 1.}
-
-\item{nsims}{(Optional) Number of simulations to run. The higher this number the slower this process will
-be, but the lower it is the less power the method has. Defaults to 2000 as a base minimum to test for
-significance at the p=0.0005 level, but the recommended value is 10,000.}
-
-\item{conf}{(Optional) Confidence level for p-value calculation and output. Defaults to 0.95,
-i.e. a 95\% confidence envelope.}
-
-\item{prec}{(Optional) Smallest possible azimuth for the random sampler, i.e. precision being considered.
-Defaults to 0.01º.}
-
-\item{range}{(Optional) Range of declination values to consider.}
-
-\item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
-
-\item{...}{Other parameters to be passed on to \code{\link{histogram}} or \code{\link{curvigram}}, as appropriate.}
+sigTest()
 }
 \description{
-This function performs a null hypothesis significance test, for a given dataset
-and outputs a p-value as well as all the information needed for  plotting.
-}
-\examples{
-\dontrun{
-loc <- c(35,-7)
-mag.az <- c(89.5, 105, 109.5)
-data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
-data$Azimuth.Uncertainty <- 1  # adds the information on the preision of the azimuthal meaurement
-sig <- sigTest(data)
-
-plot(sig)
-}
+This function no longer works. Please use \code{\link{randomTest}} instead.
 }
 \seealso{
-\code{\link{reduct.compass}}, \code{\link{reduct.theodolite}}
+\code{\link{randomTest}}
 }

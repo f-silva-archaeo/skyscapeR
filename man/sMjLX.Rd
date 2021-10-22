@@ -5,7 +5,7 @@
 \title{Declination of southern major Lunar Extreme for a given year}
 \usage{
 sMjLX(
-  year = cur.year,
+  year = skyscapeR.env$cur.year,
   loc = FALSE,
   parallax = 0.952,
   altitude = 0,
@@ -14,7 +14,7 @@ sMjLX(
 }
 \arguments{
 \item{year}{Year for which to calculate the declination.
-Defaults to present year as given by \emph{Sys.Date()}.}
+Defaults to present year as given by \emph{Sys.Date}.}
 
 \item{loc}{(Optional) This can be either the latitude of the
 location, or a \emph{skyscapeR.horizon} object. If missing or \emph{FALSE},
@@ -34,10 +34,10 @@ major Lunar Extreme for a given year, based upon
 obliquity estimation and corrected average parallax.
 }
 \examples{
-# Southern major Lunar Extreme geocentric declination for year 2499 BC:
+# Southern major Lunar Extreme geocentric declination for year 2501 BC:
 sMjLX(-2500)
 
-# Topocentric declination for same year and latitude of 50ºN:
+# Topocentric declination for same year and latitude of 50 degrees N:
 sMjLX(-2500, loc=50)
 }
 \seealso{

@@ -4,10 +4,19 @@
 \alias{plot.skyscapeR.horizon}
 \title{Plot horizon data}
 \usage{
-\method{plot}{skyscapeR.horizon}(hor, show.az = F, xlim, ylim, obj, refraction = F)
+\method{plot}{skyscapeR.horizon}(
+  x,
+  show.az = F,
+  xlim,
+  ylim,
+  obj,
+  refraction = F,
+  col.ground = "#fdae61",
+  ...
+)
 }
 \arguments{
-\item{hor}{Object of \emph{skyscapeR.horizon} format.}
+\item{x}{Object of \emph{skyscapeR.horizon} format.}
 
 \item{show.az}{(Optional) Boolean that controls whether to display azimuth values or cardinal
 directions. Defaults to FALSE.}
@@ -19,8 +28,12 @@ directions. Defaults to FALSE.}
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
 for displaying the paths of celestial objects.}
 
-\item{refraction}{(Optional) Wheter to take refraction into account when displayingisplaying
-the paths of celestial objects.}
+\item{refraction}{(Optional) Boolean switch controlling whether to take refraction into account
+when displaying the paths of celestial objects.}
+
+\item{col.ground}{(Optional) Color of the ground. Defaults to \emph{#fdae61}.}
+
+\item{...}{Additional arguments to be passed to \emph{plot}.}
 }
 \description{
 This function creates a plot of horizon data.

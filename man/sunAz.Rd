@@ -13,18 +13,18 @@ containing the latitude, longitude and elevation of location, in this order.}
 \item{time}{String containing the date and time in the following format:
 "YYYY-MM-DD HH:MM:SS"}
 
-\item{timezone}{Timezone of input either as a known acronym (eg. "GMT", "CET") or
-a string with continent followed by country capital (eg. "Europe/London").}
+\item{timezone}{Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+a string with continent followed by country capital (e.g. "Europe/London").}
 
 \item{limb}{(Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
-If missing the centre of the sun will be output.}
+If missing the center of the sun will be output.}
 
 \item{alt}{(Optional) Boolean that triggers output of altitude of the sun at exact time.
 Default is FALSE.}
 }
 \description{
 This function returns the azimuth of the sun at a given time and location,
-useful for data reduction of theodolite measurements using the sunsight
+useful for data reduction of theodolite measurements using the sun-sight
 technique (\code{\link{reduct.theodolite}}).
 }
 \examples{

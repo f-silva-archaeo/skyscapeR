@@ -1,5 +1,5 @@
 
-#' Create .\emph{skyscapeR.horizon} object from Az/Alt data
+#' Create \emph{skyscapeR.horizon} object from Az/Alt data
 #'
 #' This function creates a \emph{skyscapeR.horizon} object from measurements of
 #' azimuth and altitude.
@@ -62,18 +62,20 @@ createHor <- function(az, alt, alt.unc=0.5, loc, name='', smooth=F, .scale=1000)
 #' from one in \emph{skyscapeR.horizon} object.
 #' @param author (Optional) Author, to be included in \emph{landscape.ini} file.
 #' @param description (Optional) Description, to be included in \emph{landscape.ini} file.
-#' @param ground_col Colour of ground. Defaults to \emph{Stellarium}'s default.
-#' @param hor_col Colour of horizon line. Defaults to \emph{Stellarium}'s default.
+#' @param ground_col Color of ground. Defaults to \emph{Stellarium}'s default.
+#' @param hor_col Color of horizon line. Defaults to \emph{Stellarium}'s default.
 #' @seealso \code{\link{createHor}}, \code{\link{downloadHWT}}, \code{\link{plot.skyscapeR.horizon}}
-#' @references \href{http://www.stellarium.org/}{Stellarium: a free open source planetarium}
+#' @references \href{https://stellarium.org/}{Stellarium: a free open source planetarium}
 #' @export
 #' @import utils
 #' @examples
 #' # Downloads horizon data from HeyWhatsThat and exports it into Stellarium:
+#' \dontrun{
 #' hor <- downloadHWT('HIFVTBGK')
 #' exportHor(hor, name='Test', description='Test horizon export to Stellarium')
+#' }
 exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor_col) {
-  if (class(hor) != 'skyscapeR.horizon') { stop('No skyscapeR.horizon object found.') }
+  if (class(hor)[1] != 'skyscapeR.horizon') { stop('No skyscapeR.horizon object found.') }
 
   if (missing(name)) { name = hor$name }
   if (missing(description)) { description <- paste0("Horizon created using skyscapeR ", packageVersion('skyscapeR'), ".") }
@@ -209,10 +211,10 @@ downloadHWT <- function(HWTID) {
 #' @param lat The latitude of the location.
 #' @param lon The longitude of the location.
 #' @param elevation (Optional) The elevation of the observer above
-#' ground level in metres. Default is 1.6 metres (eye level).
+#' ground level in meters. Default is 1.6 meters (eye level).
 #' @param name (Optional) Name for horizon.
 #' @param src (Optional) Request source ID for \emph{HeyWhatsThat}. Default is
-#'  'skyscapeR'. Only change this if you have ben given a source ID by the
+#'  'skyscapeR'. Only change this if you have been given a source ID by the
 #'  creator of \emph{HeyWhatsThat}.
 #' @param verbose (Optional) Boolean switch to control output. Default is \emph{TRUE}.
 #' @export
@@ -221,7 +223,7 @@ downloadHWT <- function(HWTID) {
 #' @seealso \code{\link{downloadHWT}}
 #' @examples
 #' \dontrun{
-#' # Create and retrive horizon data for the London Mithraeum:
+#' # Create and retrieve horizon data for the London Mithraeum:
 #' hor <- createHWT(lat=ten(51,30,45), lon=ten(0,5,26.1), name='London Mithraeum')
 #' }
 createHWT <- function(lat, lon, elevation=1.6, name, src='skyscapeR', verbose=T) {
@@ -244,4 +246,31 @@ createHWT <- function(lat, lon, elevation=1.6, name, src='skyscapeR', verbose=T)
   hor$metadata$name <- name
   if (verbose) { cat('Done.\n') }
   return(hor)
+}
+
+
+#' Retrieves horizon altitude for a given azimuth from a given horizon profile
+#'
+#' This function retrieves the horizon altitude for a given azimuth from
+#' a previously created \emph{skyscapeR.horizon} object via spline interpolation.
+#' @param hor A \emph{skyscapeR.horizon} object from which to retrieve horizon altitude.
+#' @param az Array of azimuth(s) for which to retrieve horizon altitude(s).
+#' @param return.unc (Optional) Boolean switch control where to output altitude uncertainty.
+#' Default is \emph{FALSE}.
+#' @export
+#' @import stats
+#' @seealso \code{\link{createHor}}, \code{\link{downloadHWT}}
+#' @examples
+#' hor <- downloadHWT('HIFVTBGK')
+#' hor2alt(hor, 90)
+hor2alt = function(hor, az, return.unc=F) {
+  hh <- splinefun(hor$data$az, hor$data$alt)
+  alt <- round(hh(az), 2)
+  if (return.unc) {
+    hh <- splinefun(hor$data$az, hor$data$alt.unc)
+    unc <- round(hh(az), 2)
+    alt[2] <- unc
+  }
+
+  return(alt)
 }

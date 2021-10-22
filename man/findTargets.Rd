@@ -2,25 +2,42 @@
 % Please edit documentation in R/data-analysis.R
 \name{findTargets}
 \alias{findTargets}
-\title{Function to find celestial targets within declination and time ranges}
+\title{Find celestial targets within declination and time ranges}
 \usage{
-findTargets(decrange, timerange, nstars = 100, loc = FALSE)
+findTargets(
+  decrange,
+  timerange,
+  max.mag = 2.5,
+  loc = FALSE,
+  calendar = skyscapeR.env$calendar
+)
 }
 \arguments{
 \item{decrange}{Range of declination to consider.}
 
 \item{timerange}{Temporal range to consider}
 
-\item{nstars}{(Optional) NUmber of stars to consider i ndescending order of apparent
-magnitude. Defaults to 100.}
+\item{max.mag}{(Optional) Maximum magnitude of stars to consider. Defaults to 2.5}
 
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
 containing the latitude, longitude and elevation of location, in this order. Defaults
-to FALSE, thus checking only geocentric declinations.}
+to FALSE, thus checking only geocentric declination.}
+
+\item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 }
 \description{
-Function to find celestial targets within declination and time ranges
+Find celestial targets within declination and time ranges
 }
 \examples{
-findTargets(c(-35,-32), c(-2500,-1750))
+\dontrun{
+findTargets(c(-25,-17.5), c(-2500,-1750))
+
+# if a location is given then the zenith and anti-zenith sun will also be looked at:
+findTargets(c(3,12), c(-2500,-1750), loc=c(8.6, 7.3, 200))
+
+# if a horizon profile is given then the spatial equinox will also be looked at:
+hor <- downloadHWT('J657KVEV')
+findTargets(c(-7,2), c(-2500,-1750), loc=hor)
+}
 }

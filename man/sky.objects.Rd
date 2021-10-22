@@ -19,7 +19,7 @@ respectively. Alternatively, custom declination values can also be used.}
 \item{loc}{(Optional) This can be either a vector with the latitude and longitude of the
 location, or a \emph{skyscapeR.horizon} object.}
 
-\item{col}{(Optional) The colour for plotting, and differentiating these objects.
+\item{col}{(Optional) The color for plotting, and differentiating these objects.
 Defaults to red for all objects.}
 
 \item{lty}{(Optional) Line type (see \code{\link{par}}) used for differentiation.
@@ -34,7 +34,6 @@ plot celestial objects/events unto the many plotting functions of \emph{skyscape
 package.
 }
 \examples{
-\dontrun{
 # Create a object with solar targets for epoch range 4000-2000 BC:
 tt <- sky.objects('solar extremes', c(-4000,-2000))
 
@@ -44,5 +43,4 @@ col=c('white', 'red', 'orange'))
 
 # Create an object with solstices and a custom declination value:
 tt <- sky.objects(c('December Solstice','June Solstice', -13), c(-4000,-2000))
-}
 }

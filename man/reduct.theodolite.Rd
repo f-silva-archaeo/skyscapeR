@@ -29,13 +29,13 @@ decimal point format if necessary.}
 
 \item{time}{Time of sun-sight measurement in the format: 'HH:MM:SS'}
 
-\item{tz}{Timezone of input wither as a known acronym (eg. "GMT", "CET") or
-a string with continent followed by country capital (eg. "Europe/London").}
+\item{tz}{Timezone of input wither as a known acronym (e.g. "GMT", "CET") or
+a string with continent followed by country capital (e.g. "Europe/London").}
 
 \item{az.sun}{(Optional) Measured azimuth of the sun. Defaults to zero.}
 
 \item{limb}{(Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
-If missing the centre of the sun will be used for calculations.}
+If missing the center of the sun will be used for calculations.}
 
 \item{alt}{(Optional) Altitude, necessary for automatic declination calculation.
 If missing and \emph{loc} is a \emph{skyscapeR.horizon} object then the altitude
@@ -50,7 +50,7 @@ horizon profile for measurement.}
 }
 \description{
 This function calculates the true azimuth of a structure measured with
-a theodolite using the sunsight technique.
+a theodolite using the sun-sight technique.
 }
 \examples{
 lat <- ten(35,50,37.8)

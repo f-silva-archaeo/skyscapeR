@@ -20,7 +20,7 @@ If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 \item{atm}{(Optional) Atmospheric pressure for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
+\item{temp}{(Optional) Atmospheric temperature for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 }
 \description{
@@ -29,7 +29,7 @@ object from any location on earth. It outputs a \emph{skyscapeR.orbit}
 object, which includes AZ and ALT information.
 }
 \examples{
-# Visible path of sun on June Solstice on year 3999 BC from London:
+# Visible path of sun on june solstice on year 3999 BC from London:
 sun.dec <- jS(-4000)
 london.lat <- 51.5074 #N
 london.lon <- -0.1278 #W

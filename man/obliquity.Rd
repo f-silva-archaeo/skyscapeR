@@ -4,11 +4,11 @@
 \alias{obliquity}
 \title{Computes obliquity of the ecliptic}
 \usage{
-obliquity(year = cur.year)
+obliquity(year = skyscapeR.env$cur.year)
 }
 \arguments{
 \item{year}{Year for which to calculate the obliquity.
-Defaults to present year as given by Sys.Date()}
+Defaults to present year as given by \emph{Sys.Date}}
 }
 \description{
 This function calculates the obliquity for a given epoch. It is a

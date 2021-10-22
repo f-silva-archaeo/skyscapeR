@@ -2,7 +2,7 @@
 % Please edit documentation in R/horizon.R
 \name{createHor}
 \alias{createHor}
-\title{Create .\emph{skyscapeR.horizon} object from Az/Alt data}
+\title{Create \emph{skyscapeR.horizon} object from Az/Alt data}
 \usage{
 createHor(az, alt, alt.unc = 0.5, loc, name = "", smooth = F, .scale = 1000)
 }

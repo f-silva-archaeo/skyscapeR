@@ -4,15 +4,10 @@
 \alias{star}
 \title{Create \emph{skyscapeR.star} object}
 \usage{
-star(string, year = cur.year)
+star(string, year = skyscapeR.env$cur.year)
 }
 \arguments{
-\item{string}{This can be either: 1) the common name for the star,
-2) the Hipparchos catalogue number (if string begins with HIP),
-3) the Bright Star Catalogue number (if string begins with HR),
-4) the Messier catalogue number (if string begins with M), or
-5) the Bayer designation (if string has exactly 5 characters,
- the second of which is a space).}
+\item{string}{This can be either the traditional name for the star or its Bayer designation.}
 
 \item{year}{Year for which to calculate the coordinates.
 Defaults to current year.}
@@ -26,12 +21,8 @@ used by other skyscapeR package function.
 # Retrieve data for Aldebaran:
 Aldeb <- star('Aldebaran')
 
-# Retrieve data for the Pleiades (M45):
-P1 <- star('Pleiades')
-P2 <- star('M45')
-
-# Retrieve data for Sirius on 2999 BC:
-ss <- star('Sirius', -3000)
+# Retrieve data for Aldebaran on 2999 BC:
+ss <- star('Aldebaran', -3000)
 }
 \seealso{
 \code{\link[swephR]{swe_fixstar2_ut}}, \code{\link[swephR]{swe_fixstar2_mag}}

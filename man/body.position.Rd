@@ -24,8 +24,8 @@ any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 
 \item{time}{Either a string containing the date and time in the format "YYYY/MM/DD HH:MM:SS"
 (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).}
 
-\item{timezone}{(Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
-a string with continent followed by country capital (eg. "Europe/London"). See
+\item{timezone}{(Optional) Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+a string with continent followed by country capital (e.g. "Europe/London"). See
 \link{timezones} for details. Only needed if \emph{time} is a string. #' If not given the value set
 by \code{\link{skyscapeR.vars}} will be used instead.}
 
@@ -43,7 +43,7 @@ If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 \item{atm}{(Optional) Atmospheric pressure for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
+\item{temp}{(Optional) Atmospheric temperature for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}

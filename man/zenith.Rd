@@ -27,10 +27,10 @@ outside the tropical band) the function returns a
 # Zenith sun declination for Mexico City:
 zenith(19.419)
 
-# There is no zenith sun phenomena in London:
+# There is no zenith sun phenomenon in London:
 zenith(51.507)
 }
 \seealso{
 \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}},
-\code{\link{antizenith}}, \code{\link{parallax.corr}}
+\code{\link{antizenith}}, \code{\link{spatial.equinox}}, \code{\link{parallax.corr}}
 }

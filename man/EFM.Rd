@@ -29,7 +29,7 @@ two values (range of years), or a vector of years.}
 \item{loc}{This can be either a \emph{skyscapeR.horizon} object, or a vector with the
 latitude, longitude and elevation of the site, in this order.}
 
-\item{min.phase}{(Optional) Minimun lunar phase (between 0 and 1) for which a
+\item{min.phase}{(Optional) Minimum lunar phase (between 0 and 1) for which a
 moon is considered to be full. Defaults to 0.99.}
 
 \item{refraction}{(Optional) Boolean for whether or not atmospheric refraction should be taken into account.
@@ -42,13 +42,13 @@ Default is 1013.25 mbar.}
 Default is 15 degrees.}
 
 \item{timezone}{(Optional) Timezone for output of rising and setting time either as a known acronym
-(eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
+(e.g. "GMT", "CET") or a string with continent followed by country capital (e.g. "Europe/London"). See
 \link{timezones} for details. Defaults to system timezone.}
 
 \item{calendar}{(Optional) Calendar used to output dates. G for gregorian and J for julian. Defaults to \emph{Gregorian}.}
 }
 \description{
-This function calculates the date, rise/set times, azimuths and declinations
+This function calculates the date, rise/set times, azimuth and declination
 for sun and moon on the days of the Spring Full Moon (SFM) and Autumn Full
 Moon (AFM), for a given year and location.
 }
@@ -56,6 +56,8 @@ Moon (AFM), for a given year and location.
 # Spring Full Moon from a location in Portugal in the year 2018
 EFM(year=2018, loc=c(35,-8,100))
 
-# Autumn Full Moons in the last ten years
-EFM(season='autumn', year=c(2009,2019), loc=c(35,-8,100))
+# Autumn Full Moons in the last three years
+\dontrun{
+EFM(season='autumn', year=c(2019,2021), loc=c(35,-8,100))
+}
 }

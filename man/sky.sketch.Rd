@@ -14,7 +14,7 @@ sky.sketch(
   moon = T,
   planets = F,
   exagerate = T,
-  nstars = 1000,
+  max.mag = 6,
   loc,
   atm,
   temp
@@ -24,9 +24,9 @@ sky.sketch(
 \item{time}{Either a string containing the date and time in the format "YYYY-MM-DD HH:MM:SS"
 (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).}
 
-\item{timezone}{(Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
-a string with continent followed by country capital (eg. "Europe/London"). See
-\link{timezones} for details. Only needed if \emph{time} is a string. #' If not given the value set
+\item{timezone}{(Optional) Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+a string with continent followed by country capital (e.g. "Europe/London"). See
+\link{timezones} for details. Only needed if \emph{time} is a string. If not given the value set
 by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
@@ -42,10 +42,10 @@ Only needed if \emph{time} is a string. If not given the value set by \code{\lin
 
 \item{planets}{(Optional) Boolean on whether the visible planets should be displayed. Defaults to \emph{FALSE}.}
 
-\item{exagerate}{(Optional) Boolean on whether the size of the sun, moon and planets should be exagerated,
-which can be usedful when attempting wider viewing angles. Defaults to \emph{TRUE}.}
+\item{exagerate}{(Optional) Boolean on whether the size of the sun, moon and planets should be exaggerated,
+which can be useful when attempting wider viewing angles. Defaults to \emph{TRUE}.}
 
-\item{nstars}{(Optional) Number of stars to display. Defaults to \emph{1000}.}
+\item{max.mag}{(Optional) Maximum magnitude of stars to consider. Default is 6.}
 
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
 containing the latitude and longitude of location, in this order.}
@@ -53,7 +53,7 @@ containing the latitude and longitude of location, in this order.}
 \item{atm}{(Optional) Atmospheric pressure for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
+\item{temp}{(Optional) Atmospheric temperature for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 }
 \description{

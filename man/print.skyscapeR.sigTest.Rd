@@ -4,14 +4,16 @@
 \alias{print.skyscapeR.sigTest}
 \title{Prints significance test results}
 \usage{
-\method{print}{skyscapeR.sigTest}(x)
+\method{print}{skyscapeR.sigTest}(x, ...)
 }
 \arguments{
 \item{x}{Object of \emph{skyscapeR.sigTest} format.}
+
+\item{...}{Additional arguments to be passed to \emph{print}.}
 }
 \description{
-This function prints the results of \code{\link{sigTest}}.
+This function prints the results of \code{\link{randomTest}}.
 }
 \seealso{
-\code{\link{sigTest}}
+\code{\link{randomTest}}
 }

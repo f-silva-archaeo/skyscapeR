@@ -2,10 +2,10 @@
 
 #' Converts date and time (in any timezone) to Julian date
 #'
-#' @param time String containing the date and time in the format "YYYYY/MM/DD HH:MM:SS". BCE dates
+#' @param time String containing the date and time in the format "YYYY/MM/DD HH:MM:SS". BCE dates
 #' should use negative sign. Use \code{\link{timestring}} if needed.
-#' @param timezone (Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
-#' a string with continent followed by country capital (eg. "Europe/London"). See
+#' @param timezone (Optional) Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+#' a string with continent followed by country capital (e.g. "Europe/London"). See
 #' \code{\link{timezones}} for details. Default is the system timezone
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' Defaults to \emph{Gregorian}.
@@ -16,7 +16,7 @@
 #' \code{\link{timestring}}
 #' @examples
 #' # Julian date at noon GMT on Christmas day 2018
-#' time2jd('2018-12-25 12:00:00', 'GMT')
+#' time2jd('2018/12/25 12:00:00', 'GMT')
 time2jd <- function(time, timezone, calendar, verbose=F) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
   if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
@@ -59,8 +59,8 @@ time2jd <- function(time, timezone, calendar, verbose=F) {
 #' Converts Julian date and time (in any timezone) to julian date
 #'
 #' @param jd Julian date in numeric format
-#' @param timezone (Optional) Desired timezone for output either as a known acronym (eg. "GMT", "CET") or
-#' a string with continent followed by country capital (eg. "Europe/London"). See
+#' @param timezone (Optional) Desired timezone for output either as a known acronym (e.g. "GMT", "CET") or
+#' a string with continent followed by country capital (e.g. "Europe/London"). See
 #' \code{\link{timezones}} for details. Default is system timezone.
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' Only needed if \emph{time} is a string. Defaults to \emph{Gregorian}.
@@ -69,7 +69,7 @@ time2jd <- function(time, timezone, calendar, verbose=F) {
 #' @export
 #' @seealso \code{\link[swephR]{swe_julday}}, \code{\link{as.POSIXlt}}, \code{\link{timezones}}
 #' @examples
-#' jd <- time2jd('2018-12-25 12:00:00', 'GMT') # Julian date at noon GMT on Christmas day 2018
+#' jd <- time2jd('2018/12/25 12:00:00', 'GMT') # Julian date at noon GMT on Christmas day 2018
 #' jd2time(jd, 'CET') # converts julian date to Central European timezone
 jd2time <- function(jd, timezone, calendar, verbose=F) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
@@ -144,15 +144,15 @@ long.date <- function(date){
 findWS <- function(year, calendar) {
   if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
 
-  jd0 <- swephR::swe_julday(year, 1, 1, 12, 12)
+  jd0 <- swephR::swe_julday(year, 1, 1, 12, 1)
   jd <- seq(jd0, jd0+365, length.out = 365*24)
   dec <- swephR::swe_calc_ut(jd, 0, 2048)$xx[,2]
   ind <- which.min(dec)
 
   aux <- jd2time(jd[ind], calendar=calendar)
-  ind <- which(strsplit(aux, "")[[1]]==" ")
+  ind2 <- which(strsplit(aux, "")[[1]]==" ")
 
-  return(list(ind=ind, date=substr(aux,1,ind-1), jd=jd[ind]))
+  return(list(ind=round(ind/24,0)+1, date=substr(aux,1,ind2-1), jd=jd[ind]))
 }
 
 
@@ -168,7 +168,9 @@ calWS <- function(WS) {
 
 
 #' @noRd
-dd.to.DD <- function(day, char=F) {
+dd.to.DD_unvec <- function(day, char=F, WS=F) {
+  if (WS==T) { day <- day-11 }
+  if (day<=0) { day <- day+ 365 }
   if (char==F) {
     out <- matrix(NA, nrow=length(day), ncol=2)
   } else { out <- c() }
@@ -194,14 +196,35 @@ dd.to.DD <- function(day, char=F) {
   }
   return(out)
 }
-
 #' @noRd
+dd.to.DD <- Vectorize(dd.to.DD_unvec, 'day')
+
+
+#' Converts year number (epoch) to calendar year
+#'
+#' @param year year number
+#' @export
+#' @examples
+#' BC.AD(100)
+#' BC.AD(0)
+#' BC.AD(-1)
+#' BC.AD(-99)
+#' BC.AD(-100)
 BC.AD <- function(year) {
   out <- year
-  ind <- which(year<0); out[ind] <- paste(abs(year[ind]+1), 'BC')
+  ind <- which(year<=0); out[ind] <- paste(abs(year[ind]-1), 'BC')
   ind <- which(year>0); out[ind] <- paste(abs(year[ind]), 'AD')
-  ind <- which(year==0); out[ind] <- paste(abs(year[ind]+1), 'BC')
   return(out)
+}
+
+
+#' @noRd
+day <- function(date, as.char=F) {
+  ind1 <- which(strsplit(date, "")[[1]]=="/")
+  ind2 <- which(strsplit(date, "")[[1]]==" "); if (length(ind2)==0) { ind2 <- length(date)+1 }
+  aux <- substr(date,ind1[2]+1,ind2-1)
+  if (!as.char) { aux <- as.numeric(aux) }
+  return(aux)
 }
 
 
@@ -209,6 +232,15 @@ BC.AD <- function(year) {
 month <- function(date, as.char=F) {
   ind <- which(strsplit(date, "")[[1]]=="/")
   aux <- substr(date,ind[1]+1,ind[2]-1)
+  if (!as.char) { aux <- as.numeric(aux) }
+  return(aux)
+}
+
+
+#' @noRd
+year <- function(date, as.char=F) {
+  ind <- which(strsplit(date, "")[[1]]=="/")
+  aux <- substr(date,1,ind[1]-1)
   if (!as.char) { aux <- as.numeric(aux) }
   return(aux)
 }

@@ -41,7 +41,7 @@ containing the latitude, longitude and elevation of location, in this order.}
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{timezone}{(Optional) Timezone for output of rising and setting time either as a known acronym
-(eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
+(e.g. "GMT", "CET") or a string with continent followed by country capital (e.g. "Europe/London"). See
 \link{timezones} for details. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
 \item{dec}{(Optional) Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
@@ -53,8 +53,8 @@ If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 \item{atm}{(Optional) Atmospheric pressure for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{temp}{(Optional) Atmospheric temprature for erfraction calculation.
-If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.}
+\item{temp}{(Optional) Atmospheric temperature for refraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#'}
 
 \item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 }
@@ -73,8 +73,10 @@ riseset('moon', '2018/06/21', loc=hor)
 # Rising and setting of the sun throughout February 1999, from the location of London
 riseset('sun', '1999/02', loc=c(51.5, 0.11, 100))
 
-# Rising and setting of the sun throughout 3000 BC, from the location of London
+\dontrun{
+# Rising and setting of the sun throughout 3001 BC, from the location of London
 riseset('sun', -3000, loc=c(51.5, 0.11, 100))
+}
 }
 \seealso{
 \code{\link[swephR]{swe_calc_ut}}, \code{\link[swephR]{swe_azalt}}

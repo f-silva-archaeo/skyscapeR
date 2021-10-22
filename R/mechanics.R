@@ -1,5 +1,3 @@
-cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
-
 #' Calculates declination from azimuth and altitude measurements
 #'
 #' This function calculates the declination corresponding to an
@@ -11,64 +9,68 @@ cur.year <- as.numeric(format(Sys.Date(), "%Y")) # current year
 #' @param az Azimuth(s) for which to calculate declination(s). See examples below.
 #' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
 #' an array of latitude values.
-#' @param alt Altitude of orientation. Optional, if left empty and a skyscapeR.object
+#' @param alt (Optional) Altitude of orientation. If left empty and a \emph{skyscapeR.horizon}
 #' is provided then this is will automatically retrieved from the horizon data via \code{\link{hor2alt}}
+#' @param refraction (Optional) Whether atmospheric refraction is to be taken into account.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param atm (Optional) Atmospheric pressure for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param temp (Optional) Atmospheric temperature for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @import swephR
 #' @export
 #' @seealso \code{\link[swephR]{swe_azalt_rev}}, \code{\link{hor2alt}}
 #' @examples
-#' hor <- downloadHWT('HIFVTBGK')
+#' dec <- az2dec(az=92, loc=c(35,-8), alt=2)
 #'
-#' dec <- az2dec(92, hor)
-#' dec <- az2dec(92, hor, alt=4)
+#' # flat horizon with 2 degrees of altitude
+#' hor <- createHor(az=c(0,360), alt=c(2,2), loc=c(35,-8,25))
+#' dec <- az2dec(92, loc=hor)
 #'
 #' # Can also be used for an array of azimuths:
-#' decs <- az2dec( c(87,92,110), hor )
-az2dec = function(az, loc, alt){
-  if (missing(alt) & class(loc) == 'skyscapeR.horizon') { alt <- hor2alt(hor, az)[,1] }
-  if (class(loc) != 'skyscapeR.horizon') {
-    hor <- c()
-    if (length(loc) < length(az) & length(loc)==2) { hor$metadata$georef <- matrix(rep(loc,NROW(az)), ncol=3, byrow=T)}
-    if (length(loc) < length(az) & length(loc)==1) { hor$metadata$georef <- matrix(rep(c(loc,0),NROW(az)), ncol=3, byrow=T)}
-    if (length(loc) == length(az)) { hor$metadata$georef <- cbind(loc, 0) }
-    if (length(loc) == 3*NROW(az)) { hor$metadata$georef <- loc; dim(hor$metadata$georef) <- c(NROW(az),3) }
-  } else { hor <- loc }
-
-  if (length(alt) == 1 & length(az) > 1) { alt <- rep(alt, NROW(az)) }
-
+#' decs <- az2dec(az=c(87,92,110), loc=hor)
+az2dec = function(az, loc, alt, refraction=skyscapeR.env$refraction, atm=skyscapeR.env$atm, temp=skyscapeR.env$temp){
+  jd <- swephR::swe_julday(2000,1,1,12,1)
   prec <- max(nchar(sub('.*\\.', '', as.character(az))))
+
+  if (missing(alt)) {
+    if (class(loc)[1] == 'skyscapeR.horizon') {
+      alt <- hor2alt(loc, az)
+    } else if (class(loc)[1] == 'list') {
+      alt <- c()
+      for (i in 1:NROW(loc)) {
+        alt[i] <- hor2alt(loc[[i]], az)
+      }
+    } else { stop('Altitude missing.') } }
+
+  if (length(alt) == 1) { alt <- rep(alt, NROW(az)) }
+
+  if (class(loc)[1] == 'skyscapeR.horizon') { georefs <- loc$metadata$georef; georefs <- matrix(georefs, ncol=3, nrow=NROW(az), byrow=T) }
+  if (class(loc)[1] == 'list') {
+    georefs <- matrix(NA, ncol=3, nrow=NROW(loc))
+    for (i in 1:NROW(loc)) { georefs[i,] <- loc[[i]]$metadata$georef } }
+  if (class(loc)[1] == 'numeric') {
+    georefs <- matrix(NA, ncol=3, nrow=NROW(loc))
+    for (i in 1:NROW(loc)) { georefs[i,] <- c(loc[i],0,0) }
+  }
+  if (class(loc)[1] == 'matrix') {
+    georefs <- matrix(NA, ncol=3, nrow=NROW(loc))
+    for (i in 1:NROW(loc)) {
+      if (dim(loc)[2]==2) { georefs[i,] <- c(loc[i,1], loc[i,2], 0) }
+      if (dim(loc)[2]==3) { georefs[i,] <- loc[i,] }
+    }
+  }
 
   dec <- c()
   for (i in 1:NROW(az)) {
-    dec[i] <- round( swephR::swe_azalt_rev(jd, 1, c(hor$metadata$georef[2],hor$metadata$georef[1],0), c(az[i]-180, alt[i]))$xout[2], prec)
+    georef <- georefs[i,]
+    if (refraction) {
+      alt[i] <- alt[i] - (swephR::swe_refrac_extended(alt[i], georef[3], atm, temp, 0, 0)$return - alt[i])
+    }
+    dec[i] <- round( swephR::swe_azalt_rev(jd, 1, c(georef[2],georef[1],georef[3]), c(az[i]-180, alt[i]))$xout[2], prec)
   }
 
   return(dec)
-}
-
-#' Estimates magnetics declination (diff. between true and magnetic
-#' north) based on IGRF 12th gen model
-#'
-#' This function estimates the magnetic declination at a given location
-#' and moment in time, using the \emph{12th generation International
-#' Geomagnetic Reference Field (IGRF)} model. This function is a wrapper
-#' for function \code{\link[oce]{magneticField}} of package \emph{oce}.
-#' @param loc Location, can be either a \emph{skyscapeR.horizon} object or, alternatively,
-#' a latitude.
-#' @param date Date for which to calculate magnetic declination in the format: 'YYYY/MM/DD'
-#' @export
-#' @seealso \code{\link[oce]{magneticField}}
-#' @examples
-#' # Magnetic Declination for London on April 1st 2016:
-#' london.lat <- 51.5074 #N
-#' london.lon <- -0.1278 #W
-#' loc <- c( london.lat, london.lon )
-#' mag.dec( loc, "2016/04/01" )
-mag.dec = function(loc, date) {
-  if (class(loc) == 'skyscapeR.horizon') { loc <- loc$metadata$georef }
-  if (is.null(dim(loc))) { dim(loc) <- c(1,NROW(loc)) }
-  aux <- oce::magneticField(loc[,2], loc[,1], as.POSIXlt(date, format="%Y/%m/%d"))$declination
-  return(aux)
 }
 
 
@@ -78,7 +80,7 @@ mag.dec = function(loc, date) {
 #' This function calculates the obliquity for a given epoch. It is a
 #' wrapper for function \code{\link[swephR]{swe_calc_ut}} of package \emph{swephR}.
 #' @param year Year for which to calculate the obliquity.
-#' Defaults to present year as given by Sys.Date()
+#' Defaults to present year as given by \emph{Sys.Date}
 #' @import swephR
 #' @export
 #' @seealso \code{\link[swephR]{swe_calc_ut}}
@@ -88,7 +90,7 @@ mag.dec = function(loc, date) {
 #' @examples
 #' #' # Obliquity for year 3999 BC:
 #' obliquity(-4000)
-obliquity = function(year = cur.year) {
+obliquity = function(year = skyscapeR.env$cur.year) {
   aux <- c()
   for (i in 1:length(year)) {
     jd <- swephR::swe_julday(year[i],1,1,12,1)
@@ -111,12 +113,16 @@ body.position.unvec = function(obj='sun', time, timezone, calendar, dec, loc = N
   coords.eq <- data.frame(RA=NA, Dec=NA)
   if (!nohoriz) { coords.hor <- data.frame(az=NA, alt=NA) }
 
-  if (class(time)=='character') { jd <- time2jd(time, timezone, calendar) } else { jd <- time }
+  if (class(time)[1]=='character') {
+    checkYear(year(time))
+    jd <- time2jd(time, timezone, calendar)
+    } else { jd <- time }
   if (dec == 'geo') {
+    aux <- swephR::swe_calc_ut(jd, body, 2048)
     coords.eq[1,] <- swephR::swe_calc_ut(jd, body, 2048)$xx[1:2]
 
   } else if (dec == 'topo') {
-    if (class(loc)=='skyscapeR.horizon') { loc <- loc$georef }
+    if (class(loc)[1]=='skyscapeR.horizon') { loc <- loc$georef }
     swephR::swe_set_topo(loc[2],loc[1],loc[3])
     coords.eq[1,] <- swephR::swe_calc_ut(jd, body, 2048+32*1024+16)$xx[1:2]
   }
@@ -152,8 +158,8 @@ body.position.vec <- Vectorize(body.position.unvec, 'time', SIMPLIFY = FALSE)
 #' any of the planets (inc. Pluto), the Moon, the Sun or the Ecliptic. Defaults to 'sun'.
 #' @param time Either a string containing the date and time in the format "YYYY/MM/DD HH:MM:SS"
 #'  (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).
-#' @param timezone (Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
-#' a string with continent followed by country capital (eg. "Europe/London"). See
+#' @param timezone (Optional) Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+#' a string with continent followed by country capital (e.g. "Europe/London"). See
 #' \link{timezones} for details. Only needed if \emph{time} is a string. #' If not given the value set
 #' by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
@@ -165,7 +171,7 @@ body.position.vec <- Vectorize(body.position.unvec, 'time', SIMPLIFY = FALSE)
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param atm (Optional) Atmospheric pressure for refraction calculation.
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
-#' @param temp (Optional) Atmospheric temprature for erfraction calculation.
+#' @param temp (Optional) Atmospheric temperature for refraction calculation.
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @import swephR
@@ -204,8 +210,8 @@ body.position <- function(obj='sun', time, timezone, calendar, dec, loc=NULL, re
 #' for function \code{\link[swephR]{swe_pheno_ut}} of package \emph{swephR}.
 #' @param time Either a string containing the date and time in the format "YYYY-MM-DD HH:MM:SS"
 #'  (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).
-#' @param timezone (Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
-#' a string with continent followed by country capital (eg. "Europe/London"). See
+#' @param timezone (Optional) Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+#' a string with continent followed by country capital (e.g. "Europe/London"). See
 #' \link{timezones} for details. Only needed if \emph{time} is a string. Defaults to system timezone.
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' Only needed if \emph{time} is a string. Defaults to Gregorian.
@@ -221,7 +227,7 @@ moonphase <- function(time, timezone, calendar) {
 
   aux <- c()
   for (i in 1:length(time)) {
-    if (class(time)=='character') { jd <- time2jd(time[i], timezone, calendar) } else { jd <- time[i] }
+    if (class(time)[1]=='character') { jd <- time2jd(time[i], timezone, calendar) } else { jd <- time[i] }
     aux[i] <- swephR::swe_pheno_ut(jd, 1, 0)$attr[2]
   }
 
@@ -244,7 +250,7 @@ moonphase <- function(time, timezone, calendar) {
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param alt (Optional) The altitude of the horizon to consider. Defaults to zero degrees.
 #' @param timezone (Optional) Timezone for output of rising and setting time either as a known acronym
-#' (eg. "GMT", "CET") or a string with continent followed by country capital (eg. "Europe/London"). See
+#' (e.g. "GMT", "CET") or a string with continent followed by country capital (e.g. "Europe/London"). See
 #' \link{timezones} for details. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude, longitude and elevation of location, in this order.
@@ -254,8 +260,8 @@ moonphase <- function(time, timezone, calendar) {
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param atm (Optional) Atmospheric pressure for refraction calculation.
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
-#' @param temp (Optional) Atmospheric temprature for erfraction calculation.
-#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
+#' @param temp (Optional) Atmospheric temperature for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.#'
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @import swephR
 #' @export
@@ -271,8 +277,10 @@ moonphase <- function(time, timezone, calendar) {
 #' # Rising and setting of the sun throughout February 1999, from the location of London
 #' riseset('sun', '1999/02', loc=c(51.5, 0.11, 100))
 #'
-#' # Rising and setting of the sun throughout 3000 BC, from the location of London
+#' \dontrun{
+#' # Rising and setting of the sun throughout 3001 BC, from the location of London
 #' riseset('sun', -3000, loc=c(51.5, 0.11, 100))
+#' }
 riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, refraction, atm, temp, verbose=T) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
   if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
@@ -285,7 +293,7 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
   out$object <- obj
   body <- checkbody(obj) ## TODO add stars
 
-  if (class(loc)=='skyscapeR.horizon') { hor <- loc; loc <- c(hor$metadata$georef, hor$metadata$elevation) }
+  if (class(loc)[1]=='skyscapeR.horizon') { hor <- loc; loc <- c(hor$metadata$georef, hor$metadata$elevation) }
 
   if (!missing(jd) & !missing(date)) { stop('Both date and JD were found, please provide only one.') }
 
@@ -301,7 +309,7 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
     jd0 <- time2jd(date, timezone, calendar)
   }
 
-  if (class(date)=='numeric') {
+  if (class(date)[1]=='numeric') {
     dat <- paste(date,'/01/01 00:00:00')
     jd0 <- time2jd(dat, timezone, calendar)
     jd <- seq(jd0, jd0+366, 1)
@@ -359,12 +367,12 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param atm (Optional) Atmospheric pressure for refraction calculation.
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
-#' @param temp (Optional) Atmospheric temprature for erfraction calculation.
+#' @param temp (Optional) Atmospheric temperature for refraction calculation.
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @import swephR
 #' @export
 #' @examples
-#' # Visible path of sun on June Solstice on year 3999 BC from London:
+#' # Visible path of sun on june solstice on year 3999 BC from London:
 #' sun.dec <- jS(-4000)
 #' london.lat <- 51.5074 #N
 #' london.lon <- -0.1278 #W
@@ -376,7 +384,7 @@ orbit = function(dec, loc, res=0.25, refraction, atm, temp) {
   if (missing(atm)) { atm <- skyscapeR.env$atm }
   if (missing(temp)) { temp <- skyscapeR.env$temp }
 
-  if (class(loc)=='skyscapeR.horizon') { loc <- loc$metadata$georef }
+  if (class(loc)[1]=='skyscapeR.horizon') { loc <- loc$metadata$georef }
 
   ra <- seq(0, 360, by=res)
   aux <- array(NA, c(NROW(ra),2))
@@ -409,16 +417,16 @@ orbit = function(dec, loc, res=0.25, refraction, atm, temp) {
 #' Returns the azimuth of the sun at a given time from a specific location
 #'
 #' This function returns the azimuth of the sun at a given time and location,
-#' useful for data reduction of theodolite measurements using the sunsight
+#' useful for data reduction of theodolite measurements using the sun-sight
 #' technique (\code{\link{reduct.theodolite}}).
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude, longitude and elevation of location, in this order.
 #' @param time String containing the date and time in the following format:
 #' "YYYY-MM-DD HH:MM:SS"
-#' @param timezone Timezone of input either as a known acronym (eg. "GMT", "CET") or
-#' a string with continent followed by country capital (eg. "Europe/London").
+#' @param timezone Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+#' a string with continent followed by country capital (e.g. "Europe/London").
 #' @param limb (Optional) Measured limb of the sun. Options are \emph{left}, \emph{right}.
-#' If missing the centre of the sun will be output.
+#' If missing the center of the sun will be output.
 #' @param alt (Optional) Boolean that triggers output of altitude of the sun at exact time.
 #' Default is FALSE.
 #' @import swephR
@@ -429,7 +437,7 @@ orbit = function(dec, loc, res=0.25, refraction, atm, temp) {
 sunAz = function(loc, time, timezone, limb, alt=F) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
 
-  if (class(loc)=='skyscapeR.horizon') { loc <- c(loc$metadata$georef, loc$metadata$elevation) }
+  if (class(loc)[1]=='skyscapeR.horizon') { loc <- c(loc$metadata$georef, loc$metadata$elevation) }
   if (is.null(dim(loc))) { dim(loc) <- c(1, NROW(loc)) }
 
   az <- c(); at <- c()
@@ -463,30 +471,34 @@ sunAz = function(loc, time, timezone, limb, alt=F) {
 
 #' Solar Date
 #'
-#' Returns the calendar date when the sun has the same declination as the input declinations.
-#' @param dec Single value or array of declinations.
+#' Returns the calendar date when the sun has the same declination as the input declination.
+#' @param dec Single value or array of declination values.
 #' @param year Year for which to do calculations.
 #' @param calendar (Optional) Calendar used for output. G for gregorian and J for julian. Defaults to Gregorian.
+#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @import swephR
 #' @export
 #' @examples
 #' solar.date(-23, 2018)
-#' solar.date(-23, 1200, calendar='G')
-#' solar.date(-23, 1200, calendar='J')
-solar.date <- function(dec, year, calendar){
+#' solar.date(-12, 1200, calendar='G')
+#' solar.date(-12, 1200, calendar='J')
+#' solar.date(14, -2000)
+solar.date <- function(dec, year, calendar, verbose=T){
+  checkYear(year)
   if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
 
   jd0 <- time2jd(timestring(year,1,1,12), timezone='UTC', calendar)
 
   out <- c(); cdate <- c()
   for (i in 1:366) {
-    cdate[i] <- substr(jd2time(jd0+i-1, calendar=calendar),6,10)
+    cdate[i] <- substr(jd2time(jd0+i-1, calendar=calendar),6+(sign(year)<0),10+(sign(year)<0))
     out[i] <- body.position(obj='sun', jd0+i-1, timezone='UTC', calendar=calendar, verbose = FALSE)$equatorial$Dec
   }
   rr <- range(out)
 
   ind <- which(dec >= rr[1] & dec <= rr[2])
-  if (length(ind)< length(dec)) { message(paste(length(dec)-length(ind),' value(s) were outside of solar range and have been excluded.')) }
+  if (length(ind)==0) stop(paste('Value(s) are outside of solar range.'))
+  if ((length(ind) < length(dec)) & verbose) message(paste(length(dec)-length(ind),' value(s) were outside of solar range and have been excluded.'))
   dec <- dec[ind]
   aux <- matrix(NA, ncol=length(dec), nrow=3)
   for (i in 1:length(dec)) {
@@ -504,7 +516,7 @@ solar.date <- function(dec, year, calendar){
 
 #' Corrected parallax for a given location and object altitude
 #'
-#' Given the average parallax, this fucntion corrects this value for a given latitude of the observer
+#' Given the average parallax, this function corrects this value for a given latitude of the observer
 #' and for the altitude of the celestial object.
 #' @param parallax Average parallax to correct (e.g. 0.00224 for the Sun, or 0.952 for the Moon)
 #' @param loc This can be either the latitude of the location, or a \emph{skyscapeR.horizon} object.

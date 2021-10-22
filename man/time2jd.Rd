@@ -7,11 +7,11 @@
 time2jd(time, timezone, calendar, verbose = F)
 }
 \arguments{
-\item{time}{String containing the date and time in the format "YYYYY/MM/DD HH:MM:SS". BCE dates
+\item{time}{String containing the date and time in the format "YYYY/MM/DD HH:MM:SS". BCE dates
 should use negative sign. Use \code{\link{timestring}} if needed.}
 
-\item{timezone}{(Optional) Timezone of input either as a known acronym (eg. "GMT", "CET") or
-a string with continent followed by country capital (eg. "Europe/London"). See
+\item{timezone}{(Optional) Timezone of input either as a known acronym (e.g. "GMT", "CET") or
+a string with continent followed by country capital (e.g. "Europe/London"). See
 \code{\link{timezones}} for details. Default is the system timezone}
 
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
@@ -24,7 +24,7 @@ Converts date and time (in any timezone) to Julian date
 }
 \examples{
 # Julian date at noon GMT on Christmas day 2018
-time2jd('2018-12-25 12:00:00', 'GMT')
+time2jd('2018/12/25 12:00:00', 'GMT')
 }
 \seealso{
 \code{\link[swephR]{swe_julday}}, \code{\link{as.POSIXlt}}, \code{\link{timezones}},

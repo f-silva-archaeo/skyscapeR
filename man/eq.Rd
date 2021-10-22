@@ -27,10 +27,10 @@ at the astronomical equinox with corrected average parallax.
 # Equinoctial geocentric declination:
 eq()
 
-# Topocentric declination for same year and latitude of 50ºN:
+# Topocentric declination for same year and latitude of 50 degrees N:
 eq(loc=50)
 }
 \seealso{
 \code{\link{obliquity}}, \code{\link{jS}}, \code{\link{eq}},
-\code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{parallax.corr}}
+\code{\link{zenith}}, \code{\link{antizenith}}, \code{\link{spatial.equinox}}, \code{\link{parallax.corr}}
 }

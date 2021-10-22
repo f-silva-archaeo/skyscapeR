@@ -4,36 +4,36 @@
 \alias{plotAzimuth}
 \title{Polar plot of orientations (azimuths)}
 \usage{
-plotAzimuth(az, col = "blue", lwd = 1, lty = 1, obj, show.obj.labels = T)
+plotAzimuth(az, col = "blue", lwd = 1.5, lty = 1, obj, show.obj.labels = T)
 }
 \arguments{
-\item{az}{Array of azimuths.}
+\item{az}{(Optional) Array of azimuths. Can be omitted is \emph{obj} is given.}
 
-\item{col}{(Optional) Single colour or colour pallete to use for plotting measurements.}
+\item{col}{(Optional) Single color or color palette to use for plotting measurements.}
 
 \item{lwd}{(Optional) Line width to plot measurements. Defaults to 1.}
 
 \item{lty}{(Optional) Line type to plot measurements. Defaults to 1.}
 
 \item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-for displaying the azimuths of celestial objects. Beware that this assumes a single
-location (given by parameter loc) and a flat horizon of zero degrees.}
+for displaying the azimuths of celestial objects. Note that this assumes a single
+location and a flat horizon of zero degrees.}
 
 \item{show.obj.labels}{(Optional) Boolean to control whether to display celestial objects names.
 Defaults to TRUE.}
 }
 \description{
-This function creates a polar plot of azimuthal data using \emph{plotrix}.
+Polar plot of orientations (azimuths)
 }
 \examples{
 # Plot some azimuth data:
 az <- c(120, 100, 93, 97, 88, 115, 112, 67)
 plotAzimuth(az)
 
-# To visualise this data against the common solar and lunar targets:
+# To visualize this data against the common solar and lunar targets:
 tt <- sky.objects('solar extremes', epoch=-2000, loc=c(35,-8), col='red')
 plotAzimuth(az, obj=tt)
 
 # To display only celestial objects
-plotAzimuth(az=NULL, obj=tt)
+plotAzimuth(obj=tt)
 }

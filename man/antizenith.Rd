@@ -32,5 +32,5 @@ antizenith(51.507)
 }
 \seealso{
 \code{\link{jS}}, \code{\link{dS}}, \code{\link{eq}},
-\code{\link{zenith}}, \code{\link{parallax.corr}}
+\code{\link{zenith}}, \code{\link{spatial.equinox}}, \code{\link{parallax.corr}}
 }

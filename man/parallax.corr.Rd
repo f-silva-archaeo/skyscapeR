@@ -14,7 +14,7 @@ parallax.corr(parallax, loc, altitude = 0)
 \item{altitude}{(Optional) Altitude of the celestial object.. Defaults to 0 degrees.}
 }
 \description{
-Given the average parallax, this fucntion corrects this value for a given latitude of the observer
+Given the average parallax, this function corrects this value for a given latitude of the observer
 and for the altitude of the celestial object.
 }
 \examples{

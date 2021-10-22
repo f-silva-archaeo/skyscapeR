@@ -2,49 +2,33 @@
 % Please edit documentation in R/plotting.R
 \name{plot.skyscapeR.sigTest}
 \alias{plot.skyscapeR.sigTest}
-\title{Plot significance test results}
+\title{Plot significance test of orientations}
 \usage{
 \method{plot}{skyscapeR.sigTest}(
-  sig,
-  obj,
-  col = "blue",
-  xrange,
-  show.pval = TRUE,
-  show.local = FALSE,
-  legend = FALSE
+  x,
+  xlim,
+  title = NULL,
+  show.pval = T,
+  show.local = F,
+  pal = brewer.pal(5, "PRGn")[c(1, 5)],
+  ...
 )
 }
 \arguments{
-\item{sig}{Object of \emph{skyscapeR.sigTest} format, created using \code{\link{sigTest}}.}
+\item{x}{A \emph{skyscapeR.sigTest} object created with \code{\link{randomTest}}}
 
-\item{obj}{(Optional) A \emph{skyscapeR.object} object created with \code{\link{sky.objects}}
-for displaying the declination of celestial objects.}
+\item{xlim}{(Optional) Range of x-axis to plot.}
 
-\item{col}{(Optional) Colour to plot the curvigram in. Defaults to blue.}
+\item{title}{(Optional) Title to add to the plot.}
 
-\item{xrange}{(Optional) Array of two values restricting the horizontal range of the plot.}
+\item{show.pval}{(Optional) Boolean to control whether to print the global p-value. Default is TRUE.}
 
-\item{show.pval}{(Optional) Boolean to control whether the global p-value is written.
-Default is True.}
+\item{show.local}{(Optional) Boolean to control whether to show local regions of significance. Default is FALSE}
 
-\item{show.local}{(Optional) Boolean to control whether the local regions of significance
-are plotted. Default is False.}
+\item{pal}{(Optional) Color palette for local regions of significance. Default is brewer.pal(5, 'PRGn')}
 
-\item{legend}{(Optional) Show legend. Defaults to FALSE.}
+\item{...}{Additional arguments to be passed to \emph{plot}.}
 }
 \description{
-This function creates a plot of the results of significance test
-}
-\examples{
-\dontrun{
-mag.az <- c(89.5, 105, 109.5)
-data <- reduct.compass(loc, mag.az, "2016/04/02", alt=c(1,2,0))
-data$Azimuth.Uncertainty <- 2  # adds the information on the preision of the azimuthal meaurement
-sig <- sigTest(data)
-
-plot(sig, show.local=TRUE)
-}
-}
-\seealso{
-\code{\link{sigTest}}
+Plot significance test of orientations
 }

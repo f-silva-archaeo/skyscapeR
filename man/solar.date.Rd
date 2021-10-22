@@ -4,20 +4,23 @@
 \alias{solar.date}
 \title{Solar Date}
 \usage{
-solar.date(dec, year, calendar)
+solar.date(dec, year, calendar, verbose = T)
 }
 \arguments{
-\item{dec}{Single value or array of declinations.}
+\item{dec}{Single value or array of declination values.}
 
 \item{year}{Year for which to do calculations.}
 
 \item{calendar}{(Optional) Calendar used for output. G for gregorian and J for julian. Defaults to Gregorian.}
+
+\item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 }
 \description{
-Returns the calendar date when the sun has the same declination as the input declinations.
+Returns the calendar date when the sun has the same declination as the input declination.
 }
 \examples{
 solar.date(-23, 2018)
-solar.date(-23, 1200, calendar='G')
-solar.date(-23, 1200, calendar='J')
+solar.date(-12, 1200, calendar='G')
+solar.date(-12, 1200, calendar='J')
+solar.date(14, -2000)
 }
