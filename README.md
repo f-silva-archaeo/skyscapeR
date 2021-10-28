@@ -1,6 +1,6 @@
-[![cran version](http://www.r-pkg.org/badges/version/skyscapeR)](https://cran.rstudio.com/web/packages/skyscapeR) 
-[![rstudio mirror downloads](http://cranlogs.r-pkg.org/badges/skyscapeR?)](https://github.com/metacran/cranlogs.app)
-[![rstudio mirror downloads](http://cranlogs.r-pkg.org/badges/grand-total/skyscapeR?color=82b4e8)](https://github.com/metacran/cranlogs.app)
+[![cran version](https://www.r-pkg.org/badges/version/skyscapeR)](https://cran.r-project.org/package=skyscapeR) 
+[![rstudio mirror downloads](https://cranlogs.r-pkg.org/badges/skyscapeR?)](https://github.com/r-hub/cranlogs.app)
+[![rstudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/skyscapeR?color=82b4e8)](https://github.com/r-hub/cranlogs.app)
 
 # skyscapeR
 _skyscapeR_ is an open source R package for data reduction, visualization and analysis in skyscape archaeology, archaeoastronomy and cultural astronomy. Its aim is to be a fully-fledged, transparent and peer-reviewed package offering a robust set of quantitative methods while still retaining simplicity of use.

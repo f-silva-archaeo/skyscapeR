@@ -16,8 +16,10 @@ from \emph{HeyWhatsThat}, given its ID, and saves it as
 a \emph{skyscapeR.horizon} object.
 }
 \examples{
+\dontrun{
 # Retrieve horizon data for \href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:
 hor <- downloadHWT('HIFVTBGK')
+}
 }
 \references{
 \href{http://heywhatsthat.com/}{HeyWhatsThat.com}

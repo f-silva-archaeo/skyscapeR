@@ -117,8 +117,10 @@ exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor
 #' @references \href{http://heywhatsthat.com/}{HeyWhatsThat.com}
 #' @seealso \code{\link{createHWT}}
 #' @examples
+#' \dontrun{
 #' # Retrieve horizon data for \href{https://www.heywhatsthat.com/?view=HIFVTBGK}{Liverpool Cathedral}:
 #' hor <- downloadHWT('HIFVTBGK')
+#' }
 downloadHWT <- function(HWTID) {
   if (nchar(HWTID) != 8) { stop('Incorrect HeyWhatsThat ID.') }
 
