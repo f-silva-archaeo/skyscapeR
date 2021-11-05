@@ -6,21 +6,27 @@
 \usage{
 randomTest(
   pdf,
+  .res = 0.1,
   nsims = 1000,
   conf = 0.95,
   tails = 2,
   normalise = F,
   ncores = parallel::detectCores() - 1,
-  save.sim = F,
-  verbose = T
+  verbose = T,
+  hor,
+  refraction,
+  atm,
+  temp
 )
 }
 \arguments{
 \item{pdf}{A \emph{skyscapeR.pdf} object created with either \code{\link{az.pdf}} or \code{\link{coordtrans}}}
 
-\item{nsims}{(Optional) Boolean switch controlling whether to normalize the SPD. Default is FALSE}
+\item{.res}{(Optional) Resolution with which to output probability distribution(s). Default is 0.1 degrees.}
 
-\item{conf}{(Optional) Array of values (min and max) for SPD if different from range of \emph{pdf}}
+\item{nsims}{(Optional) Number of simulations to run. Default is 1000.}
+
+\item{conf}{(Optional) Confidence envelope (in percentage) of the null model to calculate. Default is .95}
 
 \item{tails}{(Optional) Whether to calculate 1-tailed p-value (greater than) or 2-tailed p-value (smaller than or greater than).
 Default is 2.}
@@ -29,10 +35,21 @@ Default is 2.}
 
 \item{ncores}{(Optional) Number of CPU cores to use. Default is the number of available cores minus 1.}
 
-\item{save.sim}{(Optional) Boolean to control whether to save the output of each random simulation.
-For testing/advanced use only. Default is FALSE}
-
 \item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
+
+\item{hor}{(Optional) A single \emph{skyscapeR.horizon} object created with \code{\link{createHor}} or \code{\link{downloadHWT}}.
+This and the following arguments are only needed if \emph{pdf} contains only azimuths. If provided, the
+code will assume that all azimuthal measurements are for the same site with horizon given in \emph{hor} and
+that the user want to run the significance test in declination. Coordinate transformation will therefore be done automatically.}
+
+\item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
+
+\item{atm}{(Optional) Atmospheric pressure for refraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
+
+\item{temp}{(Optional) Atmospheric temperature for refraction calculation.
+If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 }
 \description{
 Significance test against the null hypothesis of random orientation

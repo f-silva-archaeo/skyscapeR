@@ -1,7 +1,7 @@
 ---
 title: "skyscapeR: Data Analysis and Visualization for Skyscape Archaeology"
 author: "Fabio Silva"
-date: "22/10/2021"
+date: "05/11/2021"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{skyscapeR: Data Analysis and Visualization for Skyscape Archaeology}
@@ -30,23 +30,23 @@ If you are new to R then I recommend the online free short course Data Carpentry
 
 ### 1.1. Installation
 
-The package requires that the latest version of R is installed first. See the R Project website for details. Also suggested is the installation of RStudio [add link]. With R installed, you can install the latest skyscapeR release directly from CRAN [add link] by doing:
-```{r}
-# install.packages(skyscapeR)
+The package requires that the latest version of R is installed first. See the R Project website for details. Also suggested is the installation of RStudio. With R installed, you can install the latest skyscapeR release directly from CRAN by doing:
+```{}
+install.packages('skyscapeR', repos='https://cloud.r-project.org')
 ```
 
-This will install the package itself along with any dependencies. Upon successful completion you should see a line saying `* DONE (skyscapeR)` . If this doesn’t happen then there should be an error message explaining what went wrong.
+This will install the package itself along with any dependencies. Upon successful completion you should see a line saying `* DONE (skyscapeR)`. If this doesn’t happen then there should be an error message explaining what went wrong.
 
-If you rather install the latest development version (often unstable ) you can do so directly from its GitHub repository [add link] by running:
-```{r}
-# install.packages('devtools', repos='https://cloud.r-project.org')
-# devtools::install_github('f-silva-archaeo/skyscapeR')
+If you rather install the latest development version (often unstable) you can do so directly from its GitHub repository by running:
+```{}
+install.packages('devtools', repos='https://cloud.r-project.org')
+devtools::install_github('f-silva-archaeo/skyscapeR')
 ```
 If you already have package `devtools` installed you can skip the first line above. At the end, you should see the same successful completion line.
 
 Also make sure to install the `swephRdata` package as follows:
-```{r}
-# install.packages("swephRdata", repos = "https://rstub.github.io/drat/", type = "source")
+```{}
+install.packages("swephRdata", repos = "https://rstub.github.io/drat/", type = "source")
 ```
 
 ### 1.2 Initialization
@@ -69,7 +69,7 @@ Most `skyscapeR` functions accept one or multiple locations to be entered in one
 
 The latter, in particular, are especially useful, and often necessary, in order to take full advantage of the analytical capabilities of `skyscapeR` (see sec. 2.4 below for more detail).
 
-*Dae, Time and Calendars*
+*Date, Time and Calendars*
 Dates should be entered in the following format `YYYY/MM/DD` (e.g. `2021/10/25`). The brackets and order are non-negotiable, i.e. if one inputs `2021-10-25` or `2021/25/10` instead (or any other variation) the code will return an error.
 
 If one needs to specify a date and time this should use format `YYYY/MM/DD HH:MM:SS` (e.g. '2021/10/25 14:15:00'). Seconds can often be omitted.
@@ -81,7 +81,7 @@ If one needs to specify a date and time this should use format `YYYY/MM/DD HH:MM
 * `skyscapeR` year 1 = 1 AD
 * `skyscapeR` year 0 = 1 BC
 * `skyscapeR` year -1 = 2 BC
-* `skyscapeR` year -99 = 101 BC
+* `skyscapeR` year -99 = 100 BC
 * `skyscapeR` year -100 = 101 BC
 
 If in doubt, use function `BC.AD` to check what calendar year corresponds to what year number.
@@ -123,7 +123,7 @@ skyscapeR.vars(refraction=T) # to switch refraction calculations off
 ### 2.1 Basic Functionality
 Basic functionality is achieved using `az2dec` to convert from horizontal (az/alt) to equatorial (dec) coordinates.
 ```{r}
-az2dec(az=92, loc=c(35,-8,100), alt=2)
+az2dec(az=92, loc=35.125, alt=2)
 ```
 
 On the other hand, the declination of key celestial targets for a given time can be easily obtained as follows:
@@ -245,7 +245,7 @@ plot(kde)
 ```
 
 ### 3.3 Probabilities
-The probability of finding `r` structures out of `n` orientated to a band of the horizon of probability `p` can be calculated using the `bernouli.trial` function. In the above example there are 4 structures (out of 8 measured) which are orientated around east, spanning 12 degrees of azimuth. The probability `p` of that horizon band is `12/180` as there are 12 degrees out of 180 degrees (since both directions are possible). The probability of finding this (or an even more extreme situation) by chance is:
+The probability of finding `r` structures out of `n` orientated to a band of the horizon of probability `p` can be calculated using the `bernoulli.trial` function. In the above example there are 4 structures (out of 8 measured) which are orientated around east, spanning 12 degrees of azimuth. The probability `p` of that horizon band is `12/180` as there are 12 degrees out of 180 degrees (since both directions are possible). The probability of finding this (or an even more extreme situation) by chance is:
 ```{r}
 bernoulli.trial(n=8, p=12/180, r=4)
 ```

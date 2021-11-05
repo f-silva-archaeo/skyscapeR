@@ -21,7 +21,9 @@
 #' @export
 #' @seealso \code{\link[swephR]{swe_azalt_rev}}, \code{\link{hor2alt}}
 #' @examples
-#' dec <- az2dec(az=92, loc=c(35,-8), alt=2)
+#' dec <- az2dec(az=92, loc=35, alt=2)
+#'
+#' dec <- az2dec(az=c(92,89,102), loc=35, alt=c(0,2,4))
 #'
 #' # flat horizon with 2 degrees of altitude
 #' hor <- createHor(az=c(0,360), alt=c(2,2), loc=c(35,-8,25))
@@ -32,6 +34,9 @@
 az2dec = function(az, loc, alt, refraction=skyscapeR.env$refraction, atm=skyscapeR.env$atm, temp=skyscapeR.env$temp){
   jd <- swephR::swe_julday(2000,1,1,12,1)
   prec <- max(nchar(sub('.*\\.', '', as.character(az))))
+
+  az[which(az < 0)] <- 360 + az[which(az < 0)]
+  az[which(az > 360)] <- az[which(az > 360)] - 360
 
   if (missing(alt)) {
     if (class(loc)[1] == 'skyscapeR.horizon') {
@@ -44,14 +49,19 @@ az2dec = function(az, loc, alt, refraction=skyscapeR.env$refraction, atm=skyscap
     } else { stop('Altitude missing.') } }
 
   if (length(alt) == 1) { alt <- rep(alt, NROW(az)) }
+  if (length(alt) != NROW(az)) { stop('alt parameter needs to be of either length 1 or same length as az') }
 
   if (class(loc)[1] == 'skyscapeR.horizon') { georefs <- loc$metadata$georef; georefs <- matrix(georefs, ncol=3, nrow=NROW(az), byrow=T) }
   if (class(loc)[1] == 'list') {
     georefs <- matrix(NA, ncol=3, nrow=NROW(loc))
     for (i in 1:NROW(loc)) { georefs[i,] <- loc[[i]]$metadata$georef } }
   if (class(loc)[1] == 'numeric') {
-    georefs <- matrix(NA, ncol=3, nrow=NROW(loc))
-    for (i in 1:NROW(loc)) { georefs[i,] <- c(loc[i],0,0) }
+    if (length(loc) != 1 & length(loc) != NROW(az)) { stop('loc parameter needs to be of either length 1 or same length as az') }
+    if (length(loc) == 1) { loc <- rep(loc, NROW(az)) }
+    # if (length(loc) > 1) {
+      georefs <- matrix(NA, ncol=3, nrow=NROW(loc))
+      for (i in 1:NROW(loc)) { georefs[i,] <- c(loc[i],0,0) }
+    # }
   }
   if (class(loc)[1] == 'matrix') {
     georefs <- matrix(NA, ncol=3, nrow=NROW(loc))
@@ -116,7 +126,7 @@ body.position.unvec = function(obj='sun', time, timezone, calendar, dec, loc = N
   if (class(time)[1]=='character') {
     checkYear(year(time))
     jd <- time2jd(time, timezone, calendar)
-    } else { jd <- time }
+  } else { jd <- time }
   if (dec == 'geo') {
     aux <- swephR::swe_calc_ut(jd, body, 2048)
     coords.eq[1,] <- swephR::swe_calc_ut(jd, body, 2048)$xx[1:2]
@@ -310,7 +320,7 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
   }
 
   if (class(date)[1]=='numeric') {
-    dat <- paste(date,'/01/01 00:00:00')
+    dat <- paste0(date,'/01/01 00:00:00')
     jd0 <- time2jd(dat, timezone, calendar)
     jd <- seq(jd0, jd0+366, 1)
     ind <- which(substr(jd2time(jd, timezone, calendar), 1, which(strsplit(jd2time(jd, timezone, calendar), "")[[1]]=="/")[1]-1)==as.character(date))
@@ -329,11 +339,11 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
 
   for (k in 1:length(jd0)) {
     rise <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 1+256+ifelse(refraction,512,0), c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
-    aux <- body.position(obj, rise, '', '', dec, loc, refraction, atm, temp, verbose=F)
+    aux <- body.position(obj, rise, timezone, calendar, dec, loc, refraction, atm, temp, verbose=F)
     aux1 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(rise, timezone, calendar), stringsAsFactors = F)
 
     set <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 2+256+ifelse(refraction,512,0), c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
-    aux <- body.position(obj, set, '', '', dec, loc, refraction, atm, temp, verbose=F)
+    aux <- body.position(obj, set, timezone, calendar, dec, loc, refraction, atm, temp, verbose=F)
     aux2 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(set, timezone, calendar), stringsAsFactors = F)
 
     date <- substr(jd2time(jd0[k], timezone, calendar),1,which(strsplit(jd2time(jd0[k], timezone, calendar), "")[[1]]==" ")-1)

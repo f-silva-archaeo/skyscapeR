@@ -43,11 +43,35 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
     }
   }
 
-  aux1 <- try(solar.date(seq(decrange[1],decrange[2],0.1), min(timerange), calendar, verbose=F), silent=T)
-  aux2 <- try(solar.date(seq(decrange[1],decrange[2],0.1), max(timerange), calendar, verbose=F), silent=T)
-  if (class(aux1)[1] != 'try-error' & class(aux2)[1] == 'try-error') { targets$solar[7,] <- c('sunrise/set', decrange[1], decrange[2], paste(aux1[2,1],'-',aux1[2,NCOL(aux1)]), paste(aux1[3,NCOL(aux1)],'-',aux1[3,1])) }
-  if (class(aux1)[1] == 'try-error' & class(aux2)[1] != 'try-error') { targets$solar[7,] <- c('sunrise/set', decrange[1], decrange[2], paste(aux2[2,1],'-',aux2[2,NCOL(aux2)]), paste(aux2[3,NCOL(aux2)],'-',aux2[3,1])) }
-  if (class(aux1)[1] != 'try-error' & class(aux2)[1] != 'try-error') { targets$solar[7,] <- c('sunrise/set', decrange[1], decrange[2], paste(aux1[2,1],'-',aux2[2,NCOL(aux2)]), paste(aux1[3,NCOL(aux1)],'-',aux2[3,1])) }
+  aux1 <- try(solar.date(seq(decrange[1],decrange[2],0.01), min(timerange), calendar, verbose=F), silent=T)
+  aux2 <- try(solar.date(seq(decrange[1],decrange[2],0.01), max(timerange), calendar, verbose=F), silent=T)
+
+  ttt <- c()
+  if (class(aux1)[1] != 'try-error') { ttt <- c(ttt, aux1[2,],aux1[3,]) }
+  if (class(aux2)[1] != 'try-error') { ttt <- c(ttt, aux2[2,],aux2[3,]) }
+  if (!is.null(ttt)) {
+    dd <- as.numeric(substr(ttt,1,2))
+    mm <- substr(ttt,3,6); mm <- gsub(" ","",mm)
+    mm <- match(mm, month.abb)
+
+    months <- c(31,28,31,30,31,30,31,31,30,31,30,31)
+    summon <- c(0,cumsum(months))
+    xx <- sort(unique(summon[mm]+dd))
+
+    if (sum(xx==365) & sum(xx==1)) {
+      xx <- c(xx,xx+365)
+      xx <- xx[-which(xx<365/2)]
+      xx <- xx[-which(xx>365+365/2)]
+    }
+    ind <- which(diff(xx)>2)
+    dts <- c(xx[1], xx[ind], xx[ind+1], xx[length(xx)])
+    dts[dts>365] <- dts[dts>365]-365
+    dts <- dd.to.DD(dts)
+    dts <- rbind(sprintf("%02d",dts[1,]), sprintf("%02d",dts[2,]))
+
+    targets$solar[7,] <- c('sunrise/set', decrange[1], decrange[2], paste(long.date(paste(dts[,1], collapse = '-')),'-',long.date(paste(dts[,2], collapse = '-'))), NA)
+    if (NCOL(dts)>2) { targets$solar[7,5] <- paste(long.date(paste(dts[,3], collapse = '-')),'-',long.date(paste(dts[,4], collapse = '-'))) }
+  }
 
   targets$solar[,2] <- as.numeric(targets$solar[,2])
   targets$solar[,3] <- as.numeric(targets$solar[,3])
@@ -83,13 +107,13 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
   if (NROW(targets$lunar) ==0) { targets$lunar <- c() }
 
   ## stellar
-  ss <- skyscapeR.env$sefstars
-  ind <- which(ss$mag.V>max.mag); ss <- ss[-ind,] # magnitude filter
+  ss <- read.csv(paste0(system.file('ephemeris',package = 'swephR'),'/sefstars.txt'), header=F)
+  colnames(ss) <- c('name', 'identifier', 'ICRS', 'RA.1', 'RA.2', 'RA.3', 'Dec.1', 'Dec.2', 'Dec.3', 'pm.1', 'pm.2', 'radvel', 'plx', 'magV')
+  ind <- which(ss$magV>max.mag); ss <- ss[-ind,] # magnitude filter
 
-  targets$stellar <- data.frame(name='Test', Bayer='Test', vmag=1.2, min.dec=12, max.dec=12, stringsAsFactors=F)
+  targets$stellar <- data.frame(name='Test', identifier='Test', magV=1.2, min.dec=12, max.dec=12, stringsAsFactors=F)
   for (i in 1:NROW(ss)) {
-    if (nchar(ss$traditional.name[i])>0) { aux <- ss$traditional.name[i] } else { aux <- ss$nomenclature.name[i] }
-    targets$stellar[i,] <- c(ss$traditional.name[i], ss$nomenclature.name[i], as.character(ss$mag.V[i]), minmaxdec(aux, timerange[1], timerange[2]))
+    targets$stellar[i,] <- c(ss$name[i], ss$identifier[i], as.character(ss$magV[i]), minmaxdec(ss$identifier[i], timerange[1], timerange[2]))
   }
 
   targets$stellar[,4] <- as.numeric(targets$stellar[,4])
@@ -100,7 +124,13 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
       targets$stellar[i,] <- c(NA,NA,NA,NA,NA)
     }
   }
-  targets$stellar <- targets$stellar[-which(is.na(targets$stellar[,1])),]
+
+  targets$stellar <- targets$stellar[-which(is.na(targets$stellar[,2])),]
+  for (i in 1:NROW(targets$stellar)) {
+    aux <- star.names$Western[which(star.names$identifier == targets$stellar[i,2])]
+    if (length(aux)>0) { targets$stellar[i,1] <- aux } else { targets$stellar[i,1] <- '' }
+  }
+
   rownames(targets$stellar) <- NULL
   if (NROW(targets$stellar) ==0) { targets$stellar <- c() }
 

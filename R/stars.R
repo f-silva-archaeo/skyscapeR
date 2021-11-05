@@ -16,12 +16,17 @@
 #' # Retrieve data for Aldebaran on 2999 BC:
 #' ss <- star('Aldebaran', -3000)
 star <- function(string, year=skyscapeR.env$cur.year) {
+  aux <- star.names$identifier[which(star.names$Western==string)]
+  if (length(aux)==1) {
+    name <- string
+    string <-  aux
+  } else {
+    name <- star.names$Western[which(star.names$identifier==string)]
+  }
 
-  aux1 <- swephR::swe_fixstar2_ut(string, swephR::swe_julday(2000, 1, 1, 12,1), 2048+16384+16)
-  aux2 <- swephR::swe_fixstar2_ut(paste0(',',string), swephR::swe_julday(2000, 1, 1, 12,1), 2048+16384+16)
-
-  if (aux1$serr!="" & aux2$serr!="") stop('Star not recognised.')
-  if (aux2$serr=="") string <- paste0(',',string)
+  string <- paste0(',',string)
+  aux <- swephR::swe_fixstar2_ut(string, swephR::swe_julday(2000, 1, 1, 12,1), 2048+16384+16)
+  if (aux$serr!="") stop('Star not recognised.')
 
   aux <- data.frame(year=NA, RA=NA, Dec=NA)
   for (i in 1:length(year)) {
@@ -29,8 +34,10 @@ star <- function(string, year=skyscapeR.env$cur.year) {
     aux[i,] <- c(year[i], info$xx[1], info$xx[2])
   }
 
+  if (length(name)==0) { name <- ''}
+
   star <- c()
-  star$name <- strsplit(info$star,',')[[1]][1]
+  star$name <- name
   star$Bayer <- strsplit(info$star,',')[[1]][2]
   star$app.mag <- swephR::swe_fixstar2_mag(paste(string))$mag
   star$coord <- aux
@@ -41,22 +48,21 @@ star <- function(string, year=skyscapeR.env$cur.year) {
 
 
 #' @noRd
-calc.phase <- function(time, loc, star, arcus_visionis, alt.hor, k, limit, alt.rs, res, refraction, atm, temp, pb, pbi) {
-  phase <- rep("", length(time))
-  for (i in 1:length(time)) {
-    jd <- time[i]
-    jd.t <- seq(jd, jd + 1, res)
-    # Sun
-    Sun.alt <- body.position('sun', jd.t, loc=loc, refraction=refraction, atm=atm, temp=temp, verbose=F)$horizontal$alt
-    Sun.alt <- approx(jd.t, Sun.alt, xout=seq(jd, jd + 1, 1/24/60))$y
-    # Star
-    ff <- function(x, loc, atm, temp, star) { return(swephR::swe_azalt(x, 1, c(loc[2],loc[1],loc[3]), atm, temp, c(star$coord$RA, star$coord$Dec))$xaz) }
-    Star.alt <- sapply(jd.t, ff, loc, atm, temp, star)[3,]
-    Star.alt <- approx(jd.t, Star.alt, xout=seq(jd, jd + 1, 1/24/60))$y
+ff <- function(x, loc, atm, temp, pos) { return(swephR::swe_azalt(x, 1, c(loc[2],loc[1],loc[3]), atm, temp, c(pos[1], pos[2]))$xaz) }
 
-    # plot(seq(jd, jd + 1, 1/24/60),Sun.alt)
-    # points(seq(jd, jd + 1, 1/24/60),Star.alt, col='red')
-    # abline(h=0)
+#' @noRd
+calc.phase <- function(year, day, sun.coord, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res, refraction, atm, temp, pb, pbi) {
+  phase <- rep("", length(day))
+
+  for (i in 1:length(day)) {
+    jd0 <- time2jd('2000/01/01 00:00:00')
+    jd <- seq(jd0, jd0 + 1, res)
+    # Sun
+    Sun.alt <- sapply(jd, ff, loc, atm, temp, sun.coord[day[i],])[3,]
+    Sun.alt <- approx(jd, Sun.alt, xout=seq(jd0, jd0 + 1, 1/24/60))$y
+    # Star
+    Star.alt <- sapply(jd, ff, loc, atm, temp, as.numeric(star$coord[2:3]))[3,]
+    Star.alt <- approx(jd, Star.alt, xout=seq(jd0, jd0 + 1, 1/24/60))$y
 
     # atmospheric extinction
     airmass <- 1/(cos((90-Star.alt)/180*pi) + 0.025*exp(-11*cos((90-Star.alt)/180*pi)))
@@ -65,12 +71,10 @@ calc.phase <- function(time, loc, star, arcus_visionis, alt.hor, k, limit, alt.r
     # Q1: can the star be seen?
     ind <- which(Sun.alt < alt.hor & Star.alt > alt.hor & Star.alt-Sun.alt >= arcus_visionis & mag <= limit)
 
-    # points(seq(jd, jd + 1, 1/24/60)[ind],Star.alt[ind], col='green')
-
     if (length(ind) > 1) {
       alt <- Star.alt[ind]
       ind2 <- which(alt >= alt.hor & alt <= alt.rs)
-      if (length(ind2) > 0) {
+      if (length(ind2) > 1) {
         test <- split(ind2, cumsum(c(1,abs(diff(ind[ind2])) > 1)))
         if (length(which(lengths(test)<2))>0) { test <- test[-which(lengths(test)<2)] }
         # Q2: can the star be seen rising or setting?
@@ -92,7 +96,6 @@ calc.phase <- function(time, loc, star, arcus_visionis, alt.hor, k, limit, alt.r
   return(phase)
 }
 
-
 #' Calculate the seasons and phase type of a star
 #'
 #' This function calculates the seasons (Rising, Setting, etc.)
@@ -102,7 +105,7 @@ calc.phase <- function(time, loc, star, arcus_visionis, alt.hor, k, limit, alt.r
 #' the atmospheric extinction approximation of Schaefer (1989). For
 #' the nomenclature used, and description of star phase types, see Brady (2015).
 #' @param star Either the star name or a \emph{skyscapeR.star} object.
-#' @param year The year of interest. Must be in the \emph{swephR} range of 13201 cal BC to 17191 AD
+#' @param year The year of interest.
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude and longitude of location, in this order.
 #' @param alt.hor (Optional) The altitude of the horizon to consider.
@@ -133,7 +136,6 @@ calc.phase <- function(time, loc, star, arcus_visionis, alt.hor, k, limit, alt.r
 #' Pyramid Texts. In F Silva and N Campion (eds) \emph{Skyscapes: The Role and Importance of
 #' the Sky in Archaeology}. Oxford: Oxbow Books, pp. 76-86.
 #' @examples
-#' \dontrun{
 #' ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200))
 #'
 #' # One can then look at the star's phase type:
@@ -151,9 +153,7 @@ calc.phase <- function(time, loc, star, arcus_visionis, alt.hor, k, limit, alt.r
 #' # You can play with the parameters and see how predictions change:
 #' ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200), alt.hor=2, alt.rs=5)
 #' plot(ss1)
-#' }
 star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs = 10, res = 1/24/6, refraction, atm, temp) {
-  checkYear(year)
   if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
   if (missing(atm)) { atm <- skyscapeR.env$atm }
   if (missing(temp)) { temp <- skyscapeR.env$temp }
@@ -175,30 +175,38 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
 
   # check if circumpolar or always invisible
   if (lat>=0) {
-    if (star$coord$Dec < -(90-lat)) stop('Star is always below the horizon at this location and epoch.')
-    if (star$coord$Dec >= (90-lat)) stop('Star is always above the horizon at this location and epoch.')
+    if (star$coord$Dec < -(90-lat+alt.hor)) stop('Star is always below the horizon at this location and epoch.')
+    if (star$coord$Dec >= (90-lat+alt.hor)) stop('Star is always above the horizon at this location and epoch.')
   }
   if (lat<0) {
     if (star$coord$Dec > (90-lat)) stop('Star is always below the horizon at this location and epoch.')
     if (star$coord$Dec <= -(90-lat)) stop('Star is always above the horizon at this location and epoch.')
   }
 
+  # pre-calculations of solar position
+  ob <- obliquity(year)
+  ll <- seq(0,359.9,0.1)
+  Dec <- asin(sin(ob/180*pi)*sin(ll/180*pi))/pi*180
+  RA <- atan2(sin(ll/180*pi)*cos(ob/180*pi), cos(ll/180*pi))/pi*180
+  RA[RA<0] <- RA[RA<0]+360
+  lon <- seq(0,359.99,by=360/365)
+  dd <- approx(seq(0,359.9,0.1), Dec, xout=lon)$y
+  rr <- approx(seq(0,359.9,0.1), RA, xout=lon)$y
+  sun.pos <- cbind(rr,dd)
+
   # calculations
-  jd <- swephR::swe_julday(year,1,1,12,1)
-  jjj <- seq(jd,jd+365,1)
   phase <- rep('', 365)
+  star.pos <- as.numeric(star$coord[2:3])
 
   pb <- txtProgressBar(max=12+2*4+4*7, style=3)
   # step 1: once a month
-  ff <- function(x) swephR::swe_julday(year,x,1,12,1)
-  jd <- sapply(seq(1,12), ff)
-  aux <- calc.phase(jd, loc, star, arcus_visionis, alt.hor, k, limit, alt.rs, res=1/24/2, refraction, atm, temp, pb, 0)
-  phase[match(jd, jjj)] <- aux
-  phase[366] <- phase[1]
+  day <- seq(1,365,30)
+  aux <- calc.phase(year, day, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res=1/24/2, refraction, atm, temp, pb, 0)
+  phase[day] <- aux
 
   # step 2: fill in blanks and identify months where star season changes
   ind <- which(phase!=""); pp <- phase[ind]
-  change <- c(0,which(pp!=c(pp[-1], pp[1])),length(pp))
+  change <- c(0,which(pp!=c(pp[-1], pp[1])))
   for (i in 1:(length(change)-1)) {
     phase[ind[change[i]+1]:ind[change[i+1]]] <- phase[ind[change][i]]
   }
@@ -206,18 +214,19 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
   # step 3: re-run on months identified before
   ind <- which(phase=="")
   ind <- split(ind, cumsum(seq_along(ind) %in% (which(diff(ind)>1)+1)))
+  ind <- ind[which(sapply(ind, length)>=14)]
 
   pb0 <- 12
   for (i in 1:NROW(ind)) {
-    jd <- jjj[ind[[i]]][c(7,14)]
-    aux <- calc.phase(jd, loc, star, arcus_visionis, alt.hor, k, limit, alt.rs, res=1/24/2, refraction, atm, temp, pb, pb0)
-    phase[match(jd, jjj)] <- aux
+    days <- ind[[i]][c(7,14)]
+    aux <- calc.phase(year, days, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res=1/24/2, refraction, atm, temp, pb, pb0)
+    phase[days] <- aux
     pb0 <- pb0+2
   }
 
   # step 4: fill in blanks and identify weeks where star season changes
   ind <- which(phase!=""); pp <- phase[ind]
-  change <- c(0,which(pp!=c(pp[-1], pp[1])),length(pp))
+  change <- c(0,which(pp!=c(pp[-1], pp[1])))
   for (i in 1:(length(change)-1)) {
     phase[ind[change[i]+1]:ind[change[i+1]]] <- phase[ind[change][i]]
   }
@@ -228,15 +237,16 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
 
   pb0 <- 20
   for (i in 1:NROW(ind)) {
-    jd <- jjj[ind[[i]]]
-    aux <- calc.phase(jd, loc, star, arcus_visionis, alt.hor, k, limit, alt.rs, res, refraction, atm, temp, pb, pb0)
-    phase[match(jd, jjj)] <- aux
+    days <- ind[[i]]
+    aux <- calc.phase(year, days, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res, refraction, atm, temp, pb, pb0)
+    phase[days] <- aux
     pb0 <- pb0 + length(ind[[i]])
   }
-  phase <- phase[1:365]
 
   # find december solstice date and pin calendar to it
-  days <- calWS(findWS(year, 'G'))
+  days <- seq(1,365)-which.min(dd)
+  days[days<0] <- days[days<0]+365
+
   ind <- sort(days, index.return=T)$ix
   days <- days[ind]; phase <- phase[ind]
 
@@ -267,6 +277,9 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
   rownames(events) <- NULL
   events$day <- dd.to.DD(events$day, char=T, WS=T)
 
+  # cleanup
+  phase <- sapply(phase, function(x) { paste(unique(strsplit(x, "")[[1]]), collapse='')}, USE.NAMES =F)
+
   # identify seasons
   seasons <- data.frame(season=NA, begin=NA, end=NA, length=NA)
   ttt <- which(phase=='R')
@@ -279,6 +292,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
     seasons[nrow(seasons)+1,] <- data.frame(season='rise only', begin=db, end=de)
   }
 
+  ttt <- which(phase=='SR'); phase[ttt] <- 'RS'
   ttt <- which(phase=='RS')
   if (length(ttt)>0) {
     if (sum(diff(ttt)>1)>0) {
@@ -339,4 +353,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
   class(out) <- 'skyscapeR.starphases'
   return(out)
 }
+
+
+
 

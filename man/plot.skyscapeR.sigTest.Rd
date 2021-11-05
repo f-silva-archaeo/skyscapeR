@@ -8,6 +8,7 @@
   x,
   xlim,
   title = NULL,
+  col = "blue",
   show.pval = T,
   show.local = F,
   pal = brewer.pal(5, "PRGn")[c(1, 5)],
@@ -20,6 +21,8 @@
 \item{xlim}{(Optional) Range of x-axis to plot.}
 
 \item{title}{(Optional) Title to add to the plot.}
+
+\item{col}{(Optional) Color of summed probability density. Defaults to blue.}
 
 \item{show.pval}{(Optional) Boolean to control whether to print the global p-value. Default is TRUE.}
 

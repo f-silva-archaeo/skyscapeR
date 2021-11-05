@@ -21,7 +21,7 @@ star.phases(
 \arguments{
 \item{star}{Either the star name or a \emph{skyscapeR.star} object.}
 
-\item{year}{The year of interest. Must be in the \emph{swephR} range of 13201 cal BC to 17191 AD}
+\item{year}{The year of interest.}
 
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
 containing the latitude and longitude of location, in this order.}
@@ -61,7 +61,6 @@ the atmospheric extinction approximation of Schaefer (1989). For
 the nomenclature used, and description of star phase types, see Brady (2015).
 }
 \examples{
-\dontrun{
 ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200))
 
 # One can then look at the star's phase type:
@@ -79,7 +78,6 @@ plot(ss1)
 # You can play with the parameters and see how predictions change:
 ss1 <- star.phases('Aldebaran',-4000, c(35,-8,200), alt.hor=2, alt.rs=5)
 plot(ss1)
-}
 }
 \references{
 Purrington, Robert D. (1988) Heliacal Rising and Setting:

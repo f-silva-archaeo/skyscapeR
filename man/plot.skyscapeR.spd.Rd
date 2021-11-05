@@ -15,7 +15,7 @@
 
 \item{title}{(Optional) Title to add to the plot.}
 
-\item{col}{(Optional) Color of summed probability density. Defaults to blue with 0.5 alpha.}
+\item{col}{(Optional) Color of summed probability density. Defaults to blue.}
 
 \item{shading}{(Optional) Boolean to control whether to color the entire distribution. Defaults to TRUE}
 

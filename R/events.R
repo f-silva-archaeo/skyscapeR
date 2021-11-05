@@ -79,7 +79,8 @@ sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
 
   for (i in 1:N) {
     # stars
-    if (swephR::swe_fixstar2_ut(names[i], swephR::swe_julday(2000, 1, 1, 12.,1), 2048+16384+16)$serr=="") {
+    test <- try(star(names[i]), silent=T)
+    if (class(test) != 'try-error') {
       aux <- array(NA, c(NROW(epoch),1))
       for (j in 1:NROW(epoch)) {
         aux[j,] <- star(names[i], epoch[j])$coord$Dec
@@ -518,7 +519,6 @@ sMjLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, alt
 #' @param timezone (Optional) Timezone for output of rising and setting time either as a known acronym
 #' (e.g. "GMT", "CET") or a string with continent followed by country capital (e.g. "Europe/London"). See
 #' \link{timezones} for details. Defaults to system timezone.
-#' @import swephR parallel foreach doParallel
 #' @export
 #' @examples
 #' # Spring Full Moon from a location in Portugal in the year 2018

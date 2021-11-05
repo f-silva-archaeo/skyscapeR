@@ -24,7 +24,7 @@
 #' plotAzimuth(obj=tt)
 plotAzimuth = function(az, col='blue', lwd=1.5, lty=1, obj, show.obj.labels=T) {
   options(warn=-1)
-  oldpar <- par('mar','mfrow')
+  oldpar <- par()
   par(mar=c(1,1,1,1))
 
   if (!missing(obj)) {
@@ -178,7 +178,8 @@ plotBars <- function(val, unc, names, unit='Declination', col='blue', shade=TRUE
 #' for displaying the paths of celestial objects.
 #' @param refraction (Optional) Boolean switch controlling whether to take refraction into account
 #' when displaying the paths of celestial objects.
-#' @param col.ground (Optional) Color of the ground. Defaults to \emph{#fdae61}.
+#' @param col.ground (Optional) Color of the ground. Defaults to \emph{darkgreen}.
+#' @param col.sky (Optional) Color of the sky. Defaults to \emph{white}.
 #' @param ... Additional arguments to be passed to \emph{plot}.
 #' @rdname plot.skyscapeR.horizon
 #' @export
@@ -192,7 +193,7 @@ plotBars <- function(val, unc, names, unit='Declination', col='blue', shade=TRUE
 #' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
 #' tt <- sky.objects('solar extremes', epoch=-2000, col='blue')
 #' plot(hor, obj=tt)
-plot.skyscapeR.horizon <- function(x, show.az=F, xlim, ylim, obj, refraction=F, col.ground='#fdae61', ...) {
+plot.skyscapeR.horizon <- function(x, show.az=F, xlim, ylim, obj, refraction=F, col.ground='darkgreen', col.sky, ...) {
   if (missing(xlim)) { xlim <- c(0,360) }
   if (missing(ylim)) { ylim <- c(floor(min(x$data$alt, na.rm=T))-5,45) }
 
@@ -215,6 +216,11 @@ plot.skyscapeR.horizon <- function(x, show.az=F, xlim, ylim, obj, refraction=F, 
 
     ll <- c("N","NE","E","SE","S","SW","W","NW","N","NE","E","SE","S","SW","W","NW","N","NE","E","SE","S","SW","W","NW","N")
     axis(1, at = seq(-360,720,by=45), labels = ll, lwd=0.5)
+  }
+
+  # Sky colour
+  if (!missing(col.sky)) {
+    polygon(c(-360,720,720,-360), c(-90,-90,90,90), col=col.sky, border=NA)
   }
 
   # objects
@@ -261,8 +267,8 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
 
   if (length(index)==1 & x$metadata$coord == 'dec') {
     # Coordinate Transformation Panels
-    xx <- x$metadata$az.x$data[[index]]$x
-    dens <- x$metadata$az.x$data[[index]]$y
+    xx <- get(x$metadata$az.pdf)$data[[index]]$x
+    dens <- get(x$metadata$az.pdf)$data[[index]]$y
     xl <- range(x$data[[index]]$x)
     yl <- range(xx);  yl[1] <- max(yl[1],0); yl[2] <- min(yl[2],360)
 
@@ -297,18 +303,19 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
     plot(-999,999, axes=F, xlim=xl, ylim=yl, xaxs='i', yaxs='i', ...); box()
 
     ## process horizon profile
-    hh <- x$metadata$horizon[[index]]$data
-    alt <- approx(hh$az, hh$alt, xout=xx)$y
-    alt.unc <- approx(hh$az, hh$alt.unc, xout=xx)$y
+    hh <- get(x$metadata$horizon); if (class(hh) == 'list') { hh <- hh[[index]] }
+    # hh <- x$metadata$horizon[[index]]$data
+    alt <- approx(hh$data$az, hh$data$alt, xout=xx)$y
+    alt.unc <- approx(hh$data$az, hh$data$alt.unc, xout=xx)$y
     refraction <- x$metadata$param$refraction
     atm <- x$metadata$param$atm
     temp <- x$metadata$param$temp
 
-    dec0 <- az2dec(xx, x$metadata$horizon[[index]], alt, refraction=refraction, atm=atm, temp=temp)
-    dec1 <- az2dec(xx, x$metadata$horizon[[index]], alt+alt.unc, refraction=refraction, atm=atm, temp=temp)
-    dec2 <- az2dec(xx, x$metadata$horizon[[index]], alt-alt.unc, refraction=refraction, atm=atm, temp=temp)
-    dec3 <- az2dec(xx, x$metadata$horizon[[index]], alt+2*alt.unc, refraction=refraction, atm=atm, temp=temp)
-    dec4 <- az2dec(xx, x$metadata$horizon[[index]], alt-2*alt.unc, refraction=refraction, atm=atm, temp=temp)
+    dec0 <- az2dec(xx, hh, alt, refraction=refraction, atm=atm, temp=temp)
+    dec1 <- az2dec(xx, hh, alt+alt.unc, refraction=refraction, atm=atm, temp=temp)
+    dec2 <- az2dec(xx, hh, alt-alt.unc, refraction=refraction, atm=atm, temp=temp)
+    dec3 <- az2dec(xx, hh, alt+2*alt.unc, refraction=refraction, atm=atm, temp=temp)
+    dec4 <- az2dec(xx, hh, alt-2*alt.unc, refraction=refraction, atm=atm, temp=temp)
 
     yp <- c(xx, rev(xx))
     xp <- c(dec3, rev(dec4))
@@ -390,7 +397,7 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
 #' @param xlim (Optional) Range of x-axis to plot.
 #' @param ylim (Optional) Range of y-axis to plot.
 #' @param title (Optional) Title to add to the plot.
-#' @param col (Optional) Color of summed probability density. Defaults to blue with 0.5 alpha.
+#' @param col (Optional) Color of summed probability density. Defaults to blue.
 #' @param shading (Optional) Boolean to control whether to color the entire distribution. Defaults to TRUE
 #' @param ... Additional arguments to be passed to \emph{plot}.
 #' @rdname plot.skyscapeR.spd
@@ -436,13 +443,15 @@ plot.skyscapeR.spd <- function(x, xlim, ylim, title=NULL, col='blue', shading=T,
 #' @param x A \emph{skyscapeR.sigTest} object created with \code{\link{randomTest}}
 #' @param xlim (Optional) Range of x-axis to plot.
 #' @param title (Optional) Title to add to the plot.
+#' @param col (Optional) Color of summed probability density. Defaults to blue.
 #' @param show.pval (Optional) Boolean to control whether to print the global p-value. Default is TRUE.
 #' @param show.local (Optional) Boolean to control whether to show local regions of significance. Default is FALSE
 #' @param pal (Optional) Color palette for local regions of significance. Default is brewer.pal(5, 'PRGn')
 #' @param ... Additional arguments to be passed to \emph{plot}.
 #' @rdname plot.skyscapeR.sigTest
 #' @export
-plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, show.pval=T, show.local=F, pal=brewer.pal(5, 'PRGn')[c(1,5)], ...) {
+plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T, show.local=F, pal=brewer.pal(5, 'PRGn')[c(1,5)], ...) {
+  par(mar=c(5, 4, 1, 1) + 0.1)
   # empirical spd
   spd <- x$data$empirical
   if (missing(xlim)) { xlim <- sort(spd$x[c(min(which(spd$y >= 1e-12)), max(which(spd$y >= 1e-12)))]) }
@@ -453,10 +462,10 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, show.pval=T, show.local=
     xlim[1] <- max(xlim[1], 0)
     xlim[2] <- min(xlim[2], 360)
   }
-  plot(spd$x, spd$y, type='l', main=title, xlab=label, ylab='Density', lwd=2, col='blue', xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=F, ...); box()
+  plot(spd$x, spd$y, type='l', main=title, xlab=label, ylab='Density', lwd=2, col=col, xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=F, ...); box()
   xp <- c(spd$x, rev(spd$x))
   yp <- c(spd$y, rep(0, length(spd$x)))
-  polygon(xp, yp, col=MESS::col.alpha('blue',0.5), border=NA)
+  polygon(xp, yp, col=MESS::col.alpha(col,0.5), border=NA)
   if (x$metadata$coord == 'dec') {
     axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
     axis(1, at=0, labels = 0)
@@ -472,7 +481,6 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, show.pval=T, show.local=
   axis(2)
 
   # sigtest
-  # lines(spd$x, sig$data$null.hyp$CE.mean, col='grey')
   xp <- c(spd$x, rev(spd$x))
   if (x$metadata$tails==1) {
     yp <- c(x$data$null.hyp$CE.upper, rep(0, length(spd$x)))
@@ -568,7 +576,7 @@ plot.skyscapeR.starphases = function(x, ...) {
     ind <- which(x$data$phase == code[4])
     if (length(ind) > 0) {
       lines(rep(min(ind)-1,2), c(0,1), lty=2, lwd=1.5, col='black')
-      text(min(ind)-1,0.02, events[1], cex=0.8, font=1, srt=90 ,pos=2)
+      text(min(ind)-1,0.02, events[1], cex=0.8, font=1, srt=90 ,pos=4)
 
       lines(rep(max(ind)+1,2), c(0,1), lty=2, lwd=1.5, col='black')
       text(max(ind)+1,0.02, events[2], cex=0.8, font=1, srt=90 ,pos=4)

@@ -177,7 +177,6 @@ dd.to.DD_unvec <- function(day, char=F, WS=F) {
 
   for (i in 1:length(day)) {
     if (day[i] >= 1 & day[i] <= 365) {
-      month.name
       months <- c(31,28,31,30,31,30,31,31,30,31,30,31)
       summon <- cumsum(months)
 

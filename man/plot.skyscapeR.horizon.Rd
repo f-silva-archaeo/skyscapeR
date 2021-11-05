@@ -11,7 +11,8 @@
   ylim,
   obj,
   refraction = F,
-  col.ground = "#fdae61",
+  col.ground = "darkgreen",
+  col.sky,
   ...
 )
 }
@@ -31,7 +32,9 @@ for displaying the paths of celestial objects.}
 \item{refraction}{(Optional) Boolean switch controlling whether to take refraction into account
 when displaying the paths of celestial objects.}
 
-\item{col.ground}{(Optional) Color of the ground. Defaults to \emph{#fdae61}.}
+\item{col.ground}{(Optional) Color of the ground. Defaults to \emph{darkgreen}.}
+
+\item{col.sky}{(Optional) Color of the sky. Defaults to \emph{white}.}
 
 \item{...}{Additional arguments to be passed to \emph{plot}.}
 }

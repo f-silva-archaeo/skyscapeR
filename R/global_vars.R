@@ -2,7 +2,7 @@
 skyscapeR.env <- new.env(parent = emptyenv())
 
 # Timezone and Calendar
-skyscapeR.env$timezone <- ''
+skyscapeR.env$timezone <- 'Europe/London'
 skyscapeR.env$calendar <- 'Gregorian'
 
 # Atmospheric Refraction
@@ -13,8 +13,12 @@ skyscapeR.env$temp <- 15
 # Frame of Reference
 skyscapeR.env$dec <- 'topo'
 
+# star ephemeris source
+skyscapeR.env$stars <- 'skyscapeR'
+
 # Current Year (cannot be changed)
 skyscapeR.env$cur.year <- as.numeric(format(Sys.Date(), "%Y"))
+
 ################################################
 
 #' See and change the global variables used by skyscapeR
@@ -30,9 +34,6 @@ skyscapeR.env$cur.year <- as.numeric(format(Sys.Date(), "%Y"))
 #' @param dec Output declination: \emph{geo} for the geocentric, or \emph{topo} for the topocentric
 #' frame of reference. Defaults to topocentric.
 #' @export
-#' @examples
-#' # Julian date at noon GMT on Christmas day 2018
-#' time2jd('2018-12-25 12:00:00', 'GMT')
 skyscapeR.vars = function(timezone, calendar, refraction, atm, temp, dec) {
   if (!missing(timezone)) { skyscapeR.env$timezone <- timezone }
   if (!missing(calendar)) { skyscapeR.env$calendar <- calendar }
@@ -42,27 +43,38 @@ skyscapeR.vars = function(timezone, calendar, refraction, atm, temp, dec) {
   if (!missing(dec)) { skyscapeR.env$dec <- dec }
 
   aux <- ls(skyscapeR.env)
-  return(mget(aux[-which(aux=='sefstars')], skyscapeR.env))
+  return(mget(aux, skyscapeR.env))
 }
 
 
-################################################
-### Clean-up and prep sefstars file from swephR
-fpath <- system.file("ephemeris", "sefstars.txt", package="swephR")
-cnames <- c('traditional name','nomenclature name','equinox','RA hr','RA min', 'RA sec', 'Dec deg', 'Dec min', 'Dec sec', 'pm RA', 'pm Dec', 'rad vel', 'ann plx', 'mag V', 'DM zone', 'DM number')
-sefstars <- read.csv(fpath, as.is=T, header=F, comment.char='#', col.names=cnames, strip.white=T)
-sefstars <- sefstars[-which(sefstars$mag.V==0),]
-ind <- sort(sefstars$mag.V, index.return=T)$ix
-sefstars <- sefstars[ind,]
+#' Swap between swephR and skyscapeR versions of stellar ephemeris
+#'
+#' @param source Package name for the source of the stellar ephemeris data. Can be
+#' either \emph{swephR} or \emph{skyscapeR}. Defaults to the latter.
+#' @export
+swapStars <- function(source='skyscapeR') {
+  folder <- .libPaths()
+  if (source=='skyscapeR') {
+    # copy original swephR file with backup in skyscapeR folder
+    file.copy(paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), paste0(system.file('ephemeris',package='swephR'),'/sefstars.bkp'), overwrite=T)
+    file.copy(paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.txt'), paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.bkp'), overwrite=T)
+    file.copy(paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), paste0(system.file('ephemeris',package='skyscapeR'),'/sefstars.bkp'), overwrite=T)
 
-# removes duplicated entries (double stars, etc)
-ind <- which(duplicated(sefstars$nomenclature.name)); sefstars <- sefstars[-ind,]
-ind <- which(sefstars$nomenclature.name=='80Uma'); sefstars <- sefstars[-ind,]
+    # replace with new one
+    file.copy(paste0(system.file('ephemeris',package='skyscapeR'),'/skyscapeR-sefstars.txt'), paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), overwrite=T)
+    file.copy(paste0(system.file('ephemeris',package='skyscapeR'),'/skyscapeR-sefstars.txt'), paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.txt'), overwrite=T)
+    cat('Replaced swephR stellar ephemeris file with skyscapeR version.')
 
-# removes stars without name as swephR::swe_fixstar2_ut cannot pick them up anyway
-# ind <- which(ss$traditional.name==""); ss <- ss[-ind,]
+  } else if (source=='swephR') {
+    if (file.exists(paste0(system.file('ephemeris',package='swephR'),'/sefstars.bkp'))) {
+      file.copy(paste0(system.file('ephemeris',package='swephR'),'/sefstars.bkp'), paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), overwrite=T)
+      file.copy(paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.bkp'), paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.txt'), overwrite=T)
+    } else if (file.exists(paste0(system.file('ephemeris',package='skyscapeR'),'/sefstars.bkp'))) {
+      file.copy(paste0(system.file('ephemeris',package='skyscapeR'),'/sefstars.bkp'), paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), overwrite=T)
+      file.copy(paste0(system.file('ephemeris',package='skyscapeR'),'/sefstars.bkp'), paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.txt'), overwrite=T)
+    } else { stop('Original swephR version of stellar ephemeris already in place.') }
+    cat('Replaced stellar ephemeris file with original swephR version.')
+  } else { stop('Source not recognised.')}
+}
 
-skyscapeR.env$sefstars <- sefstars
-rm(fpath, cnames, ind, sefstars)
-################################################
-
+globalVariables('star.names')

@@ -26,7 +26,3 @@ frame of reference. Defaults to topocentric.}
 \description{
 See and change the global variables used by skyscapeR
 }
-\examples{
-# Julian date at noon GMT on Christmas day 2018
-time2jd('2018-12-25 12:00:00', 'GMT')
-}

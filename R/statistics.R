@@ -128,9 +128,9 @@ az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-4, .res=0.
 
 
 #' @noRd
-coordtrans_unc <- function(pdf, hor, refraction, atm, temp, verbose=T, .res=0.1) {
+coordtrans_unc <- function(pdf, hor, xrange, refraction, atm, temp, verbose=T, .res=0.1) {
 
-  if (class(pdf)[1] != 'skyscapeR.pdf' & pdf$metadata$coord != 'az') stop('Azimuthal probability density function(s) not recognized or not in correct format.')
+  if ((class(pdf)[1] != 'skyscapeR.pdf' & pdf$metadata$coord != 'az') & (class(pdf)[1] != 'skyscapeR.spd')) stop('Azimuthal probability density function(s) not recognized or not in correct format.')
   if (class(hor)[1] != 'skyscapeR.horizon' & class(hor)[1] != 'list') stop('Horizon(s) not recognized or not in correct format.')
 
   ## init parameters
@@ -138,55 +138,64 @@ coordtrans_unc <- function(pdf, hor, refraction, atm, temp, verbose=T, .res=0.1)
   if (missing(atm)) { atm <- skyscapeR.env$atm }
   if (missing(temp)) { temp <- skyscapeR.env$temp }
 
-  n <- length(pdf$metadata$az)
+  if (class(pdf)[1] == 'skyscapeR.spd') {
+    n <- 1
+    pdf$data <- list(pdf$data)
+  } else {
+    n <- length(pdf$metadata$az)
+  }
   .cutoff <- pdf$metadata$param$.cutoff
+
 
   if (class(hor)[1] == "skyscapeR.horizon") {
     if (verbose) { cat('Single horizon profile found. Using it for all measurements.\n') }
-    hor <- rep(list(hor),n)
+    j <- 1; hh <- list(hor)
+  } else {
+    pointr::ptr('j','k')
+    hh <- hor
   }
 
   xx <- seq(-90, 360+90, .1)
 
   out <- list()
-  if (verbose & length(pdf$metadata$az)>1) { pb <- txtProgressBar(max = length(pdf$metadata$az), style = 3) }
+  if (verbose & n>1) { pb <- txtProgressBar(max = n, style = 3) }
 
   for (k in 1:n) {
     azs <- pdf$data[[k]]$x
 
-    hh <- hor[[k]]$data
-    loc <- hor[[k]]$metadata$georef
-    fhor <- approx(hh$az, hh$alt, xout=azs)$y
-    fhor.unc <- approx(hh$az, hh$alt.unc, xout=azs)$y
+    fhor <- approx(hh[[j]]$data$az, hh[[j]]$data$alt, xout=azs)$y
+    fhor.unc <- approx(hh[[j]]$data$az, hh[[j]]$data$alt.unc, xout=azs)$y
 
-    aux1 <- az2dec(azs, hor[[k]], fhor-4*fhor.unc, refraction=refraction, atm=atm, temp=temp)
-    aux2 <- az2dec(azs, hor[[k]], fhor+4*fhor.unc, refraction=refraction, atm=atm, temp=temp)
+    aux1 <- az2dec(azs, hh[[j]], fhor-4*fhor.unc, refraction=refraction, atm=atm, temp=temp)
+    aux2 <- az2dec(azs, hh[[j]], fhor+4*fhor.unc, refraction=refraction, atm=atm, temp=temp)
 
-    min.dec <- min(aux1, aux2, na.rm=T); max.dec <- max(aux1, aux2, na.rm=T)
+    if (missing(xrange)) {
+      min.dec <- min(aux1, aux2, na.rm=T); max.dec <- max(aux1, aux2, na.rm=T)
+    } else {
+      min.dec <- xrange[1]; max.dec <- xrange[2]
+    }
 
     dec <- seq(min.dec, max.dec, by = .res)
     mean.dec <- (aux2+aux1)/2
     sd.dec <- (aux2-aux1)/8
 
     dens <- rep(NA, length(dec))
-    if (verbose & n==1) { pb <- txtProgressBar(max = length(dec), style = 3) }
-    for (i in 1:length(dec)) {
-      d <- dnorm(dec[i], mean.dec, sd.dec)
+
+    fn <- function(x, mean.dec, sd.dec, azs, pdf, xx) {
+      d <- dnorm(x, mean.dec, sd.dec)
       f <- approxfun(azs, d, yleft=0, yright=0)
 
       # do convolution manually
       conv <- f(xx) * approx(pdf$data[[k]]$x, pdf$data[[k]]$y, xout=xx, yleft=0, yright=0)$y
-      dens[i] <- MESS::auc(xx, conv)
-
-      if (verbose & n==1) { setTxtProgressBar(pb, i) }
+      dens <- MESS::auc(xx, conv)
+      return(dens)
     }
+    dens <- sapply(dec, fn, mean.dec=mean.dec, sd.dec=sd.dec, azs=azs, pdf=pdf, xx=xx)
 
-    ss <- splinefun(dec, dens)
-    dec <- seq(min.dec, max.dec, .001)
-    dens <- ss(dec)
+    dens <- spline(dec, dens, xout=seq(min.dec, max.dec, .01))
+    dec <- dens$x; dens <- dens$y
 
-    # normalise
-    dens <- dens/MESS::auc(dec,dens)
+    if (class(pdf)[1] != 'skyscapeR.spd') { dens <- dens/MESS::auc(dec,dens) } # normalise
 
     out[[k]] <- data.frame(x=dec, y=dens)
     if (verbose & n>1) { setTxtProgressBar(pb, k) }
@@ -197,19 +206,24 @@ coordtrans_unc <- function(pdf, hor, refraction, atm, temp, verbose=T, .res=0.1)
     name = pdf$metadata$name
   )
   mtdta$param <- list(refraction = refraction, atm=atm, temp=temp, .cutoff=.cutoff, .res=.res)
-  mtdta$horizon <-  hor
-  mtdta$az.pdf <- pdf
+  mtdta$horizon <- deparse(substitute(hor))
+  mtdta$az.pdf <- deparse(substitute(pdf))
   out <- list(metadata = mtdta, data = out)
-  class(out) <- 'skyscapeR.pdf'
-
+  if (class(pdf)[1] == 'skyscapeR.spd') {
+    class(out) <- 'skyscapeR.spd'
+    out$data <- out$data[[1]]
+  } else {
+    class(out) <- 'skyscapeR.pdf'
+  }
   if (verbose) { cat('\nDone.') }
   return(out)
 }
 
 #' Coordinate-transform azimuth prob distributions into declination prob distributions
 #'
-#' @param pdf A \emph{skyscapeR.pdf} object created with \code{\link{az.pdf}}
+#' @param pdf A \emph{skyscapeR.pdf} object created with \code{\link{az.pdf}} or a \emph{skyscapeR.spd} object created with \code{\link{spd}}
 #' @param hor A \emph{skyscapeR.horizon} object created with \code{\link{createHor}} or \code{\link{downloadHWT}}
+#' @param xrange (Optional) Array of values (min and max) for SPD when transforming a \emph{skyscapeR.spd} object.
 #' @param refraction (Optional) Whether atmospheric refraction is to be taken into account.
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param atm (Optional) Atmospheric pressure for refraction calculation.
@@ -218,6 +232,7 @@ coordtrans_unc <- function(pdf, hor, refraction, atm, temp, verbose=T, .res=0.1)
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @param .res (Optional) Declination resolution with which to output probability distribution(s). Default is 0.1 degrees.
+#' @import pointr
 #' @export
 #' @references Silva, F (2020) A probabilistic framework and significance test for the analysis of structural orientations
 #'  in skyscape archaeology \emph{Journal of Archaeological Science} 118, 105138. <doi:10.1016/j.jas.2020.105138>
@@ -233,7 +248,8 @@ coordtrans <- compiler::cmpfun(coordtrans_unc, options=list(enableJIT = 3))
 #'
 #' @param pdf A \emph{skyscapeR.pdf} object created with either \code{\link{az.pdf}} or \code{\link{coordtrans}}
 #' @param normalise (Optional) Boolean to control whether to normalize the SPD. Default is FALSE
-#' @param xrange (Optional) Array of values (min and max) for SPD if different from range of \emph{pdf}
+#' @param xrange (Optional) Array of values (min and max) for SPD if different from range of \emph{pdf}. If given,
+#' it overrides \emph{.cutoff}
 #' @param .cutoff (Optional) Value of SPD at which point it will be cutoff to save on memory. Default is 1e-5
 #' @param .res (Optional) Resolution with which to output SPD. Default is 0.01 degrees.
 #' @export
@@ -256,7 +272,10 @@ spd <- function(pdf, normalise = F, xrange, .cutoff = 1e-5, .res = 0.01) {
   aux <- pdf$data
   x <- lapply(aux, "[[", 'x')
   y <- lapply(aux, "[[", 'y')
-  if (missing(xrange)) { xrange <- range(x) }
+  if (missing(xrange)) {
+    xrange <- range(x)
+    cutoff <- T
+  } else { cutoff <- F }
 
   xx <- seq(xrange[1], xrange[2], .res)
   spd <- rep(0, length(xx))
@@ -264,14 +283,14 @@ spd <- function(pdf, normalise = F, xrange, .cutoff = 1e-5, .res = 0.01) {
     spd <- spd + approx(x[[i]], y[[i]], xout=xx, yleft=0, yright=0)$y
   }
 
-  spd[spd < .cutoff] <- 0
+  if (cutoff) { spd[spd < .cutoff] <- 0 }
 
   if (normalise) { spd <- spd/sum(spd, na.rm = T) }
   out <- c()
   out$metadata <- c()
   out$metadata$coord <- pdf$metadata$coord
   out$metadata$xrange <- xrange
-  out$metadata$param$.cutoff <- .cutoff
+  if (cutoff) { out$metadata$param$.cutoff <- .cutoff }
   out$metadata$param$.res <- .res
   out$data <- data.frame(x = xx, y = spd)
 
@@ -282,61 +301,89 @@ spd <- function(pdf, normalise = F, xrange, .cutoff = 1e-5, .res = 0.01) {
 
 
 #' @noRd
-randomTest_unc <- function(pdf, nsims=1000, conf=.95, tails=2, normalise=F, ncores=parallel::detectCores()-1, save.sim=F, verbose=T) {
-
-  if (save.sim & ncores>1) { stop('Cannot save simulated values when running on more than one core.')}
-  if (pdf$metadata$coord == 'dec') {
+randomTest_unc <- function(pdf, .res=0.1, nsims=1000, conf=.95, tails=2, normalise=F, ncores=parallel::detectCores()-1, verbose=T, hor, refraction, atm, temp) {
+  quick <- F
+  if (pdf$metadata$coord == 'dec' | !missing(hor) ) {
+    cat('Running statistical significance test on declination.\n')
+    coord <- 'dec'
     xrange <- c(-90,90)
-    az <- pdf$metadata$az.pdf
-  }
-  if (pdf$metadata$coord == 'az') {
+    if (pdf$metadata$coord == 'dec') {
+      az <- get(pdf$metadata$az.pdf, pos = 1)
+      hor <- get(pdf$metadata$horizon, pos = 1)
+      refraction <- pdf$metadata$param$refraction
+      atm <- pdf$metadata$param$atm
+      temp <- pdf$metadata$param$temp
+      empirical <- spd(pdf, xrange=xrange, normalise = normalise, .res=.res)
+    } else {
+      az <- pdf
+      if (class(hor) != "skyscapeR.horizon") { stop('Please include a valid skyscapeR.horizon object.') }
+      if (verbose) { cat('Single horizon profile found. Using it for all measurements.\n') }
+      if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
+      if (missing(atm)) { atm <- skyscapeR.env$atm }
+      if (missing(temp)) { temp <- skyscapeR.env$temp }
+      quick <- T
+      empirical <- spd(pdf, .res=.res)
+      empirical <- coordtrans(empirical, hor, xrange=xrange, refraction=refraction, atm=atm, temp=temp, verbose=F, .res=.res)
+    }
+  } else {
+    cat('Running statistical significance test on azimuth.\n')
+    coord <- 'az'
     xrange <- c(0,360)
     az <- pdf
+    empirical <- spd(pdf, normalise = normalise, xrange=xrange, .res=.res)
+    ncores <- 1 ## Forces this due to strange error
   }
 
-  ## empirical SPD
-  if (verbose) { cat('Creating Empirical SPD...') }
-  empirical <- spd(pdf, xrange=xrange, normalise = normalise)
-  if (verbose) { cat('Done.\n') }
-
-
   if (ncores > 1) {
-    ## bootstrapping
-    cl <- parallel::makeCluster(ncores)
-    doParallel::registerDoParallel(cl)
-    if (verbose) { cat(paste0('Running ', nsims,' simulations on ', ncores, ' processing cores. This may take a while...')) }
-
-    res <- matrix(NA, nsims, length(empirical$data$y))
-    res <- foreach (i = 1:nsims, .combine=rbind, .inorder = F) %dopar% {
-      simAz <- sample(seq(0, 360, az$metadata$param$.res), length(az$metadata$az), replace=T)
-      simPDF <- az.pdf(pdf = az$metadata$pdf, az=simAz, unc=az$metadata$unc, verbose=F)
-
-      if (pdf$metadata$coord == 'dec') {
-        simPDF <- coordtrans(simPDF, hor=pdf$metadata$horizon, refraction=pdf$metadata$param$refraction, atm=pdf$metadata$param$atm, temp=pdf$metadata$param$temp, verbose=F, .res=pdf$metadata$param$.res)
-      }
-      spd(simPDF, xrange=xrange, normalise = normalise)$data$y
+    cl <- snow::makeCluster(ncores)
+    doSNOW::registerDoSNOW(cl)
+    if (verbose) {
+      cat(paste0('Running ', nsims,' simulations on ', ncores, ' processing cores.\n'))
+      pb <- txtProgressBar(max=nsims, style=3)
+      progress <- function(i) setTxtProgressBar(pb, i)
+      opts <- list(progress = progress)
     }
-    parallel::stopCluster(cl)
-    if (verbose) { cat('Done.\n') }
+    res <- matrix(NA, nsims, length(empirical$data$y))
+    res <- foreach (i = 1:nsims, .combine=rbind, .inorder = F, .options.snow = opts) %dopar% {
+      simAz <- sample(seq(0, 360, az$metadata$param$.res), length(az$metadata$name), replace=T)
+      simPDF <- az.pdf(pdf=az$metadata$pdf, az=simAz, unc=az$metadata$unc, verbose=F)
+
+      if (quick==T) {
+        simPDF <- spd(simPDF)
+        coordtrans(simPDF, hor, xrange=xrange, refraction=refraction, atm=atm, temp=temp, verbose=F, .res=.res)$data$y
+      } else {
+        if (coord == 'dec') {
+          simPDF <- coordtrans(simPDF, hor, refraction=refraction, atm=atm, temp=temp, verbose=F, .res=.res)
+        }
+        spd(simPDF, xrange=xrange, normalise=normalise, .res=.res)$data$y
+      }
+    }
+    snow::stopCluster(cl)
+    if (verbose) { cat('\n') }
 
   } else {
-    if (verbose) { cat(paste0('Running ', nsims,' simulations on a single processing core. This may take a while...')) }
-    if (save.sim) { sim.az <- matrix(NA, nsims, length(az)) }
+    if (verbose) {
+      cat(paste0('Running ', nsims,' simulations on a single processing core.\n'))
+      pb <- txtProgressBar(max=nsims, style=3)
+    }
     res <- matrix(NA, nsims, length(empirical$data$y))
-    if (verbose) { pb <- txtProgressBar(max=nsims, style=3) }
     for (i in 1:nsims) {
-      simAz <- sample(seq(0, 360, az$metadata$param$.res), length(az$metadata$az), replace=T)
-      simPDF <- az.pdf(pdf = az$metadata$pdf, az=simAz, unc=az$metadata$unc, verbose=F)
+      simAz <- sample(seq(0, 360, az$metadata$param$.res), length(az$metadata$name), replace=T)
+      simPDF <- az.pdf(pdf=az$metadata$pdf, az=simAz, unc=az$metadata$unc, verbose=F)
 
-      if (pdf$metadata$coord == 'dec') {
-        simPDF <- coordtrans(simPDF, hor=pdf$metadata$horizon, refraction=pdf$metadata$param$refraction, atm=pdf$metadata$param$atm, temp=pdf$metadata$param$temp, verbose=F, .res=pdf$metadata$param$.res)
+      if (quick==T) {
+        simPDF <- spd(simPDF)
+        res[i,] <- coordtrans(simPDF, hor, xrange=xrange, refraction=refraction, atm=atm, temp=temp, verbose=F, .res=.res)$data$y
+      } else {
+        if (coord == 'dec') {
+          simPDF <- coordtrans(simPDF, hor, refraction=refraction, atm=atm, temp=temp, verbose=F, .res=.res)
+        }
+        res[i,] <- spd(simPDF, xrange=xrange, normalise=normalise, .res=.res)$data$y
       }
-      res[i,] <- spd(simPDF, xrange=xrange, normalise = normalise)$data$y
 
-      if (save.sim) { sim.az[i,] <- simAz }
       if (verbose) { setTxtProgressBar(pb, i) }
     }
-    if (verbose) { cat('Done.\n') }
+    if (verbose) { cat('\n') }
   }
 
   ## confidence envelope
@@ -410,7 +457,7 @@ randomTest_unc <- function(pdf, nsims=1000, conf=.95, tails=2, normalise=F, ncor
 
   ## output
   out <- c()
-  out$metadata$coord <- pdf$metadata$coord
+  out$metadata$coord <- coord
   out$metadata$nsims <- nsims
   out$metadata$conf <- conf
   out$metadata$tails <- tails
@@ -421,7 +468,6 @@ randomTest_unc <- function(pdf, nsims=1000, conf=.95, tails=2, normalise=F, ncor
   out$data$empirical <- empirical$data
   out$data$null.hyp <- list(x = empirical$data$x, CE.mean = zMean, CE.upper = upCI)
   if (tails==2) { out$data$null.hyp$CE.lower <- loCI }
-  if (save.sim) { out$data$simulated <- sim.az }
   class(out) <- 'skyscapeR.sigTest'
 
   return(out)
@@ -431,15 +477,25 @@ randomTest_unc <- function(pdf, nsims=1000, conf=.95, tails=2, normalise=F, ncor
 #' Significance test against the null hypothesis of random orientation
 #'
 #' @param pdf A \emph{skyscapeR.pdf} object created with either \code{\link{az.pdf}} or \code{\link{coordtrans}}
-#' @param nsims (Optional) Boolean switch controlling whether to normalize the SPD. Default is FALSE
-#' @param conf (Optional) Array of values (min and max) for SPD if different from range of \emph{pdf}
+#' @param nsims (Optional) Number of simulations to run. Default is 1000.
+#' @param conf (Optional) Confidence envelope (in percentage) of the null model to calculate. Default is .95
 #' @param tails (Optional) Whether to calculate 1-tailed p-value (greater than) or 2-tailed p-value (smaller than or greater than).
 #' Default is 2.
 #' @param normalise (Optional) Boolean to control whether to normalize SPDs. Default is FALSE
 #' @param ncores (Optional) Number of CPU cores to use. Default is the number of available cores minus 1.
-#' @param save.sim (Optional) Boolean to control whether to save the output of each random simulation.
-#' For testing/advanced use only. Default is FALSE
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
+#' @param .res (Optional) Resolution with which to output probability distribution(s). Default is 0.1 degrees.
+#' @param hor (Optional) A single \emph{skyscapeR.horizon} object created with \code{\link{createHor}} or \code{\link{downloadHWT}}.
+#' This and the following arguments are only needed if \emph{pdf} contains only azimuths. If provided, the
+#' code will assume that all azimuthal measurements are for the same site with horizon given in \emph{hor} and
+#' that the user want to run the significance test in declination. Coordinate transformation will therefore be done automatically.
+#' @param refraction (Optional) Whether atmospheric refraction is to be taken into account.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param atm (Optional) Atmospheric pressure for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @param temp (Optional) Atmospheric temperature for refraction calculation.
+#' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
+#' @import snow doSNOW foreach
 #' @export
 #' @references Silva, F (2020) A probabilistic framework and significance test for the analysis of structural orientations
 #'  in skyscape archaeology \emph{Journal of Archaeological Science} 118, 105138. <doi:10.1016/j.jas.2020.105138>

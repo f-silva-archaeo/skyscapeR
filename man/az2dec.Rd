@@ -40,7 +40,9 @@ This function is a wrapper for function \code{\link[swephR]{swe_azalt_rev}}
 of package \emph{swephR}.
 }
 \examples{
-dec <- az2dec(az=92, loc=c(35,-8), alt=2)
+dec <- az2dec(az=92, loc=35, alt=2)
+
+dec <- az2dec(az=c(92,89,102), loc=35, alt=c(0,2,4))
 
 # flat horizon with 2 degrees of altitude
 hor <- createHor(az=c(0,360), alt=c(2,2), loc=c(35,-8,25))

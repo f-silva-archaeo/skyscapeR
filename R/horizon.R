@@ -85,16 +85,16 @@ exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor
 
   # Horizon data
   data <- data.frame(x = hor$data$az, y = hor$data$alt)
-  write.table(data, file="horizon.txt", sep = " ", row.names=F, col.names=F)
+  write.table(sprintf("%3.2f %4.2f", data$x, data$y), file="horizon.txt", quote=FALSE, sep = " ", row.names=F, col.names=F, fileEncoding = "UTF-8")
 
   # Landscape.ini file
-  fileConn<-file("landscape.ini")
+  fileConn<-file("landscape.ini", encoding='UTF-8')
   string.text <- c("[landscape]", paste0("name = ",name), "type = polygonal", paste0("author = ",author),
                    paste0("description = ", description), "polygonal_horizon_list = horizon.txt",
-                   "polygonal_angle_rotatez = 0", paste0("ground_color = ",ground_col),
+                   "polygonal_angle_rotatez = 0.00001", paste0("ground_color = ",ground_col),
                    paste0("horizon_line_color =  ",hor_col), "",
-                   "[location]", "planet = Earth", paste0("latitude = ",hor$Lat,"d"),
-                   paste0("longitude = ",hor$Lon,"d"), paste0("altitude = ",round(hor$Elev*0.3,0)))
+                   "[location]", "planet = Earth", paste0("latitude = ",hor$metadata$georef[1],"d"),
+                   paste0("longitude = ",hor$metadata$georef[2],"d"), paste0("altitude = ",hor$metadata$georef[3]))
   writeLines(string.text, fileConn)
   close(fileConn)
 
@@ -275,4 +275,38 @@ hor2alt = function(hor, az, return.unc=F) {
   }
 
   return(alt)
+}
+
+#' Retrieves maximum declination for a given horizon
+#'
+#' @param hor Either a \emph{skyscapeR.horizon} object or the latitude of the place.
+#' @param alt (Optional) Altitude of the horizon at northernmost point. Only necessary if no
+#' \emph{skyscapeR.horizon} object is provided. Default is 0.
+#' @param range (Optional) Range of azimuths to check for maximum declination. Default is 25
+#' degrees either side of North.
+#' @export
+#' @examples
+#' hor <- downloadHWT('HIFVTBGK')
+#' hor2max.dec(hor)
+hor2max.dec = function(hor, alt=0, range=25) {
+  xx <- seq(-range, range, 0.01)
+  if (class(hor)=='skyscapeR.horizon') { decs <- az2dec(xx, hor) } else { decs <- az2dec(xx, hor[1], alt) }
+  return(max(decs))
+}
+
+#' Retrieves minimum declination for a given horizon
+#'
+#' @param hor Either a \emph{skyscapeR.horizon} object or the latitude of the place.
+#' @param alt (Optional) Altitude of the horizon at southernmost point. Only necessary if no
+#' \emph{skyscapeR.horizon} object is provided. Default is 0.
+#' @param range (Optional) Range of azimuths to check for maximum declination. Default is 25
+#' degrees either side of South
+#' @export
+#' @examples
+#' hor <- downloadHWT('HIFVTBGK')
+#' hor2min.dec(hor)
+hor2min.dec = function(hor, alt=0, range=25) {
+  xx <- seq(-range, range, 0.01)+180
+  if (class(hor)=='skyscapeR.horizon') { decs <- az2dec(xx, hor) } else { decs <- az2dec(xx, hor[1], alt) }
+  return(min(decs))
 }

@@ -4,12 +4,14 @@
 \alias{coordtrans}
 \title{Coordinate-transform azimuth prob distributions into declination prob distributions}
 \usage{
-coordtrans(pdf, hor, refraction, atm, temp, verbose = T, .res = 0.1)
+coordtrans(pdf, hor, xrange, refraction, atm, temp, verbose = T, .res = 0.1)
 }
 \arguments{
-\item{pdf}{A \emph{skyscapeR.pdf} object created with \code{\link{az.pdf}}}
+\item{pdf}{A \emph{skyscapeR.pdf} object created with \code{\link{az.pdf}} or a \emph{skyscapeR.spd} object created with \code{\link{spd}}}
 
 \item{hor}{A \emph{skyscapeR.horizon} object created with \code{\link{createHor}} or \code{\link{downloadHWT}}}
+
+\item{xrange}{(Optional) Array of values (min and max) for SPD when transforming a \emph{skyscapeR.spd} object.}
 
 \item{refraction}{(Optional) Whether atmospheric refraction is to be taken into account.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}

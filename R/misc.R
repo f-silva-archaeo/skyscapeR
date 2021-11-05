@@ -63,8 +63,10 @@ minmaxdec = function(name, from, to, loc=FALSE) {
   dd <- c()
 
   # Stars
-  sefstars <- skyscapeR.env$sefstars
-  if (sum(as.character(sefstars$traditional.name) == name) | sum(as.character(sefstars$nomenclature.name) == name)) {
+  sefstars <- read.csv(paste0(system.file('ephemeris',package = 'swephR'),'/sefstars.txt'), header=F)
+  colnames(sefstars) <- c('name', 'identifier', 'ICRS', 'RA.1', 'RA.2', 'RA.3', 'Dec.1', 'Dec.2', 'Dec.3', 'pm.1', 'pm.2', 'radvel', 'plx', 'magV')
+
+  if (sum(star.names$Western == name) | sum(as.character(sefstars$identifier) == name)) {
     for (i in 1: NROW(xx)) {
       dd[i] <- star(name, xx[i])$coord$Dec
     }

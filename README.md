@@ -15,8 +15,11 @@ devtools::install_github('f-silva-archaeo/skyscapeR')
 ```
 
 ## Release Notes
-### v1.0.0 notes
+### v1.1 (Current experimental build)
+Several changes currently being tested and/or finalised. Thoroughly tested on Mac OS X, but also installed on Windows and Linux.
+
+### v1.0.0
 New CRAN release: major overhaul of package with new functionality throughout.
 
-### v0.2.2 CRAN release
+### v0.2.2
 The latest release version (v0.2.2) is available on CRAN. This Git contains the latest development version which has several bug fixes and additional tools (some of which might not have been fully tested).

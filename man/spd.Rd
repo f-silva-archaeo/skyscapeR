@@ -11,7 +11,8 @@ spd(pdf, normalise = F, xrange, .cutoff = 1e-05, .res = 0.01)
 
 \item{normalise}{(Optional) Boolean to control whether to normalize the SPD. Default is FALSE}
 
-\item{xrange}{(Optional) Array of values (min and max) for SPD if different from range of \emph{pdf}}
+\item{xrange}{(Optional) Array of values (min and max) for SPD if different from range of \emph{pdf}. If given,
+it overrides \emph{.cutoff}}
 
 \item{.cutoff}{(Optional) Value of SPD at which point it will be cutoff to save on memory. Default is 1e-5}
 
