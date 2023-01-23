@@ -80,7 +80,7 @@ sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
   for (i in 1:N) {
     # stars
     test <- try(star(names[i]), silent=T)
-    if (class(test) != 'try-error') {
+    if (!is(test,'try-error')) {
       aux <- array(NA, c(NROW(epoch),1))
       for (j in 1:NROW(epoch)) {
         aux[j,] <- star(names[i], epoch[j])$coord$Dec
@@ -170,7 +170,7 @@ sky.objects = function(names, epoch, loc=FALSE, col = 'red', lty = 1, lwd = 1) {
 dS = function(year = skyscapeR.env$cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- -obliquity(year)
 
-  if (class(loc)=='logical') {
+  if (is(loc,'logical')) {
     if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
     aux <- aux - parallax.corr(parallax, loc, altitude)
@@ -206,7 +206,7 @@ dS = function(year = skyscapeR.env$cur.year, loc = FALSE, parallax = 0.00224, al
 jS = function(year = skyscapeR.env$cur.year, loc = FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- obliquity(year)
 
-  if (class(loc)=='logical') {
+  if (is(loc,'logical')) {
     if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
     aux <- aux - parallax.corr(parallax, loc, altitude)
@@ -238,7 +238,7 @@ jS = function(year = skyscapeR.env$cur.year, loc = FALSE, parallax = 0.00224, al
 eq = function(loc=FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
   aux <- 0
 
-  if (class(loc)=='logical' & verbose) {
+  if (is(loc,'logical') & verbose) {
     if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
     aux <- aux - parallax.corr(parallax, loc, altitude)
@@ -269,7 +269,7 @@ eq = function(loc=FALSE, parallax = 0.00224, altitude = 0, verbose=TRUE) {
 #' # There is no zenith sun phenomenon in London:
 #' zenith(51.507)
 zenith = function(loc, parallax = 0.00224, altitude = 0) {
-  if (class(loc)=='skyscapeR.horizon') {
+  if (is(loc,'skyscapeR.horizon')) {
     lat <- loc$metadata$georef[1]
   } else { lat <- loc[1] }
 
@@ -305,7 +305,7 @@ zenith = function(loc, parallax = 0.00224, altitude = 0) {
 #' # There is no anti-zenith sun phenomena in London:
 #' antizenith(51.507)
 antizenith = function(loc, parallax = 0.00224, altitude = 0) {
-  if (class(loc)=='skyscapeR.horizon') {
+  if (is(loc,'skyscapeR.horizon')) {
     lat <- loc$metaata$georef[1]
   } else { lat <- loc[1] }
 
@@ -332,7 +332,7 @@ antizenith = function(loc, parallax = 0.00224, altitude = 0) {
 #' spatial.equinox(hor)
 #' }
 spatial.equinox = function(hor, parallax = 0.00224) {
-  if (class(hor)!='skyscapeR.horizon') stop('Full horizon profile required for spatial equinox calculation.')
+  if (!is(hor,'skyscapeR.horizon')) stop('Full horizon profile required for spatial equinox calculation.')
 
   options(warn=-1)
   obj <- sky.objects('solar extremes', 2000, loc=hor)
@@ -379,7 +379,7 @@ spatial.equinox = function(hor, parallax = 0.00224) {
 nmnLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- obliquity(year) - (5.145+0.145)
 
-  if (class(loc)=='logical') {
+  if (is(loc,'logical')) {
     if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
     aux <- aux - parallax.corr(parallax, loc, altitude)
@@ -415,7 +415,7 @@ nmnLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, alt
 smnLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- -(obliquity(year) - (5.145+0.145))
 
-  if (class(loc)=='logical') {
+  if (is(loc,'logical')) {
     if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
     aux <- aux - parallax.corr(parallax, loc, altitude)
@@ -451,7 +451,7 @@ smnLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, alt
 nMjLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- obliquity(year) + (5.145+0.145)
 
-  if (class(loc)=='logical') {
+  if (is(loc,'logical')) {
     if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
     aux <- aux - parallax.corr(parallax, loc, altitude)
@@ -487,7 +487,7 @@ nMjLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, alt
 sMjLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, altitude = 0, verbose = TRUE) {
   aux <- -(obliquity(year) + (5.145+0.145))
 
-  if (class(loc)=='logical') {
+  if (is(loc,'logical')) {
     if (verbose) { cat('No location given, therefore outputting geocentric declination.\n') }
   } else {
     aux <- aux - parallax.corr(parallax, loc, altitude)
@@ -595,5 +595,36 @@ EFM <- function(season='spring', rise=T, year, loc, min.phase=.99, refraction, a
   suns$year <- as.numeric(suns$year); suns$azimuth <- as.numeric(suns$azimuth); suns$declination <- as.numeric(suns$declination)
   moons$year <- as.numeric(moons$year); moons$azimuth <- as.numeric(moons$azimuth); moons$declination <- as.numeric(moons$declination)
   out <- list(Event = paste0(season, ' full moon'), Moon= moons, Sun= suns)
+  return(out)
+}
+
+#' Extreme declinations for five visible planets
+#'
+#' This function calculates the maximum and minimum declinations of the five visible planets
+#' for a given epoch. This is done by calculating the declination for one entire orbital period centred
+#' around the epoch.
+#' @param obj The name of the planet.
+#' @param epoch Epoch for which to do calculations.
+#' @param loc (Optional) This can be either a \emph{skyscapeR.horizon} object, or a vector with the
+#' latitude, longitude and elevation of the site, in this order.
+#' @export
+#' @examples
+#' planet.extremes('Jupiter', 2023)
+#'
+#' planet.extremes('Venus', -4000)
+planet.extremes <- function(obj, epoch, loc = NULL) {
+  start <- round(epoch - period(obj)*3/4,0); end <- round(epoch + period(obj)*3/4,0)
+  if (start-end==0) { end <- start+1 }
+  start <- time2jd(paste0(start,'/01/01 12:00:00'))
+  end <- time2jd(paste0(end,'/01/01 12:00:00'))
+  tt <- seq(start, end)
+  dec <- c()
+  for (i in 1:length(tt)) {
+    dec[i] <- body.position(obj, time=tt[i], loc=loc, verbose=F)$equatorial$Dec
+  }
+  out <- c()
+  out$planet <- obj
+  out$min.dec <- min(dec)
+  out$max.dec <- max(dec)
   return(out)
 }

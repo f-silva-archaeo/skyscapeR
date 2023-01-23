@@ -1,13 +1,13 @@
 Package: skyscapeR
 Type: Package
 Title: Data Analysis and Visualization for Skyscape Archaeology
-Version: 1.1-90413
-Date: 2022-04-13
+Version: 1.1-90123
+Date: 2023-01-23
 Authors@R: c(person("Silva", "Fabio", email = "fsilva@bournemouth.ac.uk", role = c("aut", "cre")), person("Reijs", "Victor", role = "ctb"), person("Gautschy", "Rita", role = "ctb"))
 Description: Data reduction, visualization and statistical analysis of measurements of orientation of archaeological structures, following Silva (2020) <doi:10.1016/j.jas.2020.105138>.
 Depends: R (>= 4.1), swephR
 Imports: 
-    png,
+    methods,
     oce,
     utils,
     stats,
@@ -15,7 +15,6 @@ Imports:
     grDevices,
     MESS,
     RColorBrewer,
-    numDeriv,
     snow,
     foreach,
     doSNOW,
@@ -27,7 +26,7 @@ Imports:
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Suggests: testthat,
     knitr,
     rmarkdown

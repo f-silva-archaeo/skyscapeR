@@ -75,7 +75,7 @@ createHor <- function(az, alt, alt.unc=0.5, loc, name='', smooth=F, .scale=1000)
 #' exportHor(hor, name='Test', description='Test horizon export to Stellarium')
 #' }
 exportHor = function(hor, name, author="skyscapeR", description, ground_col, hor_col) {
-  if (class(hor)[1] != 'skyscapeR.horizon') { stop('No skyscapeR.horizon object found.') }
+  if (!is(hor,'skyscapeR.horizon')) { stop('No skyscapeR.horizon object found.') }
 
   if (missing(name)) { name = hor$name }
   if (missing(description)) { description <- paste0("Horizon created using skyscapeR ", packageVersion('skyscapeR'), ".") }
@@ -290,7 +290,7 @@ hor2alt = function(hor, az, return.unc=F) {
 #' hor2max.dec(hor)
 hor2max.dec = function(hor, alt=0, range=25) {
   xx <- seq(-range, range, 0.01)
-  if (class(hor)=='skyscapeR.horizon') { decs <- az2dec(xx, hor) } else { decs <- az2dec(xx, hor[1], alt) }
+  if (is(hor,'skyscapeR.horizon')) { decs <- az2dec(xx, hor) } else { decs <- az2dec(xx, hor[1], alt) }
   return(max(decs))
 }
 
@@ -307,6 +307,6 @@ hor2max.dec = function(hor, alt=0, range=25) {
 #' hor2min.dec(hor)
 hor2min.dec = function(hor, alt=0, range=25) {
   xx <- seq(-range, range, 0.01)+180
-  if (class(hor)=='skyscapeR.horizon') { decs <- az2dec(xx, hor) } else { decs <- az2dec(xx, hor[1], alt) }
+  if (is(hor,'skyscapeR.horizon')) { decs <- az2dec(xx, hor) } else { decs <- az2dec(xx, hor[1], alt) }
   return(min(decs))
 }

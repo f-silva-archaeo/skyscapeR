@@ -55,7 +55,7 @@ bernoulli.trial <- function(n,p,r, type='tail') {
 az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-4, .res=0.01) {
 
   ## probability distribution
-  if (class(pdf) == 'character') {
+  if (is(pdf,'character')) {
 
     code <- switch(pdf, N = 0, Normal = 0, n = 0, normal = 0, U = 1, Uniform = 1, u = 1, uniform = 1, -1)
 
@@ -71,10 +71,10 @@ az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-4, .res=0.
       stop('Missing azimuths and/or uncertainties.')
     }
 
-  } else if (class(pdf) == 'data.frame' & sum(colnames(pdf) == c('az','dens'))) {
+  } else if (is(pdf, 'data.frame') & sum(colnames(pdf) == c('az','dens'))) {
     if (verbose) { stop('Custom probability distribution found. This feature is not yet functional.') }
 
-  } else if (class(pdf) == 'list' & class(pdf[[1]]) == 'data.frame' & sum(colnames(pdf[[1]]) == c('az','dens'))) {
+  } else if (is(pdf, 'list') & is(pdf[[1]], 'data.frame') & sum(colnames(pdf[[1]]) == c('az','dens'))) {
     if (verbose) { stop('Custom probability distribution(s) found. This feature is not yet functional.') }
 
   } else {
@@ -130,15 +130,15 @@ az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-4, .res=0.
 #' @noRd
 coordtrans_unc <- function(pdf, hor, xrange, refraction, atm, temp, verbose=T, .res=0.1) {
 
-  if ((class(pdf)[1] != 'skyscapeR.pdf' & pdf$metadata$coord != 'az') & (class(pdf)[1] != 'skyscapeR.spd')) stop('Azimuthal probability density function(s) not recognized or not in correct format.')
-  if (class(hor)[1] != 'skyscapeR.horizon' & class(hor)[1] != 'list') stop('Horizon(s) not recognized or not in correct format.')
+  if ((is(pdf, 'skyscapeR.pdf') & pdf$metadata$coord != 'az') & (!is(pdf, 'skyscapeR.spd'))) stop('Azimuthal probability density function(s) not recognized or not in correct format.')
+  if (!is(hor, 'skyscapeR.horizon') & !is(hor, 'list')) stop('Horizon(s) not recognized or not in correct format.')
 
   ## init parameters
   if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
   if (missing(atm)) { atm <- skyscapeR.env$atm }
   if (missing(temp)) { temp <- skyscapeR.env$temp }
 
-  if (class(pdf)[1] == 'skyscapeR.spd') {
+  if (is(pdf, 'skyscapeR.spd')) {
     n <- 1
     pdf$data <- list(pdf$data)
   } else {
@@ -147,7 +147,7 @@ coordtrans_unc <- function(pdf, hor, xrange, refraction, atm, temp, verbose=T, .
   .cutoff <- pdf$metadata$param$.cutoff
 
 
-  if (class(hor)[1] == "skyscapeR.horizon") {
+  if (is(hor, "skyscapeR.horizon")) {
     if (verbose) { cat('Single horizon profile found. Using it for all measurements.\n') }
     j <- 1; hh <- list(hor)
   } else {
@@ -195,7 +195,7 @@ coordtrans_unc <- function(pdf, hor, xrange, refraction, atm, temp, verbose=T, .
     dens <- spline(dec, dens, xout=seq(min.dec, max.dec, .01))
     dec <- dens$x; dens <- dens$y
 
-    if (class(pdf)[1] != 'skyscapeR.spd') { dens <- dens/MESS::auc(dec,dens) } # normalise
+    if (!is(pdf, 'skyscapeR.spd')) { dens <- dens/MESS::auc(dec,dens) } # normalise
 
     out[[k]] <- data.frame(x=dec, y=dens)
     if (verbose & n>1) { setTxtProgressBar(pb, k) }
@@ -209,7 +209,7 @@ coordtrans_unc <- function(pdf, hor, xrange, refraction, atm, temp, verbose=T, .
   mtdta$horizon <- deparse(substitute(hor))
   mtdta$az.pdf <- deparse(substitute(pdf))
   out <- list(metadata = mtdta, data = out)
-  if (class(pdf)[1] == 'skyscapeR.spd') {
+  if (is(pdf, 'skyscapeR.spd')) {
     class(out) <- 'skyscapeR.spd'
     out$data <- out$data[[1]]
   } else {
@@ -267,7 +267,7 @@ coordtrans <- compiler::cmpfun(coordtrans_unc, options=list(enableJIT = 3))
 #' s2 <- spd(Dec)
 #' plot(s2)
 spd <- function(pdf, normalise = F, xrange, .cutoff = 1e-5, .res = 0.01) {
-  if (class(pdf)!='skyscapeR.pdf') { stop('Please provide a valid skyscapeR.pdf object.') }
+  if (!is(pdf, 'skyscapeR.pdf')) { stop('Please provide a valid skyscapeR.pdf object.') }
 
   aux <- pdf$data
   x <- lapply(aux, "[[", 'x')
@@ -316,7 +316,7 @@ randomTest_unc <- function(pdf, .res=0.1, nsims=1000, conf=.95, tails=2, normali
       empirical <- spd(pdf, xrange=xrange, normalise = normalise, .res=.res)
     } else {
       az <- pdf
-      if (class(hor) != "skyscapeR.horizon") { stop('Please include a valid skyscapeR.horizon object.') }
+      if (!is(hor,"skyscapeR.horizon")) { stop('Please include a valid skyscapeR.horizon object.') }
       if (verbose) { cat('Single horizon profile found. Using it for all measurements.\n') }
       if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
       if (missing(atm)) { atm <- skyscapeR.env$atm }

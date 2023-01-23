@@ -1,8 +1,9 @@
-skyscapeR v1.1 (Release date: 2022-04-13)
+skyscapeR v1.1 (Release date: 2023-01-23)
 ==============
 
 Changes:
 
+* Added planetary.extremes()
 * Fixed issue with reporting of sunrise/set dates in findTargets()
 * Fixed issue with az2dec()
 * Fixed manual page for randomTest()

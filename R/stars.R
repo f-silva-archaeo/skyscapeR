@@ -66,10 +66,10 @@ calc.phase <- function(year, day, sun.coord, star, loc, arcus_visionis, alt.hor,
 
     # atmospheric extinction
     airmass <- 1/(cos((90-Star.alt)/180*pi) + 0.025*exp(-11*cos((90-Star.alt)/180*pi)))
-    mag <- star$app.mag + airmass*k; mag[mag<0] <- NA
+    mag <- star$app.mag + airmass*k; mag[mag<star$app.mag] <- NA
 
     # Q1: can the star be seen?
-    ind <- which(Sun.alt < alt.hor & Star.alt > alt.hor & Star.alt-Sun.alt >= arcus_visionis & mag <= limit)
+    ind <- which(Sun.alt < alt.hor-6 & Star.alt > alt.hor & Star.alt-Sun.alt >= arcus_visionis & mag <= limit)
 
     if (length(ind) > 1) {
       alt <- Star.alt[ind]
@@ -158,7 +158,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
   if (missing(atm)) { atm <- skyscapeR.env$atm }
   if (missing(temp)) { temp <- skyscapeR.env$temp }
 
-  if (class(loc)=='skyscapeR.horizon') {
+  if (is(loc,'skyscapeR.horizon')) {
     lat <- loc$metadata$georef[1]
     lon <- loc$metadata$georef[2]
     elev <- loc$metadata$georef[3]
@@ -170,7 +170,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
   swephR::swe_set_topo(lon, lat, elev)
 
   # load star data
-  if (class(star)!='skyscapeR.star') { star <- star(star, year) }
+  if (!is(star, 'skyscapeR.star')) { star <- star(star, year) }
   arcus_visionis <- 2.1*star$app.mag + 10
 
   # check if circumpolar or always invisible
@@ -336,7 +336,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
   seasons <- seasons[-1,]
   seasons <- seasons[sort(seasons$begin, index.return=T)$ix,]
   rownames(seasons) <- NULL
-  seasons$length <- abs(seasons$end-seasons$begin)
+  seasons$length <- abs(seasons$end-seasons$begin)+1
   seasons$begin <- dd.to.DD(seasons$begin, char=T, WS=T)
   seasons$end <- dd.to.DD(seasons$end, char=T, WS=T)
   seasons

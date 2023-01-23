@@ -36,20 +36,20 @@ sky.sketch <- function(time, timezone, calendar, xrange=c(30,150), yrange=c(-45,
   if (abs(diff(yrange)) > 120) { message('yrange is larger than 120 degrees. This will cause a distorted view of the sky.')}
 
   ## prep stars info
-  ss <- skyscapeR.env$sefstars
-  ind <- which(ss$mag.V>max.mag); ss <- ss[-ind,] # magnitude filter
+  ss <- read.csv(paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), header=F)
+  ind <- which(ss$V14>max.mag); ss <- ss[-ind,] # magnitude filter
   nstars <- NROW(ss)
 
   ## proc
-  if (class(time)=='character') { jd <- time2jd(time, timezone, calendar) } else { jd <- time }
+  if (is(time,'character')) { jd <- time2jd(time, timezone, calendar) } else { jd <- time }
 
   par(mar=c(2,2,1,1))
   plot(-999,-999, xlim=xrange, ylim=yrange, xlab='', ylab='')
 
   if (nstars > 0) {
     for (i in 1:nstars) {
-      aux <- try(star(ss$nomenclature.name[i], year=as.numeric(substr(time,1,4))), silent=T)
-      if (class(aux) == 'try-error') next
+      aux <- try(star(ss$V2[i], year=as.numeric(substr(time,1,4))), silent=T)
+      if (is(aux,'try-error')) next
       mag <- aux$app.mag
       star <- swephR::swe_azalt(jd, 1, c(loc[2],loc[1],0), atm, temp, c(aux$coord$RA, aux$coord$Dec))$xaz[c(1,3)]
       star[1] <- star[1]+180; if (star[1]>360) { star[1] <- star[1]-360 }

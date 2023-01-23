@@ -8,8 +8,8 @@ checkYear <- function(year){
 
 #' @noRd
 extractLatitude <- function(loc){
-  if (class(loc)[1]=='skyscapeR.horizon') { latitude <- loc$metadata$georef[1] }
-  if (class(loc)[1]=='numeric') { latitude <- loc[1]}
+  if (is(loc,'skyscapeR.horizon')) { latitude <- loc$metadata$georef[1] }
+  if (is(loc,'numeric')) { latitude <- loc[1]}
   # check
   if (latitude > 90 | latitude < -90) { stop('Latitude must be between -90 and 90 degrees.')}
   return(latitude)
@@ -18,7 +18,7 @@ extractLatitude <- function(loc){
 
 #' @noRd
 stars.pval <- function(p.value) {
-if (class(p.value)=='character') { p.value <- as.numeric(substr(p.value, 3,nchar(p.value))) }
+if (is(p.value,'character')) { p.value <- as.numeric(substr(p.value, 3,nchar(p.value))) }
 out <- symnum(p.value, corr = FALSE, na = FALSE,
               cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
               symbols = c("***", "**", "*", "+", "ns"), legend=F)
@@ -176,7 +176,7 @@ mag2size <- function(mag) {
 #' loc <- c( 51.5074, -0.1278 )
 #' mag.dec( loc, "2016/04/01" )
 mag.dec = function(loc, date) {
-  if (class(loc)[1] == 'skyscapeR.horizon') { loc <- loc$metadata$georef }
+  if (is(loc, 'skyscapeR.horizon')) { loc <- loc$metadata$georef }
   if (length(loc) < length(date)) { loc <- matrix(loc,NROW(date),3, byrow=T) }
   if (NROW(date) < NROW(loc)) { date <- matrix(date,NROW(loc),1, byrow=T) }
 
@@ -190,7 +190,7 @@ mag.dec = function(loc, date) {
 
 #' @noRd
 subset <- function(x, subset, ...){
-  if (class(x) == 'skyscapeR.pdf') {
+  if (is(x,'skyscapeR.pdf')) {
     dd <- x
     dd$metadata$name <- dd$metadata$name[subset]
     dd$metadata$az <- dd$metadata$az[subset]
@@ -218,8 +218,8 @@ sampleList <- function(ll) {
 #' @param mass (Optional) Probability mass of the region. Default is 0.954.
 #' @export
 hpdi <- function(x, mass=0.954){
-  if (class(x) == 'skyscapeR.spd') { grd <- x$data }
-  if (class(x) == 'skyscapeR.pdf' | class(x) == 'list' | class(x) == 'data.frame') { grd <- x }
+  if (is(x, 'skyscapeR.spd')) { grd <- x$data }
+  if (is(x, 'skyscapeR.pdf') | is(x, 'list') | is(x, 'data.frame')) { grd <- x }
   sorted <- sort(grd$y, decreasing=TRUE)
   heightIdx = min( which( cumsum( sorted) >= sum(grd$y, na.rm=T) * mass ) )
   height = sorted[heightIdx]
@@ -238,9 +238,18 @@ hpdi <- function(x, mass=0.954){
 #' @param p.value p-value
 #' @export
 pval2stars <- function(p.value) {
-  if (class(p.value)=='character') { p.value <- as.numeric(substr(p.value, 3,nchar(p.value))) }
+  if (is(p.value,'character')) { p.value <- as.numeric(substr(p.value, 3,nchar(p.value))) }
   out <- symnum(p.value, corr = FALSE, na = FALSE,
                 cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
                 symbols = c("***", "**", "*", "+", "ns"), legend=F)
   return(as.character(out))
+}
+
+#' @noRd
+period <- function(obj) {
+  if (obj=='Mercury') { return(6.989733) }
+  if (obj=='Venus') { return(8) }
+  if (obj=='Mars') { return(687/365.25*10) }
+  if (obj=='Jupiter') { return(4331/365.25) }
+  if (obj=='Saturn') { return(10747/365.25) }
 }

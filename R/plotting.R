@@ -57,7 +57,7 @@ plotAzimuth = function(az, col='blue', lwd=1.5, lty=1, obj, show.obj.labels=T) {
 
   # Measurements
   if (!missing(az)) {
-    if (class(az)=='data.frame') {
+    if (is(az,'data.frame')) {
       names <- az$Name
       az <- az$True.Azimuth
     } else {
@@ -303,7 +303,7 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
     plot(-999,999, axes=F, xlim=xl, ylim=yl, xaxs='i', yaxs='i', ...); box()
 
     ## process horizon profile
-    hh <- get(x$metadata$horizon); if (class(hh) == 'list') { hh <- hh[[index]] }
+    hh <- get(x$metadata$horizon); if (is(hh, 'list')) { hh <- hh[[index]] }
     # hh <- x$metadata$horizon[[index]]$data
     alt <- approx(hh$data$az, hh$data$alt, xout=xx)$y
     alt.unc <- approx(hh$data$az, hh$data$alt.unc, xout=xx)$y
@@ -536,7 +536,7 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
 #' ss <- star.phases('Aldebaran',-4000, c(35,-8, 200))
 #' plot(ss)
 #' }
-plot.skyscapeR.starphases = function(x, ...) {
+plot.skyscapeR.starphases = function(x, show.labels=T, ...) {
 
   col <- RColorBrewer::brewer.pal(4,'Accent'); col[5] <- col[4]
   code <- c('RS', 'R', 'S', 'V', 'I')
@@ -572,11 +572,11 @@ plot.skyscapeR.starphases = function(x, ...) {
 
   }
 
-  if (x$metadata$type == 'curtailed passage' | x$metadata$type == 'arising and lying hidden' | x$metadata$type == 'dual phase') {
+  if (show.labels & (x$metadata$type == 'curtailed passage' | x$metadata$type == 'arising and lying hidden' | x$metadata$type == 'dual phase')) {
     ind <- which(x$data$phase == code[4])
     if (length(ind) > 0) {
       lines(rep(min(ind)-1,2), c(0,1), lty=2, lwd=1.5, col='black')
-      text(min(ind)-1,0.02, events[1], cex=0.8, font=1, srt=90 ,pos=4)
+      text(min(ind)-1,0.98, events[1], cex=0.8, font=1, srt=90 ,pos=2)
 
       lines(rep(max(ind)+1,2), c(0,1), lty=2, lwd=1.5, col='black')
       text(max(ind)+1,0.02, events[2], cex=0.8, font=1, srt=90 ,pos=4)
@@ -585,7 +585,7 @@ plot.skyscapeR.starphases = function(x, ...) {
     ind <- which(x$data$phase == code[5])
     if (length(ind) > 0) {
       lines(rep(min(ind)-1,2), c(0,1), lty=2, lwd=1.5, col='black')
-      text(min(ind)-1,0.02, events[3], cex=0.8, font=1, srt=90 ,pos=4)
+      text(min(ind)-1,0.98, events[3], cex=0.8, font=1, srt=90 ,pos=2)
 
       lines(rep(max(ind)+1,2), c(0,1), lty=2, lwd=1.5, col='black')
       text(max(ind)+1,0.02, events[4], cex=0.8, font=1, srt=90 ,pos=4)
