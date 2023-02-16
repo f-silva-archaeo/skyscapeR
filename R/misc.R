@@ -146,14 +146,8 @@ checkbody <- function(body){
 
 #' @noRd
 mag2size <- function(mag) {
+  size <- -log(mag+4.932) + 2.396
   if (mag == 0 | is.na(mag) | mag > 6) { size <- 0 }
-  if (mag <= 6) { size <- .1 }
-  if (mag <= 5) { size <- .2 }
-  if (mag <= 4) { size <- .3 }
-  if (mag <= 3) { size <- .4 }
-  if (mag <= 2) { size <- .5 }
-  if (mag <= 1) { size <- .6 }
-  if (mag < 0) { size <- .7 }
   return(size)
 }
 

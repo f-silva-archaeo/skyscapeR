@@ -260,23 +260,6 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
     if ('I' %in% uu & 'V' %in% uu) { type <- 'dual phase'}
   }
 
-  # identify events
-  events <- data.frame(event=NA, day=NA)
-  ttt <- which(phase=='I')
-  if (length(ttt)>0) {
-    events[nrow(events)+1,] <- data.frame(event='acronycal setting', day=days[min(ttt)-1])
-    events[nrow(events)+1,] <- data.frame(event='heliacal rising', day=days[max(ttt)+1])
-  }
-  ttt <- which(phase=='V')
-  if (length(ttt)>0) {
-    events[nrow(events)+1,] <- data.frame(event='acronycal rising', day=days[min(ttt)-1])
-    events[nrow(events)+1,] <- data.frame(event='heliacal setting', day=days[max(ttt)+1])
-  }
-  events <- events[-1,]
-  events <- events[sort(events$day, index.return=T)$ix,]
-  rownames(events) <- NULL
-  events$day <- dd.to.DD(events$day, char=T, WS=T)
-
   # cleanup
   phase <- sapply(phase, function(x) { paste(unique(strsplit(x, "")[[1]]), collapse='')}, USE.NAMES =F)
 
@@ -289,7 +272,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
     } else {
       db <- days[min(ttt)]; de <- days[max(ttt)]
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='rise only', begin=db, end=de)
+    seasons[nrow(seasons)+1,] <- data.frame(season='rise only', begin=db, end=de, length=NROW(ttt))
   }
 
   ttt <- which(phase=='SR'); phase[ttt] <- 'RS'
@@ -300,7 +283,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
     } else {
       db <- days[min(ttt)]; de <- days[max(ttt)]
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='rise and set', begin=db, end=de)
+    seasons[nrow(seasons)+1,] <- data.frame(season='rise and set', begin=db, end=de, length=NROW(ttt))
   }
 
   ttt <- which(phase=='S')
@@ -310,7 +293,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
     } else {
       db <- days[min(ttt)]; de <- days[max(ttt)]
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='set only', begin=db, end=de)
+    seasons[nrow(seasons)+1,] <- data.frame(season='set only', begin=db, end=de, length=NROW(ttt))
   }
 
   ttt <- which(phase=='I')
@@ -320,7 +303,7 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
     } else {
       db <- days[min(ttt)]; de <- days[max(ttt)]
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='arising and lying hidden', begin=db, end=de)
+    seasons[nrow(seasons)+1,] <- data.frame(season='arising and lying hidden', begin=db, end=de, length=NROW(ttt))
   }
 
   ttt <- which(phase=='V')
@@ -330,16 +313,34 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
     } else {
       db <- days[min(ttt)]; de <- days[max(ttt)]
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='curtailed passage', begin=db, end=de)
+    seasons[nrow(seasons)+1,] <- data.frame(season='curtailed passage', begin=db, end=de, length=NROW(ttt))
   }
 
   seasons <- seasons[-1,]
   seasons <- seasons[sort(seasons$begin, index.return=T)$ix,]
   rownames(seasons) <- NULL
-  seasons$length <- abs(seasons$end-seasons$begin)+1
+
+  # identify events
+  events <- data.frame(event=NA, day=NA)
+  ind <- which(seasons[,1]=='arising and lying hidden')
+  if (length(ind)>0) {
+    events[nrow(events)+1,] <- data.frame(event='acronycal setting', day=seasons[ind,2]-1)
+    events[nrow(events)+1,] <- data.frame(event='heliacal rising', day=seasons[ind,3]+1)
+  }
+
+  ind <- which(seasons[,1]=='curtailed passage')
+  if (length(ind)>0) {
+    events[nrow(events)+1,] <- data.frame(event='acronycal setting', day=seasons[ind,2]-1)
+    events[nrow(events)+1,] <- data.frame(event='heliacal rising', day=seasons[ind,3]+1)
+  }
+
+  events <- events[-1,]
+  events <- events[sort(events$day, index.return=T)$ix,]
+  rownames(events) <- NULL
+
   seasons$begin <- dd.to.DD(seasons$begin, char=T, WS=T)
   seasons$end <- dd.to.DD(seasons$end, char=T, WS=T)
-  seasons
+  events$day <- dd.to.DD(events$day, char=T, WS=T)
 
   # results
   out <- c()

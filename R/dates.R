@@ -186,7 +186,7 @@ dd.to.DD_unvec <- function(day, char=F, WS=F) {
         mm <- 1
         dd <- day[i]
       }
-      if (dd == 0) { dd <- months[12] }
+      if (dd == 0) { dd <- months[mm] }
 
       if (char) {
         out[i] <- paste0(month.name[mm], ' ',dd)

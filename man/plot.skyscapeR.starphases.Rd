@@ -4,10 +4,18 @@
 \alias{plot.skyscapeR.starphases}
 \title{Plot stellar phase and seasonality}
 \usage{
-\method{plot}{skyscapeR.starphases}(x, ...)
+\method{plot}{skyscapeR.starphases}(x, show.labels = T, show.legend = T, show.grid = F, pal, ...)
 }
 \arguments{
 \item{x}{Object of \emph{skyscapeR.starphases} format.}
+
+\item{show.legend}{(Optional) Only used when plotting seasonality of multiple
+stars (see example below). Default is TRUE.}
+
+\item{show.grid}{(Optional) Boolean to control whether to show a grid of months.
+Default is FALSE}
+
+\item{pal}{(Optional) Colour palette for displaying phases/seasons.}
 
 \item{...}{Additional arguments to be passed to \emph{plot}.}
 }
@@ -16,10 +24,16 @@ This function creates a plot of stellar seasonality and phases/events.
 }
 \examples{
 # Plot the seasonality of Aldebaran for 3999 BCE:
-\dontrun{
-ss <- star.phases('Aldebaran',-4000, c(35,-8, 200))
-plot(ss)
-}
+s1 <- star.phases('Aldebaran',-4000, c(35,-8, 200))
+plot(s1)
+
+# Plot seasonality of several stars
+s2 <- star.phases('Alnilam',-4000, c(35,-8, 200))
+s3 <- star.phases('Elnath',-4000, c(35,-8, 200))
+sl <- list(s1,s2,s3) # join them in a list
+class(sl) <- 'skyscapeR.starphases' # necessary to call the correct plot function
+plot(sl)
+plot(sl, show.legend=F, show.grid=T)
 }
 \seealso{
 \code{\link{star.phases}}

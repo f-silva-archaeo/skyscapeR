@@ -525,6 +525,11 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
 #'
 #' This function creates a plot of stellar seasonality and phases/events.
 #' @param x Object of \emph{skyscapeR.starphases} format.
+#' @param show.grid (Optional) Boolean to control whether to show a grid of months.
+#'Default is FALSE
+#' @param show.legend (Optional) Only used when plotting seasonality of multiple
+#' stars (see example below). Default is TRUE.
+#' @param pal (Optional) Colour palette for displaying phases/seasons.
 #' @param ... Additional arguments to be passed to \emph{plot}.
 #' @rdname plot.skyscapeR.starphases
 #' @export
@@ -532,66 +537,154 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
 #' @seealso \code{\link{star.phases}}
 #' @examples
 #' # Plot the seasonality of Aldebaran for 3999 BCE:
-#' \dontrun{
-#' ss <- star.phases('Aldebaran',-4000, c(35,-8, 200))
-#' plot(ss)
-#' }
-plot.skyscapeR.starphases = function(x, show.labels=T, ...) {
-
-  col <- RColorBrewer::brewer.pal(4,'Accent'); col[5] <- col[4]
-  code <- c('RS', 'R', 'S', 'V', 'I')
-  seasons <- c("Rise and Set","Rise Only","Set Only","","")
-  events <- c('acronycal rising','heliacal setting','acronycal setting','heliacal rising')
-  if (x$metadata$type == 'curtailed passage' | x$metadata$type == 'dual phase') {
-    seasons[4] <- 'Curtailed Passage'
-  } else if (x$metadata$type == 'arising and lying hidden' | x$metadata$type == 'dual phase') {
-    seasons[5] <- 'Arising and Lying Hidden'
-  } else {
-    seasons[4] <- 'Circumpolar'
-    seasons[5] <- 'Invisible'
+#' s1 <- star.phases('Aldebaran',-4000, c(35,-8, 200))
+#' plot(s1)
+#'
+#' # Plot seasonality of several stars
+#' s2 <- star.phases('Alnilam',-4000, c(35,-8, 200))
+#' s3 <- star.phases('Elnath',-4000, c(35,-8, 200))
+#' sl <- list(s1,s2,s3) # join them in a list
+#' class(sl) <- 'skyscapeR.starphases' # necessary to call the correct plot function
+#' plot(sl)
+#' plot(sl, show.legend=F, show.grid=T)
+plot.skyscapeR.starphases = function(x, show.labels=T, show.legend=T, show.grid=F, sort.by, pal, ...) {
+  if (missing(pal)) {
+    pal <- RColorBrewer::brewer.pal(4,'Accent'); pal[5] <- '#e0e0e0'
   }
+  code <- c('RS', 'R', 'S', 'V', 'I')
+  seasons <- c("Rise and Set","Rise Only","Set Only","Curtailed Passage","Arising and Lying Hidden")
+  seasons.short <- code; seasons.short[4] <- 'CP'; seasons.short[5] <- 'ALH'
+  events <- c('acronycal rising','heliacal setting','acronycal setting','heliacal rising')
 
-  par(mar=c(3,1,1,1), mgp=c(3,1.5,0))
-  plot(-100,-100, xlim=c(1,365), ylim=c(0,1), main=paste0(x$metadata$star$name,' at ', BC.AD(x$metadata$year)), xlab="", ylab="", axes=FALSE, ...)
-  axis(1, at=c(0,91,182,273,365), labels=c('December\nSolstice','March\nEquinox','June\nSolstice','September\nEquinox','December\nSolstice'), lwd.ticks=2)
-  axis(1, at=seq(0,365,30.4), labels=NA)
+  if (length(x)>2) {
 
-  for (i in 1:length(code)) {
-    ind <- which(x$data$phase == code[i])
-    ind.bb <- split(ind,cumsum(c(1,abs(diff(ind))>1)))
+    if (!missing(sort.by)) {
+      if (sort.by=='mag') {
+        mag <- unlist(lapply(lapply(lapply( x , "[[" , "metadata") , "[[", 'star'), "[[", 'app.mag'))
+        ind <- sort(mag, decreasing=T, index.return=T)$ix
+        x <- x[ind]
+      }
+      if (sort.by=='rise') {
+        aux <- unlist(lapply(lapply(lapply(x, "[[", "metadata"), "[[", 'seasons'), function(y) y[which(grepl('rise only',y[,1])),2]))
+        aux <- strsplit(aux, ' ')
+        mon <- lapply(aux, function(y) match(y[1], month.name))
+        day <- lapply(aux, function(y) y[2])
+        dtd <- as.Date('')
+        for (i in 1:NROW(aux)) { dtd[i] <- as.Date(paste0('2000-',formatC(mon[[i]], width=2, flag=0),'-',formatC(day[[i]], width=2, flag=0))) }
+        ind <- order(dtd, decreasing=T)
+        x <- x[ind]
+      }
+      if (sort.by=='set') {
+        aux <- unlist(lapply(lapply(lapply(x, "[[", "metadata"), "[[", 'seasons'), function(y) y[which(grepl('set only',y[,1])),2]))
+        aux <- strsplit(aux, ' ')
+        mon <- lapply(aux, function(y) match(y[1], month.name))
+        day <- lapply(aux, function(y) y[2])
+        dtd <- as.Date('')
+        for (i in 1:NROW(aux)) { dtd[i] <- as.Date(paste0('2000-',formatC(mon[[i]], width=2, flag=0),'-',formatC(day[[i]], width=2, flag=0))) }
+        ind <- order(dtd, decreasing=T)
+        x <- x[ind]
+      }
 
-    for (j in 1:NROW(ind.bb)) {
-      ind.i <- ind.bb[[j]]
-      if (length(ind.i)>0) {
-        x.poly <- c(ind.i[1]-.5,tail(ind.i,1)+.5,tail(ind.i,1)+.5,ind.i[1]-.5)
-        y.poly <- c(0,0,1,1)
-        polygon(x.poly, y.poly, col=col[i], border=NA)
-        text(mean(ind.i),0.5, seasons[i], font=2, srt=90)
+    }
+
+    n <- length(x)
+    if (show.legend) { par(mar=c(3,4,2,2), xpd=T) } else { par(mar=c(3,4,2,1))}
+
+    plot(-100,-100, xlim=c(1,365), ylim=c(0,n), main="", xlab="", ylab="", axes=FALSE, yaxs='i',...)
+    aux <- seq(0,365,365/12); aux[1] <- 1
+    axis(1, at=aux[c(1,4,7,10,13)], cex.axis=0.8, labels=c('December\nSolstice','March\nEquinox','June\nSolstice','September\nEquinox','December\nSolstice'), lwd.ticks=2)
+    axis(1, at=aux, labels=NA)
+    axis(3, at=aux[c(1,4,7,10,13)], labels=NA, lwd.ticks = 2)
+    axis(3, at=aux, labels=NA)
+
+    for (k in 1:n){
+      for (i in 1:length(code)) {
+        ind <- which(x[[k]]$data$phase == code[i])
+        ind.bb <- split(ind,cumsum(c(1,abs(diff(ind))>1)))
+
+        for (j in 1:NROW(ind.bb)) {
+          ind.i <- ind.bb[[j]]
+          if (length(ind.i)>0) {
+            x.poly <- c(ind.i[1]-.5,tail(ind.i,1)+.5,tail(ind.i,1)+.5,ind.i[1]-.5)
+            y.poly <- c(k-1,k-1,k,k)
+            polygon(x.poly, y.poly, col=pal[i], border=NA)
+          }
+        }
+      }
+    }
+    lab <- unlist(lapply(lapply(lapply( x , "[[" , "metadata") , "[[", 'star'), "[[", 'name'))
+    lab2 <- unlist(lapply(lapply(lapply( x , "[[" , "metadata") , "[[", 'star'), "[[", 'Bayer'))
+    lab[which(lab=='')] <- lab2[which(lab=='')]
+    axis(2, at=1:n-0.5, labels=lab, las=2, cex=0.7, line=-1.5, lty=0)
+
+    for (i in 1:n) {
+      lines(c(1,365),c(i,i))
+    }
+    lines(c(1,1),c(0,n))
+    lines(c(365,365),c(0,n))
+    lines(c(1,365),c(0,0))
+    lines(c(1,365),c(n,n))
+
+    if (show.grid) {
+      for (i in 1:length(aux)) {
+        lines(c(aux[i],aux[i]),c(0,n), col='black', lwd=0.3, lty=3)
       }
     }
 
-  }
+    if (show.legend) { legend(366,n/2+0.5, legend=seasons.short, fill=pal, cex=0.7, bty='n') }
 
-  if (show.labels & (x$metadata$type == 'curtailed passage' | x$metadata$type == 'arising and lying hidden' | x$metadata$type == 'dual phase')) {
-    ind <- which(x$data$phase == code[4])
-    if (length(ind) > 0) {
-      lines(rep(min(ind)-1,2), c(0,1), lty=2, lwd=1.5, col='black')
-      text(min(ind)-1,0.98, events[1], cex=0.8, font=1, srt=90 ,pos=2)
+    mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'), side=3, at=par('usr')[2], cex=0.5, adj=1, line=1)
+  } else {
+    name <- x$metadata$star$name
+    if (name == "") { name <- x$metadata$star$Bayer }
+    par(mar=c(3,2,1,2), mgp=c(3,1.5,0))
+    plot(-100,-100, xlim=c(1,365), ylim=c(0,1), main=paste0(name,' at ', BC.AD(x$metadata$year)), xlab="", ylab="", axes=FALSE, xaxs='i', yaxs='i',...)
+    aux <- seq(0,365,365/12); aux[1] <- 1
+    axis(1, at=aux[c(1,4,7,10,13)], cex.axis=0.8, labels=c('December\nSolstice','March\nEquinox','June\nSolstice','September\nEquinox','December\nSolstice'), lwd.ticks=2)
+    axis(1, at=aux, labels=NA)
 
-      lines(rep(max(ind)+1,2), c(0,1), lty=2, lwd=1.5, col='black')
-      text(max(ind)+1,0.02, events[2], cex=0.8, font=1, srt=90 ,pos=4)
+    for (i in 1:length(code)) {
+      ind <- which(x$data$phase == code[i])
+      ind.bb <- split(ind,cumsum(c(1,abs(diff(ind))>1)))
+
+      for (j in 1:NROW(ind.bb)) {
+        ind.i <- ind.bb[[j]]
+        if (length(ind.i)>0) {
+          x.poly <- c(ind.i[1]-.5,tail(ind.i,1)+.5,tail(ind.i,1)+.5,ind.i[1]-.5)
+          y.poly <- c(0,0,1,1)
+          polygon(x.poly, y.poly, col=pal[i], border=NA)
+          text(mean(ind.i),0.5, seasons[i], font=2, srt=90)
+        }
+      }
     }
 
-    ind <- which(x$data$phase == code[5])
-    if (length(ind) > 0) {
-      lines(rep(min(ind)-1,2), c(0,1), lty=2, lwd=1.5, col='black')
-      text(min(ind)-1,0.98, events[3], cex=0.8, font=1, srt=90 ,pos=2)
-
-      lines(rep(max(ind)+1,2), c(0,1), lty=2, lwd=1.5, col='black')
-      text(max(ind)+1,0.02, events[4], cex=0.8, font=1, srt=90 ,pos=4)
+    if (show.grid) {
+      for (i in 1:length(aux)) {
+        lines(c(aux[i],aux[i]),c(0,1), col='black', lwd=0.3, lty=3)
+      }
     }
+
+    if (show.labels & (x$metadata$type == 'curtailed passage' | x$metadata$type == 'arising and lying hidden' | x$metadata$type == 'dual phase')) {
+      ind <- which(x$data$phase == code[4])
+      if (length(ind) > 0) {
+        lines(rep(min(ind)-1,2), c(0,1), lty=2, lwd=1.5, col='black')
+        text(min(ind)-1,0.98, events[1], cex=0.8, font=1, srt=90 ,pos=2)
+
+        lines(rep(max(ind)+1,2), c(0,1), lty=2, lwd=1.5, col='black')
+        text(max(ind)+1,0.02, events[2], cex=0.8, font=1, srt=90 ,pos=4)
+      }
+
+      ind <- which(x$data$phase == code[5])
+      if (length(ind) > 0) {
+        lines(rep(min(ind)-1,2), c(0,1), lty=2, lwd=1.5, col='black')
+        text(min(ind)-1,0.98, events[3], cex=0.8, font=1, srt=90 ,pos=2)
+
+        lines(rep(max(ind)+1,2), c(0,1), lty=2, lwd=1.5, col='black')
+        text(max(ind)+1,0.02, events[4], cex=0.8, font=1, srt=90 ,pos=4)
+      }
+    }
+    mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'), side=3, at=par('usr')[2], cex=0.5, adj=1)
   }
-  mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'), side=3, at=par('usr')[2], cex=0.5, adj=1)
 }
 
 
