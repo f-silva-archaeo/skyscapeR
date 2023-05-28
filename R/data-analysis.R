@@ -31,7 +31,7 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
   targets$solar[2,] <- c('december solstice', sort(dS(timerange, loc, verbose=FALSE)), '21 Dec', NA)
   targets$solar[3,] <- c('astronomical equinox', 0, NA, '21 Mar', '21 Sep')
   if (class(loc)[1] == 'skyscapeR.horizon') {
-    aux <- solar.date(sort(as.numeric(spatial.equinox(loc))), mean(timerange), calendar, verbose=F)
+    aux <- solar.date(sort(as.numeric(spatial.equinox(loc)$declination)), mean(timerange), calendar, verbose=F)
     targets$solar[4,] <- c('spatial equinox', as.numeric(aux[1,]), paste(aux[2,1],'/',aux[2,2]), paste(aux[3,2],'/',aux[3,1]))
   }
   if(class(loc)[1] != 'logical') {
@@ -43,8 +43,8 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
     }
   }
 
-  aux1 <- try(solar.date(seq(decrange[1],decrange[2],0.01), min(timerange), calendar, verbose=F), silent=T)
-  aux2 <- try(solar.date(seq(decrange[1],decrange[2],0.01), max(timerange), calendar, verbose=F), silent=T)
+  aux1 <- try(solar.date(seq(min(decrange),max(decrange),0.01), min(timerange), calendar, verbose=F), silent=T)
+  aux2 <- try(solar.date(seq(min(decrange),max(decrange),0.01), max(timerange), calendar, verbose=F), silent=T)
 
   ttt <- c()
   if (class(aux1)[1] != 'try-error') { ttt <- c(ttt, aux1[2,],aux1[3,]) }

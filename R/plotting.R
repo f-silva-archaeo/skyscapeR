@@ -354,10 +354,11 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
 
   } else {
     ## Single or Multiple Distributions
+    if (length(col) == 1 & length(index)>1) { col <- rep(col, length(index))}
     if (x$metadata$coord == 'dec') { lab <- 'Declination (\u00b0)'; xl <- c(-90,90) }
     if (x$metadata$coord == 'az') { lab <- 'Azimuth (\u00b0)'; xl <- c(0,360)}
     par(mar=c(4,1,1,1), mfrow=c(1,1))
-    # if(!missing(xlim)) { xl <- xlim } else { xl <- range(hpdi(x, 1)) }
+    if(!missing(xlim)) { xl <- xlim } # else { xl <- range(hpdi(x, 1)) }
     plot(-9999, -9999, type='l', main='', xlab=lab, ylab='', lwd=2, col='black', xlim=xl, ylim=c(0,length(index)), xaxs='i', yaxs='i', axes=F, ...); box()
     axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
     axis(1, at=0, labels = 0)
@@ -376,7 +377,7 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
         xvals <- xx$x[ind]; xvals <- c(xvals, rev(xvals))
         yvals <- xx$y[ind]; yvals <- yvals/max(yvals)*.8
         yvals <- c(yvals, rep(0, length(yvals)))
-        polygon(xvals, yvals + (i-1) + 0.1, col=col, border=NA)
+        polygon(xvals, yvals + (i-1) + 0.1, col=col[i], border=NA)
       }
       ind <- which(diff(xx$x) > 5*mean(diff(xx$x)))
       if (length(ind)>0) { xx[ind,2] <- NA }

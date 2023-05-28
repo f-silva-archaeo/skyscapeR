@@ -3,6 +3,7 @@ skyscapeR v1.1 (Release date: 2023-01-23)
 
 Changes:
 
+* Added all stars up to magV 6, i.e. all visible stars
 * Added planetary.extremes()
 * Fixed issue with reporting of sunrise/set dates in findTargets()
 * Fixed issue with az2dec()

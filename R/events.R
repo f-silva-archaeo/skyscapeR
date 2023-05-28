@@ -318,7 +318,7 @@ antizenith = function(loc, parallax = 0.00224, altitude = 0) {
   }
 }
 
-#' Declination of the spatial equinox for a given location
+#' Azimuth and declination of the spatial equinox for a given location
 #'
 #' @param hor This should be a \emph{skyscapeR.horizon} object.
 #' @param parallax (Optional) Average parallax value for the sun.
@@ -346,8 +346,12 @@ spatial.equinox = function(hor, parallax = 0.00224) {
   }
   options(warn=0)
   out <- c()
-  out$rise <- az2dec(mean(rise), loc=hor) - parallax.corr(parallax, hor, hor2alt(hor, mean(rise)))
-  out$set <- az2dec(mean(set), loc=hor) - parallax.corr(parallax, hor, hor2alt(hor, mean(set)))
+  out$azimuth <- c()
+  out$azimuth$rise <- mean(rise)
+  out$azimuth$set <- mean(set)
+  out$declination <- c()
+  out$declination$rise <- az2dec(mean(rise), loc=hor) - parallax.corr(parallax, hor, hor2alt(hor, mean(rise)))
+  out$declination$set <- az2dec(mean(set), loc=hor) - parallax.corr(parallax, hor, hor2alt(hor, mean(set)))
 
   return(out)
 }

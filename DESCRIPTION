@@ -1,8 +1,8 @@
 Package: skyscapeR
 Type: Package
 Title: Data Analysis and Visualization for Skyscape Archaeology
-Version: 1.1-90216
-Date: 2023-02-16
+Version: 1.1-90528
+Date: 2023-05-28
 Authors@R: c(person("Silva", "Fabio", email = "fsilva@bournemouth.ac.uk", role = c("aut", "cre")), person("Reijs", "Victor", role = "ctb"), person("Gautschy", "Rita", role = "ctb"))
 Description: Data reduction, visualization and statistical analysis of measurements of orientation of archaeological structures, following Silva (2020) <doi:10.1016/j.jas.2020.105138>.
 Depends: R (>= 4.1), swephR
