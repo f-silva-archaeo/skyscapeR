@@ -526,6 +526,8 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
 #'
 #' This function creates a plot of stellar seasonality and phases/events.
 #' @param x Object of \emph{skyscapeR.starphases} format.
+#' @param y (Optional) A second object of \emph{skyscapeR.starphases} format or
+#' a list of \emph{skyscapeR.starphases} objects for plotting (see Examples).
 #' @param show.grid (Optional) Boolean to control whether to show a grid of months.
 #'Default is FALSE
 #' @param show.legend (Optional) Only used when plotting seasonality of multiple
@@ -544,11 +546,10 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
 #' # Plot seasonality of several stars
 #' s2 <- star.phases('Alnilam',-4000, c(35,-8, 200))
 #' s3 <- star.phases('Elnath',-4000, c(35,-8, 200))
-#' sl <- list(s1,s2,s3) # join them in a list
-#' class(sl) <- 'skyscapeR.starphases' # necessary to call the correct plot function
-#' plot(sl)
+#' plot(s1, s2)
+#' plot(s1, list(s2,s3))
 #' plot(sl, show.legend=F, show.grid=T)
-plot.skyscapeR.starphases = function(x, show.labels=T, show.legend=T, show.grid=F, sort.by, pal, ...) {
+plot.skyscapeR.starphases = function(x, y, show.labels=T, show.legend=T, show.grid=F, sort.by, pal, ...) {
   if (missing(pal)) {
     pal <- RColorBrewer::brewer.pal(4,'Accent'); pal[5] <- '#e0e0e0'
   }
@@ -557,7 +558,15 @@ plot.skyscapeR.starphases = function(x, show.labels=T, show.legend=T, show.grid=
   seasons.short <- code; seasons.short[4] <- 'CP'; seasons.short[5] <- 'ALH'
   events <- c('acronycal rising','heliacal setting','acronycal setting','heliacal rising')
 
-  if (length(x)>2) {
+  if (!missing(y)) {
+    if (class(y)=='skyscapeR.starphases') {
+      x <- list(x,y)
+    } else if (class(y)=='list') {
+      y[[length(y)+1]] <- x
+      x <- y
+    } else {
+      stop('y format not recognised. It needs to be either a skyscapeR.starphases object or a list of skyscapeR.starphases objects.')
+    }
 
     if (!missing(sort.by)) {
       if (sort.by=='mag') {
@@ -635,6 +644,7 @@ plot.skyscapeR.starphases = function(x, show.labels=T, show.legend=T, show.grid=
     if (show.legend) { legend(366,n/2+0.5, legend=seasons.short, fill=pal, cex=0.7, bty='n') }
 
     mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'), side=3, at=par('usr')[2], cex=0.5, adj=1, line=1)
+
   } else {
     name <- x$metadata$star$name
     if (name == "") { name <- x$metadata$star$Bayer }

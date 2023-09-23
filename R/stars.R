@@ -204,155 +204,169 @@ star.phases <- function(star, year, loc, alt.hor = 0, k = 0.2, limit = 6, alt.rs
   aux <- calc.phase(year, day, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res=1/24/2, refraction, atm, temp, pb, 0)
   phase[day] <- aux
 
-  # step 2: fill in blanks and identify months where star season changes
-  ind <- which(phase!=""); pp <- phase[ind]
-  change <- c(0,which(pp!=c(pp[-1], pp[1])))
-  for (i in 1:(length(change)-1)) {
-    phase[ind[change[i]+1]:ind[change[i+1]]] <- phase[ind[change][i]]
-  }
+  if (length(unique(phase))==2 & unique(phase)[1]=="I") {
+    # this might happen if star does not rise enough above the horizon
 
-  # step 3: re-run on months identified before
-  ind <- which(phase=="")
-  ind <- split(ind, cumsum(seq_along(ind) %in% (which(diff(ind)>1)+1)))
-  ind <- ind[which(sapply(ind, length)>=14)]
+    # repeat with higher resolution
+    day <- seq(1,365,1)
+    aux <- calc.phase(year, day, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res=1/24/2, refraction, atm, temp, pb, 0)
+    phase[day] <- aux
 
-  pb0 <- 12
-  for (i in 1:NROW(ind)) {
-    days <- ind[[i]][c(7,14)]
-    aux <- calc.phase(year, days, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res=1/24/2, refraction, atm, temp, pb, pb0)
-    phase[days] <- aux
-    pb0 <- pb0+2
-  }
-
-  # step 4: fill in blanks and identify weeks where star season changes
-  ind <- which(phase!=""); pp <- phase[ind]
-  change <- c(0,which(pp!=c(pp[-1], pp[1])))
-  for (i in 1:(length(change)-1)) {
-    phase[ind[change[i]+1]:ind[change[i+1]]] <- phase[ind[change][i]]
-  }
-
-  # step 5: re-run on weeks identified before with higher resolution
-  ind <- which(phase=="")
-  ind <- split(ind, cumsum(seq_along(ind) %in% (which(diff(ind)>1)+1)))
-
-  pb0 <- 20
-  for (i in 1:NROW(ind)) {
-    days <- ind[[i]]
-    aux <- calc.phase(year, days, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res, refraction, atm, temp, pb, pb0)
-    phase[days] <- aux
-    pb0 <- pb0 + length(ind[[i]])
-  }
-
-  # find december solstice date and pin calendar to it
-  days <- seq(1,365)-which.min(dd)
-  days[days<0] <- days[days<0]+365
-
-  ind <- sort(days, index.return=T)$ix
-  days <- days[ind]; phase <- phase[ind]
-
-  uu <- unique(phase)
-  if (length(uu)==1) {
-    if (uu=='V') { type <- 'circumpolar'}
-    if (uu=='I') { type <- 'invisible' }
+    if (length(unique(phase))==1 & unique(phase)=="I") {
+      stop('Star is too low at this location and epoch, and too faint, to be seen at night.')
+    }
   } else {
-    if ('V' %in% uu) { type <- 'curtailed passage' }
-    if ('I' %in% uu) { type <- 'arising and lying hidden' }
-    if ('I' %in% uu & 'V' %in% uu) { type <- 'dual phase'}
-  }
 
-  # cleanup
-  phase <- sapply(phase, function(x) { paste(unique(strsplit(x, "")[[1]]), collapse='')}, USE.NAMES =F)
-
-  # identify seasons
-  seasons <- data.frame(season=NA, begin=NA, end=NA, length=NA)
-  ttt <- which(phase=='R')
-  if (length(ttt)>0) {
-    if (sum(diff(ttt)>1)>0) {
-      db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
-    } else {
-      db <- days[min(ttt)]; de <- days[max(ttt)]
+    # step 2: fill in blanks and identify months where star season changes
+    ind <- which(phase!=""); pp <- phase[ind]
+    change <- c(0,which(pp!=c(pp[-1], pp[1])))
+    for (i in 1:(length(change)-1)) {
+      phase[ind[change[i]+1]:ind[change[i+1]]] <- phase[ind[change][i]]
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='rise only', begin=db, end=de, length=NROW(ttt))
-  }
 
-  ttt <- which(phase=='SR'); phase[ttt] <- 'RS'
-  ttt <- which(phase=='RS')
-  if (length(ttt)>0) {
-    if (sum(diff(ttt)>1)>0) {
-      db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
-    } else {
-      db <- days[min(ttt)]; de <- days[max(ttt)]
+    # step 3: re-run on months identified before
+    ind <- which(phase=="")
+    ind <- split(ind, cumsum(seq_along(ind) %in% (which(diff(ind)>1)+1)))
+    ind <- ind[which(sapply(ind, length)>=14)]
+
+    pb0 <- 12
+    for (i in 1:NROW(ind)) {
+      days <- ind[[i]][c(7,14)]
+      aux <- calc.phase(year, days, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res=1/24/2, refraction, atm, temp, pb, pb0)
+      phase[days] <- aux
+      pb0 <- pb0+2
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='rise and set', begin=db, end=de, length=NROW(ttt))
-  }
 
-  ttt <- which(phase=='S')
-  if (length(ttt)>0) {
-    if (sum(diff(ttt)>1)>0) {
-      db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
-    } else {
-      db <- days[min(ttt)]; de <- days[max(ttt)]
+    # step 4: fill in blanks and identify weeks where star season changes
+    ind <- which(phase!=""); pp <- phase[ind]
+    change <- c(0,which(pp!=c(pp[-1], pp[1])))
+    for (i in 1:(length(change)-1)) {
+      phase[ind[change[i]+1]:ind[change[i+1]]] <- phase[ind[change][i]]
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='set only', begin=db, end=de, length=NROW(ttt))
-  }
 
-  ttt <- which(phase=='I')
-  if (length(ttt)>0) {
-    if (sum(diff(ttt)>1)>0) {
-      db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
-    } else {
-      db <- days[min(ttt)]; de <- days[max(ttt)]
+    # step 5: re-run on weeks identified before with higher resolution
+    ind <- which(phase=="")
+    ind <- split(ind, cumsum(seq_along(ind) %in% (which(diff(ind)>1)+1)))
+
+    pb0 <- 20
+    for (i in 1:NROW(ind)) {
+      days <- ind[[i]]
+      aux <- calc.phase(year, days, sun.pos, star, loc, arcus_visionis, alt.hor, k, limit, alt.rs, res, refraction, atm, temp, pb, pb0)
+      phase[days] <- aux
+      pb0 <- pb0 + length(ind[[i]])
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='arising and lying hidden', begin=db, end=de, length=NROW(ttt))
-  }
 
-  ttt <- which(phase=='V')
-  if (length(ttt)>0) {
-    if (sum(diff(ttt)>1)>0) {
-      db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
+    # find december solstice date and pin calendar to it
+    days <- seq(1,365)-which.min(dd)
+    days[days<0] <- days[days<0]+365
+
+    ind <- sort(days, index.return=T)$ix
+    days <- days[ind]; phase <- phase[ind]
+
+    uu <- unique(phase)
+    if (length(uu)==1) {
+      if (uu=='V') { type <- 'circumpolar'}
+      if (uu=='I') { type <- 'invisible' }
     } else {
-      db <- days[min(ttt)]; de <- days[max(ttt)]
+      if ('V' %in% uu) { type <- 'curtailed passage' }
+      if ('I' %in% uu) { type <- 'arising and lying hidden' }
+      if ('I' %in% uu & 'V' %in% uu) { type <- 'dual phase'}
     }
-    seasons[nrow(seasons)+1,] <- data.frame(season='curtailed passage', begin=db, end=de, length=NROW(ttt))
+
+    # cleanup
+    phase <- sapply(phase, function(x) { paste(unique(strsplit(x, "")[[1]]), collapse='')}, USE.NAMES =F)
+
+    # identify seasons
+    seasons <- data.frame(season=NA, begin=NA, end=NA, length=NA)
+    ttt <- which(phase=='R')
+    if (length(ttt)>0) {
+      if (sum(diff(ttt)>1)>0) {
+        db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
+      } else {
+        db <- days[min(ttt)]; de <- days[max(ttt)]
+      }
+      seasons[nrow(seasons)+1,] <- data.frame(season='rise only', begin=db, end=de, length=NROW(ttt))
+    }
+
+    ttt <- which(phase=='SR'); phase[ttt] <- 'RS'
+    ttt <- which(phase=='RS')
+    if (length(ttt)>0) {
+      if (sum(diff(ttt)>1)>0) {
+        db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
+      } else {
+        db <- days[min(ttt)]; de <- days[max(ttt)]
+      }
+      seasons[nrow(seasons)+1,] <- data.frame(season='rise and set', begin=db, end=de, length=NROW(ttt))
+    }
+
+    ttt <- which(phase=='S')
+    if (length(ttt)>0) {
+      if (sum(diff(ttt)>1)>0) {
+        db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
+      } else {
+        db <- days[min(ttt)]; de <- days[max(ttt)]
+      }
+      seasons[nrow(seasons)+1,] <- data.frame(season='set only', begin=db, end=de, length=NROW(ttt))
+    }
+
+    ttt <- which(phase=='I')
+    if (length(ttt)>0) {
+      if (sum(diff(ttt)>1)>0) {
+        db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
+      } else {
+        db <- days[min(ttt)]; de <- days[max(ttt)]
+      }
+      seasons[nrow(seasons)+1,] <- data.frame(season='arising and lying hidden', begin=db, end=de, length=NROW(ttt))
+    }
+
+    ttt <- which(phase=='V')
+    if (length(ttt)>0) {
+      if (sum(diff(ttt)>1)>0) {
+        db <- days[ttt[which(diff(ttt)>1)+1]]; de <- days[ttt[which(diff(ttt)>1)]]
+      } else {
+        db <- days[min(ttt)]; de <- days[max(ttt)]
+      }
+      seasons[nrow(seasons)+1,] <- data.frame(season='curtailed passage', begin=db, end=de, length=NROW(ttt))
+    }
+
+    seasons <- seasons[-1,]
+    seasons <- seasons[sort(seasons$begin, index.return=T)$ix,]
+    rownames(seasons) <- NULL
+
+    # identify events
+    events <- data.frame(event=NA, day=NA)
+    ind <- which(seasons[,1]=='arising and lying hidden')
+    if (length(ind)>0) {
+      events[nrow(events)+1,] <- data.frame(event='acronycal setting', day=seasons[ind,2]-1)
+      events[nrow(events)+1,] <- data.frame(event='heliacal rising', day=seasons[ind,3]+1)
+    }
+
+    ind <- which(seasons[,1]=='curtailed passage')
+    if (length(ind)>0) {
+      events[nrow(events)+1,] <- data.frame(event='acronycal setting', day=seasons[ind,2]-1)
+      events[nrow(events)+1,] <- data.frame(event='heliacal rising', day=seasons[ind,3]+1)
+    }
+
+    events <- events[-1,]
+    events <- events[sort(events$day, index.return=T)$ix,]
+    rownames(events) <- NULL
+
+    seasons$begin <- dd.to.DD(seasons$begin, char=T, WS=T)
+    seasons$end <- dd.to.DD(seasons$end, char=T, WS=T)
+    events$day <- dd.to.DD(events$day, char=T, WS=T)
+
+    # results
+    out <- c()
+    out$metadata$star <- star
+    out$metadata$year <- year
+    out$metadata$loc <- loc
+    out$metadata$type <- type
+    out$metadata$events <- events
+    out$metadata$seasons <- seasons
+    out$data <- data.frame(day = days, phase = phase)
+    class(out) <- 'skyscapeR.starphases'
+    return(out)
   }
-
-  seasons <- seasons[-1,]
-  seasons <- seasons[sort(seasons$begin, index.return=T)$ix,]
-  rownames(seasons) <- NULL
-
-  # identify events
-  events <- data.frame(event=NA, day=NA)
-  ind <- which(seasons[,1]=='arising and lying hidden')
-  if (length(ind)>0) {
-    events[nrow(events)+1,] <- data.frame(event='acronycal setting', day=seasons[ind,2]-1)
-    events[nrow(events)+1,] <- data.frame(event='heliacal rising', day=seasons[ind,3]+1)
-  }
-
-  ind <- which(seasons[,1]=='curtailed passage')
-  if (length(ind)>0) {
-    events[nrow(events)+1,] <- data.frame(event='acronycal setting', day=seasons[ind,2]-1)
-    events[nrow(events)+1,] <- data.frame(event='heliacal rising', day=seasons[ind,3]+1)
-  }
-
-  events <- events[-1,]
-  events <- events[sort(events$day, index.return=T)$ix,]
-  rownames(events) <- NULL
-
-  seasons$begin <- dd.to.DD(seasons$begin, char=T, WS=T)
-  seasons$end <- dd.to.DD(seasons$end, char=T, WS=T)
-  events$day <- dd.to.DD(events$day, char=T, WS=T)
-
-  # results
-  out <- c()
-  out$metadata$star <- star
-  out$metadata$year <- year
-  out$metadata$loc <- loc
-  out$metadata$type <- type
-  out$metadata$events <- events
-  out$metadata$seasons <- seasons
-  out$data <- data.frame(day = days, phase = phase)
-  class(out) <- 'skyscapeR.starphases'
-  return(out)
 }
 
 

@@ -1,4 +1,4 @@
-skyscapeR v1.1 (Release date: 2023-01-23)
+skyscapeR v1.1 (Release date: 2023-09-23)
 ==============
 
 Changes:
@@ -20,5 +20,7 @@ Changes:
 * Changed star() to use internal version of stellar ephemeris and naming (replacing swephR's version)
 * Complete rewrite of the engine behind star.phases() to allow for seasonality calculations outside of swephR's time interval
 * Fixed issue in star.phases() to do with alt.hor and circumpolar stars
+* Added facility to plot multiple star.phases objects
 * Added hor2min.dec() and hor2max.dec() to calculate min/max decs for given horizon profile or location
 * Added sky colour option to plot.skyscapeR.horizon()
+
