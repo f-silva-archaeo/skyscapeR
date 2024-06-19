@@ -346,8 +346,9 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
     aux <- body.position(obj, set, timezone, calendar, dec, loc, refraction, atm, temp, verbose=F)
     aux2 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(set, timezone, calendar), stringsAsFactors = F)
 
-    date <- substr(jd2time(jd0[k], timezone, calendar),1,which(strsplit(jd2time(jd0[k], timezone, calendar), "")[[1]]==" ")-1)
+    date <- substr(jd2time(rise, timezone, calendar),1,which(strsplit(jd2time(jd0[k], timezone, calendar), "")[[1]]==" ")-1)
     rises[k,] <- c(date, substr(aux1$time,which(strsplit(aux1$time, "")[[1]]==" ")+1,nchar(aux1$time)), aux1$azimuth, aux1$declination)
+    date <- substr(jd2time(set, timezone, calendar),1,which(strsplit(jd2time(jd0[k], timezone, calendar), "")[[1]]==" ")-1)
     sets[k,] <- c(date, substr(aux2$time,which(strsplit(aux2$time, "")[[1]]==" ")+1,nchar(aux2$time)), aux2$azimuth, aux2$declination)
 
     if (length(jd0) > 1 & verbose) { setTxtProgressBar(pb, k) }

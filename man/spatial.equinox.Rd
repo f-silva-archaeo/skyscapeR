@@ -2,7 +2,7 @@
 % Please edit documentation in R/events.R
 \name{spatial.equinox}
 \alias{spatial.equinox}
-\title{Declination of the spatial equinox for a given location}
+\title{Azimuth and declination of the spatial equinox for a given location}
 \usage{
 spatial.equinox(hor, parallax = 0.00224)
 }
@@ -13,7 +13,7 @@ spatial.equinox(hor, parallax = 0.00224)
 Defaults to 0.00224.}
 }
 \description{
-Declination of the spatial equinox for a given location
+Azimuth and declination of the spatial equinox for a given location
 }
 \examples{
 \dontrun{

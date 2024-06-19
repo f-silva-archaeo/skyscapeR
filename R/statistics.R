@@ -514,3 +514,178 @@ randomTest_unc <- function(pdf, .res=0.1, nsims=1000, conf=.95, tails=2, normali
 #' }
 randomTest <- compiler::cmpfun(randomTest_unc, options=list(enableJIT = 3))
 
+
+
+#' @noRd
+modelTest_unc <- function(pdf, model, nsims=1000, conf=.95, tails=2, normalise=F, ncores=parallel::detectCores()-1, save.sim=F, verbose=T) {
+  if (missing(model)) { stop('model is necessary to run this test.') }
+  if (class(model) != 'data.frame' & class(model) != 'list') { stop('model must be given as a data.frame or list of data.frames.') }
+  if (class(model) == 'list' & NROW(model) != NROW(pdf$data)) { stop('model must be a list of data.frames with equal number to the empirical observations.') }
+  if (class(model) == 'data.frame') {
+    model <- list(model)
+    model <- rep(model, NROW(pdf$data))
+  }
+  if (save.sim & ncores>1) { stop('Cannot save simulated values when running on more than one core.') }
+  if (pdf$metadata$coord == 'dec') {
+    stop('Must implement dec version.')
+  }
+  if (pdf$metadata$coord == 'az') {
+    xrange <- c(0,360)
+    az <- pdf
+  }
+
+  ## empirical SPD
+  if (verbose) { cat('Creating Empirical SPD...') }
+  empirical <- spd(pdf, xrange=xrange, normalise = normalise)
+  if (verbose) { cat('Done.\n') }
+
+
+  if (ncores > 1) {
+    ## bootstrapping
+    cl <- parallel::makeCluster(ncores)
+    doParallel::registerDoParallel(cl)
+    parallel::clusterEvalQ(cl, source("src v1.3.R"))
+    if (verbose) { cat(paste0('Running ', nsims,' simulations on ', ncores, ' processing cores. This may take a while...')) }
+
+    res <- matrix(NA, nsims, length(empirical$data$y))
+    res <- foreach (i = 1:nsims, .combine=rbind, .inorder = F) %dopar% {
+      simAz <- sampleList(model)
+      simPDF <- az.pdf(pdf = pdf$metadata$pdf, az=simAz, unc=pdf$metadata$unc, verbose=F)
+
+      if (pdf$metadata$coord == 'dec') {
+        simPDF <- coordtrans(simPDF, hor, refraction=pdf$metadata$param$refraction, atm=pdf$metadata$param$atm, temp=pdf$metadata$param$temp, verbose=F, .prec=pdf$metadata$param$.prec)
+      }
+      spd(simPDF, xrange=xrange, normalise = normalise)$data$y
+    }
+    parallel::stopCluster(cl)
+    if (verbose) { cat('Done.\n') }
+
+  } else {
+    if (verbose) { cat(paste0('Running ', nsims,' simulations on a single processing core. This may take a while...')) }
+    if (save.sim) { sim.az <- matrix(NA, nsims, length(az)) }
+    res <- matrix(NA, nsims, length(empirical$data$y))
+    if (verbose) { pb <- txtProgressBar(max=nsims, style=3) }
+    for (i in 1:nsims) {
+      simAz <- sampleList(model)
+      simPDF <- az.pdf(pdf = pdf$metadata$pdf, az=simAz, unc=pdf$metadata$unc, verbose=F)
+
+      if (pdf$metadata$coord == 'dec') {
+        simPDF <- coordtrans(simPDF, hor, refraction=pdf$metadata$param$refraction, atm=pdf$metadata$param$atm, temp=pdf$metadata$param$temp, verbose=F, .prec=pdf$metadata$param$.prec)
+      }
+      res[i,] <- spd(simPDF, xrange=xrange, normalise = normalise)$data$y
+
+      if (save.sim) { sim.az[i,] <- simAz}
+      if (verbose) { setTxtProgressBar(pb, i) }
+    }
+    if (verbose) { cat('Done.\n') }
+  }
+
+  ## confidence envelope
+  zScore.sim <- matrix(0, nrow=nsims, ncol=length(empirical$data$y))
+  zMean <- colMeans(res)
+  zStd <- apply(res, 2, sd)
+
+  zScore.emp <- (empirical$data$y - zMean)/zStd
+  zScore.sim <- apply(res, 2, scale)
+
+  ## corrections for null models with zeros (to avoid infinity values)
+  zScore.emp[!is.finite(zScore.emp)] <- 9999
+  zScore.emp[which(zStd == 0 & empirical$data$y < 0.001)] <- NA
+  zScore.sim[zScore.sim=='NaN'] <- 0
+
+  if (verbose) { cat(paste0('Performing a ',tails,'-tailed test at the ', conf*100, '% significance level.\n')) }
+  if (tails==2) {
+    lvl.up <- 1-(1-conf)/2; lvl.dn <- (1-conf)/2
+  } else if (tails==1) {
+    lvl.up <- conf; lvl.dn <- 0
+  } else { stop() }
+
+  upper <- apply(zScore.sim, 2, quantile, probs = lvl.up, na.rm = T)
+  upCI <- zMean + upper*zStd
+  # upCI[is.na(upCI)] <- 0
+  if (tails==2) {
+    lower <- apply(zScore.sim, 2, quantile, probs = lvl.dn, na.rm = T)
+    loCI <- zMean + lower*zStd
+    # loCI[is.na(loCI)] <- 0
+  }
+
+  ## global p-value
+  above <- which(zScore.emp > upper); emp.stat <- sum(zScore.emp[above] - upper[above])
+  if (tails==2) { below <- which(zScore.emp < lower); emp.stat <- emp.stat + sum(lower[below] - zScore.emp[below]) }
+
+  sim.stat <- abs(apply(zScore.sim, 1, function(x,y) { a = x-y; i = which(a>0); return(sum(a[i])) }, y = upper))
+  if (tails==2) { sim.stat <- sim.stat + abs(apply(zScore.sim, 1, function(x,y) { a = y-x; i = which(a>0); return(sum(a[i])) }, y = lower)) }
+  global.p <- round( 1 - ( length(sim.stat[sim.stat < emp.stat]) + 1 ) / ( nsims + 1 ), 5)
+
+  ## local p-value
+  ind <- split(above, cumsum(c(1,diff(above) > 1))); ind <- ind[which(lengths(ind) > 1)]
+  local <- data.frame(type=NA, start=0, end=0, p.value=0); j <- 0
+  if (length(ind)>0) {
+    for (j in 1:NROW(ind)) {
+      emp.stat <- sum(zScore.emp[ind[[j]]] - upper[ind[[j]]])
+      sim.stat <- abs(apply(zScore.sim[,ind[[j]]], 1, function(x,y) { a = x-y; i = which(a>0); return(sum(a[i])) }, y = upper[ind[[j]]]))
+
+      local[j,]$type <- '+'
+      local[j,]$start <- min(empirical$data$x[ind[[j]]])
+      local[j,]$end <- max(empirical$data$x[ind[[j]]])
+      local[j,]$p.value <- round( 1 - ( length(sim.stat[sim.stat < emp.stat]) + 1 ) / ( nsims + 1 ), 5)
+    }
+  }
+
+  if (tails==2) {
+    ind <- split(below, cumsum(c(1,diff(below) > 1))); ind <- ind[which(lengths(ind) > 1)]
+    if (length(ind)>0) {
+      for (k in 1:NROW(ind)) {
+        emp.stat <- sum(lower[ind[[k]]] - zScore.emp[ind[[k]]])
+        sim.stat <- abs(apply(zScore.sim[,ind[[k]]], 1, function(x,y) { a = y-x; i = which(a>0); return(sum(a[i])) }, y = lower[ind[[k]]]))
+
+        local[j+k,]$type <- '-'
+        local[j+k,]$start <- min(empirical$data$x[ind[[k]]])
+        local[j+k,]$end <- max(empirical$data$x[ind[[k]]])
+        local[j+k,]$p.value <- round( 1 - ( length(sim.stat[sim.stat < emp.stat]) + 1 ) / ( nsims + 1 ), 5)
+      }
+    }
+  }
+
+  ## cleanup
+  rownames(local) <- c()
+  aux <- apply(local[,c(2,3)], 1, diff)
+  ind <- which(aux <= 5*pdf$metadata$param$.prec + 1000*.Machine$double.eps)
+  if (length(ind)>0) { local <- local[-ind,] }
+  rownames(local) <- c()
+
+  ## output
+  out <- c()
+  out$metadata$coord <- pdf$metadata$coord
+  out$metadata$nsims <- nsims
+  out$metadata$conf <- conf
+  out$metadata$tails <- tails
+  out$metadata$normalise <- normalise
+  out$metadata$global.pval <- global.p
+  out$metadata$local.pval <- local
+
+  out$data$empirical <- empirical$data
+  out$data$null.hyp <- list(x = empirical$data$x, CE.mean = zMean, CE.upper = upCI)
+  if (tails==2) { out$data$null.hyp$CE.lower <- loCI }
+  if (save.sim) { out$data$simulated <- sim.az}
+  class(out) <- 'skyscapeR.sigTest'
+
+  return(out)
+}
+
+#' Significance test against a null model
+#'
+#' @param pdf A \emph{skyscapeR.pdf} object created with either \code{\link{az.pdf}} or \code{\link{coordtrans}}
+#' @param model A \emph{data.frame} or list of \emph{data.frames} with equal number to the empirical observations.
+#' See example for structure
+#' @param nsims (Optional) Number of simulations to run. Default is 1000.
+#' @param conf (Optional) Confidence envelope (in percentage) of the null model to calculate. Default is .95
+#' @param tails (Optional) Whether to calculate 1-tailed p-value (greater than) or 2-tailed p-value (smaller than or greater than).
+#' Default is 2.
+#' @param normalise (Optional) Boolean to control whether to normalize SPDs. Default is FALSE
+#' @param ncores (Optional) Number of CPU cores to use. Default is the number of available cores minus 1.
+#' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
+#' @param .res (Optional) Resolution with which to output probability distribution(s). Default is 0.1 degrees.
+#' @import snow doSNOW foreach
+#' @export
+modelTest <- compiler::cmpfun(modelTest_unc, options=list(enableJIT = 3))

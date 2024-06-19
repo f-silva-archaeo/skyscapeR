@@ -88,7 +88,8 @@ jd2time <- function(jd, timezone, calendar, verbose=F) {
       if (verbose) { message('Converting from UTC.') }
       ts <- as.POSIXct(timestring(2000, time$month, time$day, time$hour, time$minute, time$second), 'UTC')
       ts <- format(ts, tz=timezone, usetz=TRUE)
-      aux <- as.POSIXlt(ts, 'UTC')
+      aux <- as.POSIXlt(ts) #, 'UTC')
+      time$day <- aux$mday
       time$hour <- aux$hour
       time$minute <- aux$min
       time$second <- aux$sec

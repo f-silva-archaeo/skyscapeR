@@ -1,8 +1,10 @@
-skyscapeR v1.1 (Release date: 2023-09-23)
+skyscapeR v1.1 (Release date: 2024-06-19)
 ==============
 
 Changes:
 
+* fixed issues with sun and moon reporting on findtargets()
+* Added modelTest()
 * Added all stars up to magV 6, i.e. all visible stars
 * Added planetary.extremes()
 * Fixed issue with reporting of sunrise/set dates in findTargets()
@@ -23,4 +25,5 @@ Changes:
 * Added facility to plot multiple star.phases objects
 * Added hor2min.dec() and hor2max.dec() to calculate min/max decs for given horizon profile or location
 * Added sky colour option to plot.skyscapeR.horizon()
-
+* Fixed issue with jd2time where day was not correct for change of date
+* Fixed issue with riseset where date was not displayed accurately when the day changed

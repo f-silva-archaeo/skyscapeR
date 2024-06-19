@@ -27,8 +27,8 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
 
   ## solar
   targets$solar <- data.frame(name='Test', min.dec=12, max.dec=12, date1='1 Jan', date2='1 Feb', stringsAsFactors=F)
-  targets$solar[1,] <- c('june solstice', sort(jS(timerange, loc, verbose=FALSE)), '21 Jun', NA)
-  targets$solar[2,] <- c('december solstice', sort(dS(timerange, loc, verbose=FALSE)), '21 Dec', NA)
+  targets$solar[1,] <- c('june solstice', range(jS(seq(min(timerange), max(timerange),1), loc, verbose=FALSE)), '21 Jun', NA)
+  targets$solar[2,] <- c('december solstice', range(dS(seq(min(timerange), max(timerange),1), loc, verbose=FALSE)), '21 Dec', NA)
   targets$solar[3,] <- c('astronomical equinox', 0, NA, '21 Mar', '21 Sep')
   if (class(loc)[1] == 'skyscapeR.horizon') {
     aux <- solar.date(sort(as.numeric(spatial.equinox(loc)$declination)), mean(timerange), calendar, verbose=F)
@@ -76,6 +76,9 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
   targets$solar[,2] <- as.numeric(targets$solar[,2])
   targets$solar[,3] <- as.numeric(targets$solar[,3])
 
+  targets$solar$min.dec <- round(targets$solar$min.dec,2)
+  targets$solar$max.dec <- round(targets$solar$max.dec,2)
+
   targets$solar <- targets$solar[-which(is.na(targets$solar[,1])),]
   for (i in 1:NROW(targets$solar)) {
     if ((min(decrange) > max(targets$solar[i,c(2,3)], na.rm=T))  | (max(decrange) < min(targets$solar[i,c(2,3)], na.rm=T))) {
@@ -88,14 +91,22 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
 
   ## lunar
   targets$lunar <- data.frame(name='Test', min.dec=12, max.dec=12, stringsAsFactors=F)
-  targets$lunar[1,] <- c('southern major lunar extreme', sort(sMjLX(timerange, loc, verbose=FALSE)))
-  targets$lunar[2,] <- c('southern minor lunar extreme', sort(smnLX(timerange, loc, verbose=FALSE)))
-  targets$lunar[3,] <- c('northern minor lunar extreme', sort(nmnLX(timerange, loc, verbose=FALSE)))
-  targets$lunar[4,] <- c('northern major lunar extreme', sort(nMjLX(timerange, loc, verbose=FALSE)))
+
+  time <- seq(min(timerange), max(timerange),1)
+  aux <- sMjLX(time, loc)
+
+
+  targets$lunar[1,] <- c('southern major lunar extreme', range(sMjLX(seq(min(timerange), max(timerange),1), loc, verbose=FALSE)))
+  targets$lunar[2,] <- c('southern minor lunar extreme', range(smnLX(seq(min(timerange), max(timerange),1), loc, verbose=FALSE)))
+  targets$lunar[3,] <- c('northern minor lunar extreme', range(nmnLX(seq(min(timerange), max(timerange),1), loc, verbose=FALSE)))
+  targets$lunar[4,] <- c('northern major lunar extreme', range(nMjLX(seq(min(timerange), max(timerange),1), loc, verbose=FALSE)))
   ## TODO add EFM distribution
 
   targets$lunar[,2] <- as.numeric(targets$lunar[,2])
   targets$lunar[,3] <- as.numeric(targets$lunar[,3])
+
+  targets$lunar$min.dec <- round(targets$lunar$min.dec,2)
+  targets$lunar$max.dec <- round(targets$lunar$max.dec,2)
 
   for (i in 1:NROW(targets$lunar)) {
     if ((targets$lunar$min.dec[i] < min(decrange) & targets$lunar$max.dec[i] < min(decrange)) | (targets$lunar$min.dec[i] > max(decrange) & targets$lunar$max.dec[i] > max(decrange))) {
@@ -118,6 +129,9 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
 
   targets$stellar[,4] <- as.numeric(targets$stellar[,4])
   targets$stellar[,5] <- as.numeric(targets$stellar[,5])
+
+  targets$stellar$min.dec <- round(targets$stellar$min.dec,2)
+  targets$stellar$max.dec <- round(targets$stellar$max.dec,2)
 
   for (i in 1:NROW(targets$stellar)) {
     if ((targets$stellar$min.dec[i] < min(decrange) & targets$stellar$max.dec[i] < min(decrange)) | (targets$stellar$min.dec[i] > max(decrange) & targets$stellar$max.dec[i] > max(decrange))) {

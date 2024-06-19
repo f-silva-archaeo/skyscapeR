@@ -4,10 +4,13 @@
 \alias{plot.skyscapeR.starphases}
 \title{Plot stellar phase and seasonality}
 \usage{
-\method{plot}{skyscapeR.starphases}(x, show.labels = T, show.legend = T, show.grid = F, pal, ...)
+\method{plot}{skyscapeR.starphases}(x, y, show.labels = T, show.legend = T, show.grid = F, sort.by, pal, ...)
 }
 \arguments{
 \item{x}{Object of \emph{skyscapeR.starphases} format.}
+
+\item{y}{(Optional) A second object of \emph{skyscapeR.starphases} format or
+a list of \emph{skyscapeR.starphases} objects for plotting (see Examples).}
 
 \item{show.legend}{(Optional) Only used when plotting seasonality of multiple
 stars (see example below). Default is TRUE.}
@@ -30,9 +33,8 @@ plot(s1)
 # Plot seasonality of several stars
 s2 <- star.phases('Alnilam',-4000, c(35,-8, 200))
 s3 <- star.phases('Elnath',-4000, c(35,-8, 200))
-sl <- list(s1,s2,s3) # join them in a list
-class(sl) <- 'skyscapeR.starphases' # necessary to call the correct plot function
-plot(sl)
+plot(s1, s2)
+plot(s1, list(s2,s3))
 plot(sl, show.legend=F, show.grid=T)
 }
 \seealso{
