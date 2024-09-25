@@ -1,8 +1,9 @@
-skyscapeR v1.1 (Release date: 2024-06-19)
+skyscapeR v1.1 (Release date: 2024-09-25)
 ==============
 
 Changes:
 
+* added dates optional facility to findTargets()
 * fixed issues with sun and moon reporting on findtargets()
 * Added modelTest()
 * Added all stars up to magV 6, i.e. all visible stars

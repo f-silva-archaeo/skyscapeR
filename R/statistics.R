@@ -44,7 +44,7 @@ bernoulli.trial <- function(n,p,r, type='tail') {
 #' value to be applied to all measurements
 #' @param name (Optional) An array of names to identify each measurement
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
-#' @param .cutoff (Optional) Value of probability distribution(s) at which point it will be cutoff to save on memory. Default is 1e-4
+#' @param .cutoff (Optional) Value of probability distribution(s) at which point it will be cutoff to save on memory. Default is 1e-5
 #' @param .res (Optional) Azimuth resolution with which to output probability distribution(s). Default is 0.01 degrees.
 #' @export
 #' @references Silva, F (2020) A probabilistic framework and significance test for the analysis of structural orientations
@@ -52,7 +52,7 @@ bernoulli.trial <- function(n,p,r, type='tail') {
 #' @examples
 #' test <- az.pdf(az=c(87,93,90,110), unc=3)
 #' plot(test)
-az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-4, .res=0.01) {
+az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-5, .res=0.01) {
 
   ## probability distribution
   if (is(pdf,'character')) {

@@ -8,6 +8,8 @@
 #' @param loc Location, either a \emph{skyscapeR.object} or a vector
 #' containing the latitude, longitude and elevation of location, in this order. Defaults
 #' to FALSE, thus checking only geocentric declination.
+#' @param dates (Optional) Whether to display time period when identified celestial targets
+#' occur within declination range. Default is FALSE.
 #' @param calendar (Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @export
@@ -22,7 +24,7 @@
 #' hor <- downloadHWT('J657KVEV')
 #' findTargets(c(-7,2), c(-2500,-1750), loc=hor)
 #' }
-findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=skyscapeR.env$calendar) {
+findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, dates=FALSE, calendar=skyscapeR.env$calendar) {
   targets <- c()
 
   ## solar
@@ -89,6 +91,8 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
   rownames(targets$solar) <- NULL
   if (NROW(targets$solar) ==0) { targets$solar <- c() }
 
+
+
   ## lunar
   targets$lunar <- data.frame(name='Test', min.dec=12, max.dec=12, stringsAsFactors=F)
 
@@ -117,14 +121,16 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
   rownames(targets$lunar) <- NULL
   if (NROW(targets$lunar) ==0) { targets$lunar <- c() }
 
+
+
   ## stellar
   ss <- read.csv(paste0(system.file('ephemeris',package = 'swephR'),'/sefstars.txt'), header=F)
   colnames(ss) <- c('name', 'identifier', 'ICRS', 'RA.1', 'RA.2', 'RA.3', 'Dec.1', 'Dec.2', 'Dec.3', 'pm.1', 'pm.2', 'radvel', 'plx', 'magV')
   ind <- which(ss$magV>max.mag); ss <- ss[-ind,] # magnitude filter
 
-  targets$stellar <- data.frame(name='Test', identifier='Test', magV=1.2, min.dec=12, max.dec=12, stringsAsFactors=F)
+  targets$stellar <- data.frame(name='Test', identifier='Test', magV=1.2, min.dec=12, max.dec=12, daterange=NA, stringsAsFactors=F)
   for (i in 1:NROW(ss)) {
-    targets$stellar[i,] <- c(ss$name[i], ss$identifier[i], as.character(ss$magV[i]), minmaxdec(ss$identifier[i], timerange[1], timerange[2]))
+    targets$stellar[i,] <- c(ss$name[i], ss$identifier[i], as.character(ss$magV[i]), minmaxdec(ss$identifier[i], timerange[1], timerange[2]), dating(ss$identifier[i], decrange, decrange[2], timerange[1], timerange[2]))
   }
 
   targets$stellar[,4] <- as.numeric(targets$stellar[,4])
@@ -135,7 +141,7 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
 
   for (i in 1:NROW(targets$stellar)) {
     if ((targets$stellar$min.dec[i] < min(decrange) & targets$stellar$max.dec[i] < min(decrange)) | (targets$stellar$min.dec[i] > max(decrange) & targets$stellar$max.dec[i] > max(decrange))) {
-      targets$stellar[i,] <- c(NA,NA,NA,NA,NA)
+      targets$stellar[i,] <- c(NA,NA,NA,NA,NA,NA)
     }
   }
 
@@ -147,6 +153,9 @@ findTargets <- function(decrange, timerange, max.mag=2.5, loc=FALSE, calendar=sk
 
   rownames(targets$stellar) <- NULL
   if (NROW(targets$stellar) ==0) { targets$stellar <- c() }
+
+  ## for "security" reasons
+  if (dates==FALSE) targets$stellar$daterange <- NULL
 
   return(targets)
 }

@@ -84,6 +84,41 @@ minmaxdec = function(name, from, to, loc=FALSE) {
   return(mm)
 }
 
+#'@noRd
+dating = function(name, decmin, decmax, datefrom, dateto, loc=FALSE) {
+  xx <- seq(datefrom, dateto, 100)
+  dd <- c()
+
+  # Stars
+  sefstars <- read.csv(paste0(system.file('ephemeris',package = 'swephR'),'/sefstars.txt'), header=F)
+  colnames(sefstars) <- c('name', 'identifier', 'ICRS', 'RA.1', 'RA.2', 'RA.3', 'Dec.1', 'Dec.2', 'Dec.3', 'pm.1', 'pm.2', 'radvel', 'plx', 'magV')
+
+  if (sum(star.names$Western == name) | sum(as.character(sefstars$identifier) == name)) {
+    for (i in 1: NROW(xx)) {
+      dd[i] <- star(name, xx[i])$coord$Dec
+    }
+  } else {
+    # Solar-Lunar targets
+    for (i in 1: NROW(xx)) {
+      dd[i] <- do.call(name, list(year=xx[i], loc=loc, verbose=F))
+    }
+  }
+  ff <- splinefun(xx,dd)
+  xxz <- seq(datefrom,dateto,0.01)
+  dd <- ff(xxz)
+
+  dates <- xxz[which(dd >= decmin & dd <= decmax)]
+  dates <- split(dates, cumsum(seq_along(dates) %in% (which(diff(dates)>1)+1)))
+  mm <- lapply(dates, range)
+  mm <- lapply(mm, round)
+  mm <- lapply(mm, BC.AD)
+  mm <- lapply(mm, paste, collapse=' - ')
+  mm <- paste(mm, collapse = ' and ')
+  if (mm=="") mm <- 'Object is not within decrange for this timerange.'
+
+  return(mm)
+}
+
 #' Converts degree measurements in deg-min-sec (º ' ") format into decimal-point degree format.
 #'
 #' @param dd Degree
