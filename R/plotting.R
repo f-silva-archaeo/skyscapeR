@@ -22,7 +22,7 @@
 #'
 #' # To display only celestial objects
 #' plotAzimuth(obj=tt)
-plotAzimuth = function(az, col='blue', lwd=1.5, lty=1, obj, show.obj.labels=T) {
+plotAzimuth = function(az, col='blue', lwd=1.5, lty=1, obj, show.obj.labels=TRUE) {
   options(warn=-1)
   oldpar <- par()
   par(mar=c(1,1,1,1))
@@ -30,9 +30,9 @@ plotAzimuth = function(az, col='blue', lwd=1.5, lty=1, obj, show.obj.labels=T) {
   if (!missing(obj)) {
     # Add celestial objects
     plotrix::polar.plot(0,0, radial.lim=c(0,5), lwd=lwd, line.col=col,
-                        start=-270, clockwise = T,
+                        start=-270, clockwise = TRUE,
                         labels = c('N', 'NE','E', 'SE', 'S', 'SW', 'W', 'NW'), label.pos = 45*seq(0,8)/180*pi,
-                        show.grid.labels=F)
+                        show.grid.labels=FALSE)
 
     for (i in 1:obj$n) {
       rise <- c(); set <- c();
@@ -45,11 +45,11 @@ plotAzimuth = function(az, col='blue', lwd=1.5, lty=1, obj, show.obj.labels=T) {
       sl <- TRUE
       for (j in 1:length(tt)) {
         plotrix::polar.plot(5, tt[j], radial.lim=c(0,5), lwd=obj$lwd[i], lty=obj$lty[i], line.col=obj$col[i],
-                            start=-270, clockwise = T, add=T)
+                            start=-270, clockwise = TRUE, add=TRUE)
 
         if (show.obj.labels) {
           radial.plot.labels(5.9, tt[j], radial.lim=c(0,5), units="polar",
-                             labels=colnames(obj$decs)[i], start=-270, clockwise = T, col=obj$col[i], cex=0.7)
+                             labels=colnames(obj$decs)[i], start=-270, clockwise = TRUE, col=obj$col[i], cex=0.7)
         }
       }
     }
@@ -67,9 +67,9 @@ plotAzimuth = function(az, col='blue', lwd=1.5, lty=1, obj, show.obj.labels=T) {
     if (length(col)==1) { col <- rep(col, length(az)) }
 
     plotrix::polar.plot(rep(5,length(az)), az, radial.lim=c(0,5), lwd=lwd, line.col=col,
-                        start=-270, clockwise = T,
+                        start=-270, clockwise = TRUE,
                         labels = c('N', 'NE','E', 'SE', 'S', 'SW', 'W', 'NW'), label.pos = 45*seq(0,7)/180*pi,
-                        show.grid.labels=F, add=F+!missing(obj))
+                        show.grid.labels=FALSE, add=FALSE+!missing(obj))
 
   }
   mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'), side=3, at=par('usr')[2], cex=0.5, adj=1)
@@ -193,20 +193,20 @@ plotBars <- function(val, unc, names, unit='Declination', col='blue', shade=TRUE
 #' # Add the paths of the solstices and equinoxes sun in the year 1999 BC:
 #' tt <- sky.objects('solar extremes', epoch=-2000, col='blue')
 #' plot(hor, obj=tt)
-plot.skyscapeR.horizon <- function(x, show.az=F, xlim, ylim, obj, refraction=F, col.ground='darkgreen', col.sky, ...) {
+plot.skyscapeR.horizon <- function(x, show.az=FALSE, xlim, ylim, obj, refraction=FALSE, col.ground='darkgreen', col.sky, ...) {
   if (missing(xlim)) { xlim <- c(0,360) }
-  if (missing(ylim)) { ylim <- c(floor(min(x$data$alt, na.rm=T))-5,45) }
+  if (missing(ylim)) { ylim <- c(floor(min(x$data$alt, na.rm=TRUE))-5,45) }
 
   par(mar=c(2,1,1,1))
-  plot(-99999,-99999, xlab = "", ylab = "", yaxs='i', xaxs='i', axes=F, lwd=5, xlim=xlim, ylim=ylim, ...)
+  plot(-99999,-99999, xlab = "", ylab = "", yaxs='i', xaxs='i', axes=FALSE, lwd=5, xlim=xlim, ylim=ylim, ...)
   scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
-  if (scale <= 1) { axis(1, at=seq(-40,360+40,0.1), lwd=0.2, labels=F) }
-  if (scale <= 2 & scale > 1) { axis(1, at=seq(-40,360+40,0.5), lwd=0.2, labels=F) }
-  if (scale <= 5 & scale > 2) { axis(1, at=seq(-40,360+40,1), lwd=0.5, labels=F) }
-  if (scale <= 20 & scale > 5) { axis(1, at=seq(-40,360+40,5), lwd=0.5, labels=F) }
-  if (scale < 90 & scale >= 10) { axis(1, at=seq(-40,360+40,10), lwd=0.5, labels=F) }
+  if (scale <= 1) { axis(1, at=seq(-40,360+40,0.1), lwd=0.2, labels=FALSE) }
+  if (scale <= 2 & scale > 1) { axis(1, at=seq(-40,360+40,0.5), lwd=0.2, labels=FALSE) }
+  if (scale <= 5 & scale > 2) { axis(1, at=seq(-40,360+40,1), lwd=0.5, labels=FALSE) }
+  if (scale <= 20 & scale > 5) { axis(1, at=seq(-40,360+40,5), lwd=0.5, labels=FALSE) }
+  if (scale < 90 & scale >= 10) { axis(1, at=seq(-40,360+40,10), lwd=0.5, labels=FALSE) }
 
-  if (show.az == T) {
+  if (show.az == TRUE) {
     if (scale >= 10 & scale < 45) { scale <- 10 }
     if (scale >= 45 & scale < 90) { scale <- 45 }
     if (scale >= 90) { scale <- 90 }
@@ -225,7 +225,7 @@ plot.skyscapeR.horizon <- function(x, show.az=F, xlim, ylim, obj, refraction=F, 
 
   # objects
   if (!missing(obj)) {
-    ind <- sort(obj$decs[1,], decreasing=T, index.return=T)$ix
+    ind <- sort(obj$decs[1,], decreasing=TRUE, index.return=TRUE)$ix
     for (i in ind) {
       if (length(obj$epoch)==1) {
         orb <- orbit(obj$decs[i], x, res=0.5, refraction=refraction)
@@ -262,7 +262,7 @@ plot.skyscapeR.horizon <- function(x, show.az=F, xlim, ylim, obj, refraction=F, 
 #' @param ... Additional arguments to be passed to \emph{plot}.
 #' @rdname plot.skyscapeR.pdf
 #' @export
-plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::col.alpha('blue',0.5), ...) {
+plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=TRUE, xlim, col=MESS::col.alpha('blue',0.5), ...) {
   if (missing(index)) { index <- 1:NROW(x$data) }
 
   if (length(index)==1 & x$metadata$coord == 'dec') {
@@ -276,7 +276,7 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
 
     # Information Panel
     par(mar=c(0,0,0,0))
-    plot(-999,-999, xlim=c(0,1), ylim=c(0,1), xaxs='i', yaxs='i',axes=F, xlab='', ylab='', ...)
+    plot(-999,-999, xlim=c(0,1), ylim=c(0,1), xaxs='i', yaxs='i',axes=FALSE, xlab='', ylab='', ...)
     hd <- hpdi(x$data[[index]], hdr)
     if (exists('name', where=x$metadata)) { text(.3, .8, labels=x$metadata$name[index], pos=4, font=2, cex=1.2)  }
     prob <- paste0(hdr*100, '% probability')
@@ -287,20 +287,20 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
 
     # Azimuth Distribution
     par(mar=c(0,4,1,0))
-    plot(dens, xx, type='l', ylab='Azimuth (\u00b0)', xlab='', lwd=2, col='black', xlim=c(0, 1.2*max(dens)), ylim=yl, xaxs='i', yaxs='i', axes=F, ...); box()
+    plot(dens, xx, type='l', ylab='Azimuth (\u00b0)', xlab='', lwd=2, col='black', xlim=c(0, 1.2*max(dens)), ylim=yl, xaxs='i', yaxs='i', axes=FALSE, ...); box()
     polygon(c(dens,rep(0,length(dens))), c(xx, rev(xx)), col='grey', border=NA)
     axis(2, at=pretty(seq(par('usr')[3],par('usr')[4])))
     axis(2, at=0, labels = 0)
     scale <- mean(diff(pretty(seq(par('usr')[3],par('usr')[4]))))
-    if (scale <= 1) { axis(2, at=seq(-45,360+45,0.1), lwd=0.2, labels=F) }
-    if (scale <= 2 & scale > 1) { axis(2, at=seq(-45,360+45,0.5), lwd=0.2, labels=F) }
-    if (scale <= 5 & scale > 2) { axis(2, at=seq(-45,360+45,1), lwd=0.5, labels=F) }
-    if (scale <= 20 & scale > 5) { axis(2, at=seq(-45,360+45,5), lwd=0.5, labels=F) }
-    if (scale > 10) { axis(2, at=seq(-45,360+45,10), lwd=0.5, labels=F) }
+    if (scale <= 1) { axis(2, at=seq(-45,360+45,0.1), lwd=0.2, labels=FALSE) }
+    if (scale <= 2 & scale > 1) { axis(2, at=seq(-45,360+45,0.5), lwd=0.2, labels=FALSE) }
+    if (scale <= 5 & scale > 2) { axis(2, at=seq(-45,360+45,1), lwd=0.5, labels=FALSE) }
+    if (scale <= 20 & scale > 5) { axis(2, at=seq(-45,360+45,5), lwd=0.5, labels=FALSE) }
+    if (scale > 10) { axis(2, at=seq(-45,360+45,10), lwd=0.5, labels=FALSE) }
 
     # Transformation Curve
     par(mar=c(0,0,1,1))
-    plot(-999,999, axes=F, xlim=xl, ylim=yl, xaxs='i', yaxs='i', ...); box()
+    plot(-999,999, axes=FALSE, xlim=xl, ylim=yl, xaxs='i', yaxs='i', ...); box()
 
     ## process horizon profile
     hh <- get(x$metadata$horizon); if (is(hh, 'list')) { hh <- hh[[index]] }
@@ -329,7 +329,7 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
     # Declination Distribution
     par(mar=c(4,0,0,1))
     xx <- x$data[[index]]
-    plot(xx$x, xx$y, type='l', main='', xlab='Declination (\u00b0)', lwd=1.2, col='black', xlim=xl, ylim=c(0, 1.2*max(x$data[[index]]$y)), xaxs='i', yaxs='i', axes=F, ...); box()
+    plot(xx$x, xx$y, type='l', main='', xlab='Declination (\u00b0)', lwd=1.2, col='black', xlim=xl, ylim=c(0, 1.2*max(x$data[[index]]$y)), xaxs='i', yaxs='i', axes=FALSE, ...); box()
 
     for (j in 1:NROW(hd)) {
       ind <- which(x$data[[index]]$x >= min(hd[j,]) & x$data[[index]]$x <= max(hd[j,]))
@@ -343,11 +343,11 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
     axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
     axis(1, at=0, labels = 0)
     scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
-    if (scale <= 1) { axis(1, at=seq(-90,90,0.1), lwd=0.2, labels=F) }
-    if (scale <= 2 & scale > 1) { axis(1, at=seq(-90,90,0.5), lwd=0.2, labels=F) }
-    if (scale <= 5 & scale > 2) { axis(1, at=seq(-90,90,1), lwd=0.5, labels=F) }
-    if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,90,5), lwd=0.5, labels=F) }
-    if (scale > 10) { axis(1, at=seq(-90,90,10), lwd=0.5, labels=F) }
+    if (scale <= 1) { axis(1, at=seq(-90,90,0.1), lwd=0.2, labels=FALSE) }
+    if (scale <= 2 & scale > 1) { axis(1, at=seq(-90,90,0.5), lwd=0.2, labels=FALSE) }
+    if (scale <= 5 & scale > 2) { axis(1, at=seq(-90,90,1), lwd=0.5, labels=FALSE) }
+    if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,90,5), lwd=0.5, labels=FALSE) }
+    if (scale > 10) { axis(1, at=seq(-90,90,10), lwd=0.5, labels=FALSE) }
 
     box()
     mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'), side=3, at=par('usr')[2], cex=0.5, adj=1)
@@ -363,11 +363,11 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
     axis(1, at=pretty(seq(par('usr')[1],par('usr')[2])))
     axis(1, at=0, labels = 0)
     scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
-    if (scale <= 1) { axis(1, at=seq(-90,360+50,0.1), lwd=0.2, labels=F) }
-    if (scale <= 2 & scale > 1) { axis(1, at=seq(-90,360+50,0.5), lwd=0.2, labels=F) }
-    if (scale <= 5 & scale > 2) { axis(1, at=seq(-90,360+50,1), lwd=0.5, labels=F) }
-    if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,360+50,5), lwd=0.5, labels=F) }
-    if (scale > 10) { axis(1, at=seq(-90,360+50,10), lwd=0.5, labels=F) }
+    if (scale <= 1) { axis(1, at=seq(-90,360+50,0.1), lwd=0.2, labels=FALSE) }
+    if (scale <= 2 & scale > 1) { axis(1, at=seq(-90,360+50,0.5), lwd=0.2, labels=FALSE) }
+    if (scale <= 5 & scale > 2) { axis(1, at=seq(-90,360+50,1), lwd=0.5, labels=FALSE) }
+    if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,360+50,5), lwd=0.5, labels=FALSE) }
+    if (scale > 10) { axis(1, at=seq(-90,360+50,10), lwd=0.5, labels=FALSE) }
 
     for (i in 1:length(index)) {
       xx <- x$data[[index[i]]]
@@ -381,9 +381,9 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
       }
       ind <- which(diff(xx$x) > 5*mean(diff(xx$x)))
       if (length(ind)>0) { xx[ind,2] <- NA }
-      lines(xx$x, xx$y/max(xx$y, na.rm=T)*.8 + (i-1) + 0.1, lwd=1.2, col='black')
+      lines(xx$x, xx$y/max(xx$y, na.rm=TRUE)*.8 + (i-1) + 0.1, lwd=1.2, col='black')
       # text(par('usr')[1] - 20, par('usr')[3]+i-0.5, labels=x$metadata$name[index[i]], xpd=T)
-      text(max(hd), par('usr')[3]+i-0.5, labels=x$metadata$name[index[i]], xpd=T, pos=4)
+      text(max(hd), par('usr')[3]+i-0.5, labels=x$metadata$name[index[i]], xpd=TRUE, pos=4)
       abline(h=i, col='grey', lty=3)
       mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'), side=3, at=par('usr')[2], cex=0.5, adj=1)
     }
@@ -403,7 +403,7 @@ plot.skyscapeR.pdf <- function(x, index, hdr=0.954, show.az=T, xlim, col=MESS::c
 #' @param ... Additional arguments to be passed to \emph{plot}.
 #' @rdname plot.skyscapeR.spd
 #' @export
-plot.skyscapeR.spd <- function(x, xlim, ylim, title=NULL, col='blue', shading=T, ...) {
+plot.skyscapeR.spd <- function(x, xlim, ylim, title=NULL, col='blue', shading=TRUE, ...) {
   par(mar=c(5, 4, 1, 1) + 0.1)
   if (missing(xlim)) { xlim <- sort(x$data$x[c(min(which(x$data$y >= 1e-12)), max(which(x$data$y >= 1e-12)))]) }
   if (missing(ylim)) { ylim <- c(0, max(x$data$y)) }
@@ -415,7 +415,7 @@ plot.skyscapeR.spd <- function(x, xlim, ylim, title=NULL, col='blue', shading=T,
     xlim[2] <- min(xlim[2], 360)
   }
 
-  plot(x$data$x, x$data$y, type='l', main=title, xlab=label, ylab='Density', lwd=2, col=col, xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=F, ...); box()
+  plot(x$data$x, x$data$y, type='l', main=title, xlab=label, ylab='Density', lwd=2, col=col, xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=FALSE, ...); box()
   if (shading) {
     xp <- c(x$data$x, rev(x$data$x))
     yp <- c(x$data$y, rep(0, length(x$data$x)))
@@ -428,11 +428,11 @@ plot.skyscapeR.spd <- function(x, xlim, ylim, title=NULL, col='blue', shading=T,
     axis(1, at=c(0, 45, 90, 135, 180, 225, 270, 315, 360))
   }
   scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
-  if (scale <= 1) { axis(1, at=seq(-90,360,0.1), lwd=0.2, labels=F) }
-  if (scale <= 2 & scale > 1) { axis(1, at=seq(-90,360,0.5), lwd=0.2, labels=F) }
-  if (scale <= 5 & scale > 2) { axis(1, at=seq(-90,360,1), lwd=0.5, labels=F) }
-  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,360,5), lwd=0.5, labels=F) }
-  if (scale > 10) { axis(1, at=seq(-90,360,10), lwd=0.5, labels=F) }
+  if (scale <= 1) { axis(1, at=seq(-90,360,0.1), lwd=0.2, labels=FALSE) }
+  if (scale <= 2 & scale > 1) { axis(1, at=seq(-90,360,0.5), lwd=0.2, labels=FALSE) }
+  if (scale <= 5 & scale > 2) { axis(1, at=seq(-90,360,1), lwd=0.5, labels=FALSE) }
+  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,360,5), lwd=0.5, labels=FALSE) }
+  if (scale > 10) { axis(1, at=seq(-90,360,10), lwd=0.5, labels=FALSE) }
   axis(2)
   mtext(paste0('skyscapeR ', packageVersion('skyscapeR'),' (', substr(packageDescription('skyscapeR')$Date,1,4),')'), side=3, at=par('usr')[2], cex=0.5, adj=1)
 
@@ -451,7 +451,7 @@ plot.skyscapeR.spd <- function(x, xlim, ylim, title=NULL, col='blue', shading=T,
 #' @param ... Additional arguments to be passed to \emph{plot}.
 #' @rdname plot.skyscapeR.sigTest
 #' @export
-plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T, show.local=F, pal=brewer.pal(5, 'PRGn')[c(1,5)], ...) {
+plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=TRUE, show.local=FALSE, pal=brewer.pal(5, 'PRGn')[c(1,5)], ...) {
   par(mar=c(5, 4, 1, 1) + 0.1)
   # empirical spd
   spd <- x$data$empirical
@@ -463,7 +463,7 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
     xlim[1] <- max(xlim[1], 0)
     xlim[2] <- min(xlim[2], 360)
   }
-  plot(spd$x, spd$y, type='l', main=title, xlab=label, ylab='Density', lwd=2, col=col, xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=F, ...); box()
+  plot(spd$x, spd$y, type='l', main=title, xlab=label, ylab='Density', lwd=2, col=col, xlim=xlim, ylim=ylim, xaxs='i', yaxs='i', axes=FALSE, ...); box()
   xp <- c(spd$x, rev(spd$x))
   yp <- c(spd$y, rep(0, length(spd$x)))
   polygon(xp, yp, col=MESS::col.alpha(col,0.5), border=NA)
@@ -474,11 +474,11 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
     axis(1, at=c(0, 45, 90, 135, 180, 225, 270, 315, 360))
   }
   scale <- mean(diff(pretty(seq(par('usr')[1],par('usr')[2]))))
-  if (scale <= 1) { axis(1, at=seq(-90,360,0.1), lwd=0.2, labels=F) }
-  if (scale <= 2 & scale > 1) { axis(1, at=seq(-90,360,0.5), lwd=0.2, labels=F) }
-  if (scale <= 5 & scale > 2) { axis(1, at=seq(-90,360,1), lwd=0.5, labels=F) }
-  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,360,5), lwd=0.5, labels=F) }
-  if (scale > 10) { axis(1, at=seq(-90,360,10), lwd=0.5, labels=F) }
+  if (scale <= 1) { axis(1, at=seq(-90,360,0.1), lwd=0.2, labels=FALSE) }
+  if (scale <= 2 & scale > 1) { axis(1, at=seq(-90,360,0.5), lwd=0.2, labels=FALSE) }
+  if (scale <= 5 & scale > 2) { axis(1, at=seq(-90,360,1), lwd=0.5, labels=FALSE) }
+  if (scale <= 20 & scale > 5) { axis(1, at=seq(-90,360,5), lwd=0.5, labels=FALSE) }
+  if (scale > 10) { axis(1, at=seq(-90,360,10), lwd=0.5, labels=FALSE) }
   axis(2)
 
   # sigtest
@@ -534,6 +534,8 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
 #' stars (see example below). Default is TRUE.
 #' @param pal (Optional) Colour palette for displaying phases/seasons.
 #' @param ... Additional arguments to be passed to \emph{plot}.
+#' @param show.labels (Optional) Logical. If `TRUE`, labels will be shown in the plot. Default is `FALSE`.
+#' @param sort.by (Optional) Character. Defines how data should be sorted before plotting. Options: `"time"`, `"azimuth"`.
 #' @rdname plot.skyscapeR.starphases
 #' @export
 #' @import MESS RColorBrewer
@@ -542,14 +544,13 @@ plot.skyscapeR.sigTest <- function(x, xlim, title=NULL, col='blue', show.pval=T,
 #' # Plot the seasonality of Aldebaran for 3999 BCE:
 #' s1 <- star.phases('Aldebaran',-4000, c(35,-8, 200))
 #' plot(s1)
-#'
 #' # Plot seasonality of several stars
 #' s2 <- star.phases('Alnilam',-4000, c(35,-8, 200))
 #' s3 <- star.phases('Elnath',-4000, c(35,-8, 200))
 #' plot(s1, s2)
 #' plot(s1, list(s2,s3))
-#' plot(sl, show.legend=F, show.grid=T)
-plot.skyscapeR.starphases = function(x, y, show.labels=T, show.legend=T, show.grid=F, sort.by, pal, ...) {
+#' plot(s1, show.legend=FALSE, show.grid=TRUE)
+plot.skyscapeR.starphases = function(x, y, show.labels=TRUE, show.legend=TRUE, show.grid=FALSE, sort.by, pal, ...) {
   if (missing(pal)) {
     pal <- RColorBrewer::brewer.pal(4,'Accent'); pal[5] <- '#e0e0e0'
   }
@@ -559,9 +560,9 @@ plot.skyscapeR.starphases = function(x, y, show.labels=T, show.legend=T, show.gr
   events <- c('acronycal rising','heliacal setting','acronycal setting','heliacal rising')
 
   if (!missing(y)) {
-    if (class(y)=='skyscapeR.starphases') {
+    if (inherits(y, 'skyscapeR.starphases')) {
       x <- list(x,y)
-    } else if (class(y)=='list') {
+    } else if (inherits(y, 'list')) {
       y[[length(y)+1]] <- x
       x <- y
     } else {
@@ -571,7 +572,7 @@ plot.skyscapeR.starphases = function(x, y, show.labels=T, show.legend=T, show.gr
     if (!missing(sort.by)) {
       if (sort.by=='mag') {
         mag <- unlist(lapply(lapply(lapply( x , "[[" , "metadata") , "[[", 'star'), "[[", 'app.mag'))
-        ind <- sort(mag, decreasing=T, index.return=T)$ix
+        ind <- sort(mag, decreasing=TRUE, index.return=TRUE)$ix
         x <- x[ind]
       }
       if (sort.by=='rise') {
@@ -581,7 +582,7 @@ plot.skyscapeR.starphases = function(x, y, show.labels=T, show.legend=T, show.gr
         day <- lapply(aux, function(y) y[2])
         dtd <- as.Date('')
         for (i in 1:NROW(aux)) { dtd[i] <- as.Date(paste0('2000-',formatC(mon[[i]], width=2, flag=0),'-',formatC(day[[i]], width=2, flag=0))) }
-        ind <- order(dtd, decreasing=T)
+        ind <- order(dtd, decreasing=TRUE)
         x <- x[ind]
       }
       if (sort.by=='set') {
@@ -591,14 +592,14 @@ plot.skyscapeR.starphases = function(x, y, show.labels=T, show.legend=T, show.gr
         day <- lapply(aux, function(y) y[2])
         dtd <- as.Date('')
         for (i in 1:NROW(aux)) { dtd[i] <- as.Date(paste0('2000-',formatC(mon[[i]], width=2, flag=0),'-',formatC(day[[i]], width=2, flag=0))) }
-        ind <- order(dtd, decreasing=T)
+        ind <- order(dtd, decreasing=TRUE)
         x <- x[ind]
       }
 
     }
 
     n <- length(x)
-    if (show.legend) { par(mar=c(3,4,2,2), xpd=T) } else { par(mar=c(3,4,2,1))}
+    if (show.legend) { par(mar=c(3,4,2,2), xpd=TRUE) } else { par(mar=c(3,4,2,1))}
 
     plot(-100,-100, xlim=c(1,365), ylim=c(0,n), main="", xlab="", ylab="", axes=FALSE, yaxs='i',...)
     aux <- seq(0,365,365/12); aux[1] <- 1

@@ -528,9 +528,9 @@ sMjLX = function(year = skyscapeR.env$cur.year, loc=FALSE, parallax = 0.952, alt
 #' # Spring Full Moon from a location in Portugal in the year 2018
 #' EFM(year=2018, loc=c(35,-8,100))
 #'
-#' # Autumn Full Moons in the last three years
+#' # Autumn Full Moons over a 3 year period
 #' \dontrun{
-#' EFM(season='autumn', year=c(2019,2021), loc=c(35,-8,100))
+#' EFM(season='autumn', year=c(2018,2020), loc=c(35,-8,100))
 #' }
 EFM <- function(season='spring', rise=T, year, loc, min.phase=.99, refraction, atm, temp, timezone, calendar) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }

@@ -181,8 +181,9 @@ checkbody <- function(body){
 
 #' @noRd
 mag2size <- function(mag) {
-  size <- -log(mag+4.932) + 2.396
-  if (mag == 0 | is.na(mag) | mag > 6) { size <- 0 }
+  # size <- -log(mag+4.932) + 2.396 # good for upto mag 6
+  size <- 4.45-1.57*log(mag+10) # good for upto mag 7
+  if (is.na(mag) | mag > 7) { size <- 0 }
   return(size)
 }
 
@@ -281,4 +282,50 @@ period <- function(obj) {
   if (obj=='Mars') { return(687/365.25*10) }
   if (obj=='Jupiter') { return(4331/365.25) }
   if (obj=='Saturn') { return(10747/365.25) }
+}
+
+#' @noRd
+constLines <- function(const){
+
+  ind <- NA
+  for (i in 1:length(const)) {
+    aux <- as.numeric(which(constellations[,1:4]==const[i], arr.ind=TRUE)[,1])
+    if (length(aux)==0) aux <- NA
+    ind <- c(ind, aux)
+  }
+  ind <- ind[-1]
+
+  if (length(ind)==0) stop("Constellation not identified.")
+  if (sum(is.na(ind))==1) warning(paste("Constellation(s)", const[is.na(ind)], "were not identified. Plotting only those that have."))
+
+  cc <- constellations[ind,]$HIP
+  ct <- list()
+  for (i in 1:NROW(cc)){
+    ct[[i]] <- unlist(strsplit(trimws(cc[i]), "\\s+"))
+    ct[[i]] <- paste('HIP', ct[[i]])
+  }
+  rm(cc)
+
+  ss <- read.csv(paste0(system.file('ephemeris',package='skyscapeR'),'/skyscapeR-sefstars.txt'), header=F)
+  colnames(ss) <- c('name', 'identifier', 'ICRS', 'RA.1', 'RA.2', 'RA.3', 'Dec.1', 'Dec.2', 'Dec.3', 'pm.1', 'pm.2', 'radvel', 'plx', 'magV', 'stellar','cat')
+  ss <- ss[-which(is.na(ss$cat)),]
+
+  # removes A and B from end of HIP number
+  ind <- which(is.na(as.numeric(stringr::str_sub(ss$cat,-1,-1))))
+  ss$cat[ind] <- stringr::str_sub(ss$cat[ind], -20,-2)
+
+  id <- list()
+  for (i in 1:NROW(ct)) {
+    id[[i]] <- rep(NA,length(ct[[i]]))
+    for (j in 1:length(ct[[i]])) {
+      if (length(which(ss$cat==ct[[i]][j]))==0) {
+        cat(paste0('Constellation lines issue (', ct[[i]][j], '). Contact the developer \n'))
+      } else {
+        id[[i]][j] <- ss$identifier[which(ss$cat==ct[[i]][j])]
+      }
+    }
+    id[[i]] <- matrix(id[[i]], ncol=2, byrow = T)
+  }
+
+  return(id)
 }

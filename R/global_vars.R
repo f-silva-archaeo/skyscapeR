@@ -45,36 +45,32 @@ skyscapeR.vars = function(timezone, calendar, refraction, atm, temp, dec) {
   aux <- ls(skyscapeR.env)
   return(mget(aux, skyscapeR.env))
 }
-
-
 #' Swap between swephR and skyscapeR versions of stellar ephemeris
 #'
 #' @param source Package name for the source of the stellar ephemeris data. Can be
 #' either \emph{swephR} or \emph{skyscapeR}. Defaults to the latter.
 #' @export
 swapStars <- function(source='skyscapeR') {
-  folder <- .libPaths()
-  if (source=='skyscapeR') {
-    # copy original swephR file with backup in skyscapeR folder
-    file.copy(paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), paste0(system.file('ephemeris',package='swephR'),'/sefstars.bkp'), overwrite=T)
-    file.copy(paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.txt'), paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.bkp'), overwrite=T)
-    file.copy(paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), paste0(system.file('ephemeris',package='skyscapeR'),'/sefstars.bkp'), overwrite=T)
+  swephR_file <- system.file('ephemeris', 'sefstars.txt', package='swephR')
+  swephRdata_file <- system.file('ephemeris', 'sefstars.txt', package='swephRdata')
 
-    # replace with new one
-    file.copy(paste0(system.file('ephemeris',package='skyscapeR'),'/skyscapeR-sefstars.txt'), paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), overwrite=T)
-    file.copy(paste0(system.file('ephemeris',package='skyscapeR'),'/skyscapeR-sefstars.txt'), paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.txt'), overwrite=T)
-    cat('Replaced swephR stellar ephemeris file with skyscapeR version.')
+  swephR_bkp  <- system.file('ephemeris', 'swephR-sefstars.txt', package='skyscapeR')
+  skyscapeR_file <- system.file('ephemeris', 'skyscapeR-sefstars.txt', package='skyscapeR')
 
-  } else if (source=='swephR') {
-    if (file.exists(paste0(system.file('ephemeris',package='swephR'),'/sefstars.bkp'))) {
-      file.copy(paste0(system.file('ephemeris',package='swephR'),'/sefstars.bkp'), paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), overwrite=T)
-      file.copy(paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.bkp'), paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.txt'), overwrite=T)
-    } else if (file.exists(paste0(system.file('ephemeris',package='skyscapeR'),'/sefstars.bkp'))) {
-      file.copy(paste0(system.file('ephemeris',package='skyscapeR'),'/sefstars.bkp'), paste0(system.file('ephemeris',package='swephR'),'/sefstars.txt'), overwrite=T)
-      file.copy(paste0(system.file('ephemeris',package='skyscapeR'),'/sefstars.bkp'), paste0(system.file('ephemeris',package='swephRdata'),'/sefstars.txt'), overwrite=T)
-    } else { stop('Original swephR version of stellar ephemeris already in place.') }
-    cat('Replaced stellar ephemeris file with original swephR version.')
-  } else { stop('Source not recognised.')}
+  if (source == 'skyscapeR') {
+    file.copy(skyscapeR_file, swephR_file, overwrite = TRUE)
+    file.copy(skyscapeR_file, swephRdata_file, overwrite = TRUE)
+    packageStartupMessage('Replaced swephR stellar ephemeris file with skyscapeR version.')
+  } else if (source == 'swephR') {
+    file.copy(swephR_bkp, swephR_file, overwrite = TRUE)
+    file.copy(swephR_bkp, swephRdata_file, overwrite = TRUE)
+    packageStartupMessage('Restored original swephR stellar ephemeris file.')
+  } else {
+    stop('Source not recognised.')
+  }
 }
 
 globalVariables('star.names')
+
+
+

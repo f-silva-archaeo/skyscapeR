@@ -1,4 +1,4 @@
-#' Celetial Object Names
+#' Celestial Object Names
 #'
 #' Celestial object names (stars, supernovae and galaxies) database. Currently only IAU / Western
 #' common names included, but can be expanded to include names from other societies, past or present.

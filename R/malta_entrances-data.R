@@ -1,0 +1,23 @@
+#' Maltese Temples entrance data
+#'
+#' Azimuthal data from Tore Lomsdalen's fieldwork on the prehistoric Maltese Temples.
+#'
+#' @docType data
+#' @usage data(malta_entrances)
+#' @format A data frame with 32 rows and 6 variables:
+#'  \describe{
+#'    \item{Name}{Structure name}
+#'    \item{Latitude}{}
+#'    \item{Longitue}{}
+#'    \item{Az L} {Leftmost azimuth of entrance}
+#'    \item{Az R} {Rightmost azimuth of entrance}
+#'    \item{Phase} {Chronolgoical phase of structure}
+#'    }
+#' @keywords datasets
+#' @references Lomsdalen, T. (2021). \emph{Viewscapes and Cosmology in the Prehistoric Temples of Malta}. PhD Dissertation - University of Malta.
+#' @references Silva, F. and Lomsdalen, T. (2025). ‘No easy way from the earth to the stars’: a new statistical approach to the orientation of the Maltese Temples. \emph{Archaeological and Anthropological Sciences}  <doi:10.1007/s12520-025-02208-4>
+#' @examples
+#' data(malta_entrances)
+#' mid_az <- (malta_entrances$`Az L` + malta_entrances$`Az R`)/2
+#' plotAzimuth(mid_az)
+"malta_entrances"

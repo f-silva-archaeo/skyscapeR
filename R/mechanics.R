@@ -51,7 +51,7 @@ az2dec = function(az, loc, alt, refraction=skyscapeR.env$refraction, atm=skyscap
   if (length(alt) == 1) { alt <- rep(alt, NROW(az)) }
   if (length(alt) != NROW(az)) { stop('alt parameter needs to be of either length 1 or same length as az') }
 
-  if (class(loc)[1] == 'skyscapeR.horizon') { georefs <- loc$metadata$georef; georefs <- matrix(georefs, ncol=3, nrow=NROW(az), byrow=T) }
+  if (class(loc)[1] == 'skyscapeR.horizon') { georefs <- loc$metadata$georef; georefs <- matrix(georefs, ncol=3, nrow=NROW(az), byrow=TRUE) }
   if (class(loc)[1] == 'list') {
     georefs <- matrix(NA, ncol=3, nrow=NROW(loc))
     for (i in 1:NROW(loc)) { georefs[i,] <- loc[[i]]$metadata$georef } }
@@ -110,13 +110,13 @@ obliquity = function(year = skyscapeR.env$cur.year) {
 }
 
 #' @noRd
-body.position.unvec = function(obj='sun', time, timezone, calendar, dec, loc = NULL, refraction, atm, temp, verbose=T) {
+body.position.unvec = function(obj='sun', time, timezone, calendar, dec, loc = NULL, refraction, atm, temp, verbose=TRUE) {
 
   if (is.null(loc)) {
     if (verbose) { cat('No location given. Forcing output to equatorial coordinates in the geocentric frame of reference.\n') }
     dec <- 'geo'
-    nohoriz <- T
-  } else { nohoriz <- F }
+    nohoriz <- TRUE
+  } else { nohoriz <- FALSE }
 
   body <- checkbody(obj)
 
@@ -206,7 +206,7 @@ body.position <- function(obj='sun', time, timezone, calendar, dec, loc=NULL, re
   } else {
     aux <- body.position.vec(obj, time, timezone, calendar, dec, loc, refraction, atm, temp, verbose)
     out <- c()
-    out$equatorial <- as.data.frame(matrix(unlist(lapply(aux,'[[', 'equatorial')), ncol=2, byrow=T)); names(out$equatorial) <- names(aux[[1]]$equatorial)
+    out$equatorial <- as.data.frame(matrix(unlist(lapply(aux,'[[', 'equatorial')), ncol=2, byrow=TRUE)); names(out$equatorial) <- names(aux[[1]]$equatorial)
     if (!is.null(loc)) { out$horizontal <- as.data.frame(matrix(unlist(lapply(aux,'[[', 'horizontal')), ncol=2, byrow=T)); names(out$horizontal) <- names(aux[[1]]$horizontal) }
     return(out)
   }
@@ -291,7 +291,7 @@ moonphase <- function(time, timezone, calendar) {
 #' # Rising and setting of the sun throughout 3001 BC, from the location of London
 #' riseset('sun', -3000, loc=c(51.5, 0.11, 100))
 #' }
-riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, refraction, atm, temp, verbose=T) {
+riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, refraction, atm, temp, verbose=TRUE) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
   if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
   if (missing(dec)) { dec <- skyscapeR.env$dec }
@@ -312,20 +312,18 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
     date <- substr(date,1,which(strsplit(date, "")[[1]]==" ")-1)
     date <- paste(date, '00:00:00')
     jd0 <- time2jd(date, timezone, calendar)
-  }
-
+  } else
   if (nchar(date)==10) {
     date <- paste(date, '00:00:00')
     jd0 <- time2jd(date, timezone, calendar)
-  }
-
+  } else
   if (class(date)[1]=='numeric') {
     dat <- paste0(date,'/01/01 00:00:00')
     jd0 <- time2jd(dat, timezone, calendar)
     jd <- seq(jd0, jd0+366, 1)
     ind <- which(substr(jd2time(jd, timezone, calendar), 1, which(strsplit(jd2time(jd, timezone, calendar), "")[[1]]=="/")[1]-1)==as.character(date))
     jd0 <- jd[ind]
-  }
+  } else
   if (nchar(date)==7) {
     dat <- paste0(date,'/01 00:00:00')
     jd0 <- time2jd(dat, timezone, calendar)
@@ -334,17 +332,17 @@ riseset <- function(obj = 'sun', date, jd, alt=0, loc, calendar, timezone, dec, 
     jd0 <- jd[ind]
   }
 
-  rises <- data.frame(date=NA, time=NA, azimuth=NA, declination=NA, stringsAsFactors = F); sets <- rises
+  rises <- data.frame(date=NA, time=NA, azimuth=NA, declination=NA, stringsAsFactors = FALSE); sets <- rises
   if (length(jd0) > 1 & verbose) { pb <- txtProgressBar(max = length(jd0), style=3) }
 
   for (k in 1:length(jd0)) {
     rise <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 1+256+ifelse(refraction,512,0), c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
-    aux <- body.position(obj, rise, timezone, calendar, dec, loc, refraction, atm, temp, verbose=F)
-    aux1 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(rise, timezone, calendar), stringsAsFactors = F)
+    aux <- body.position(obj, rise, timezone, calendar, dec, loc, refraction, atm, temp, verbose=FALSE)
+    aux1 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(rise, timezone, calendar), stringsAsFactors = FALSE)
 
     set <- swe_rise_trans_true_hor(jd0[k], body, '', 0, 2+256+ifelse(refraction,512,0), c(loc[2],loc[1],loc[3]), atm, temp, alt)$tret
-    aux <- body.position(obj, set, timezone, calendar, dec, loc, refraction, atm, temp, verbose=F)
-    aux2 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(set, timezone, calendar), stringsAsFactors = F)
+    aux <- body.position(obj, set, timezone, calendar, dec, loc, refraction, atm, temp, verbose=FALSE)
+    aux2 <- data.frame(azimuth = aux$horizontal$az, declination = aux$equatorial$Dec, time = jd2time(set, timezone, calendar), stringsAsFactors = FALSE)
 
     date <- substr(jd2time(rise, timezone, calendar),1,which(strsplit(jd2time(jd0[k], timezone, calendar), "")[[1]]==" ")-1)
     rises[k,] <- c(date, substr(aux1$time,which(strsplit(aux1$time, "")[[1]]==" ")+1,nchar(aux1$time)), aux1$azimuth, aux1$declination)
@@ -410,7 +408,7 @@ orbit = function(dec, loc, res=0.25, refraction, atm, temp) {
   ind <- which (aux[,2] > -20)
   aux <- aux[ind,]
 
-  ind <- sort(aux[,1], index.return=T)$ix
+  ind <- sort(aux[,1], index.return=TRUE)$ix
   aux <- aux[ind,]
 
   # return result
@@ -445,7 +443,7 @@ orbit = function(dec, loc, res=0.25, refraction, atm, temp) {
 #' @seealso \code{\link{reduct.theodolite}}
 #' @examples
 #' sunAz(c(52,-3,100), '2017-10-04 12:32:14', 'Europe/London')
-sunAz = function(loc, time, timezone, limb, alt=F) {
+sunAz = function(loc, time, timezone, limb, alt=FALSE) {
   if (missing(timezone)) { timezone <- skyscapeR.env$timezone }
 
   if (class(loc)[1]=='skyscapeR.horizon') { loc <- c(loc$metadata$georef, loc$metadata$elevation) }
@@ -494,7 +492,7 @@ sunAz = function(loc, time, timezone, limb, alt=F) {
 #' solar.date(-12, 1200, calendar='G')
 #' solar.date(-12, 1200, calendar='J')
 #' solar.date(14, -2000)
-solar.date <- function(dec, year, calendar, verbose=T){
+solar.date <- function(dec, year, calendar, verbose=TRUE){
   checkYear(year)
   if (missing(calendar)) { calendar <- skyscapeR.env$calendar }
 

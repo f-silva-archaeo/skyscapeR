@@ -1,4 +1,4 @@
-
+utils::globalVariables("hor")
 #' @noRd
 bernoulli <- function(n,p,r) {
   return( factorial(n) / (factorial(r) * factorial(n-r)) * p^r * (1-p)^(n-r) )
@@ -55,7 +55,7 @@ bernoulli.trial <- function(n,p,r, type='tail') {
 az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-5, .res=0.01) {
 
   ## probability distribution
-  if (is(pdf,'character')) {
+  if (inherits(pdf,'character')) {
 
     code <- switch(pdf, N = 0, Normal = 0, n = 0, normal = 0, U = 1, Uniform = 1, u = 1, uniform = 1, -1)
 
@@ -71,10 +71,10 @@ az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-5, .res=0.
       stop('Missing azimuths and/or uncertainties.')
     }
 
-  } else if (is(pdf, 'data.frame') & sum(colnames(pdf) == c('az','dens'))) {
+  } else if (inherits(pdf, 'data.frame') & sum(colnames(pdf) == c('az','dens'))) {
     if (verbose) { stop('Custom probability distribution found. This feature is not yet functional.') }
 
-  } else if (is(pdf, 'list') & is(pdf[[1]], 'data.frame') & sum(colnames(pdf[[1]]) == c('az','dens'))) {
+  } else if (inherits(pdf, 'list') & is(pdf[[1]], 'data.frame') & sum(colnames(pdf[[1]]) == c('az','dens'))) {
     if (verbose) { stop('Custom probability distribution(s) found. This feature is not yet functional.') }
 
   } else {
@@ -128,10 +128,10 @@ az.pdf <- function(pdf='normal', az, unc, name, verbose=T, .cutoff=1e-5, .res=0.
 
 
 #' @noRd
-coordtrans_unc <- function(pdf, hor, xrange, refraction, atm, temp, verbose=T, .res=0.1) {
+coordtrans_unc <- function(pdf, hor, xrange, refraction, atm, temp, verbose=T, .res=0.1, .prec=0.1) {
 
-  if ((is(pdf, 'skyscapeR.pdf') & pdf$metadata$coord != 'az') & (!is(pdf, 'skyscapeR.spd'))) stop('Azimuthal probability density function(s) not recognized or not in correct format.')
-  if (!is(hor, 'skyscapeR.horizon') & !is(hor, 'list')) stop('Horizon(s) not recognized or not in correct format.')
+  if ((inherits(pdf, 'skyscapeR.pdf') & pdf$metadata$coord != 'az') & (!inherits(pdf, 'skyscapeR.spd'))) stop('Azimuthal probability density function(s) not recognized or not in correct format.')
+  if (!inherits(hor, 'skyscapeR.horizon') & !inherits(hor, 'list')) stop('Horizon(s) not recognized or not in correct format.')
 
   ## init parameters
   if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
@@ -232,6 +232,7 @@ coordtrans_unc <- function(pdf, hor, xrange, refraction, atm, temp, verbose=T, .
 #' If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @param .res (Optional) Declination resolution with which to output probability distribution(s). Default is 0.1 degrees.
+#' @param .prec (Optional) Precision setting for coordinate transformations. Default is 0.1.
 #' @import pointr
 #' @export
 #' @references Silva, F (2020) A probabilistic framework and significance test for the analysis of structural orientations
@@ -267,7 +268,7 @@ coordtrans <- compiler::cmpfun(coordtrans_unc, options=list(enableJIT = 3))
 #' s2 <- spd(Dec)
 #' plot(s2)
 spd <- function(pdf, normalise = F, xrange, .cutoff = 1e-5, .res = 0.01) {
-  if (!is(pdf, 'skyscapeR.pdf')) { stop('Please provide a valid skyscapeR.pdf object.') }
+  if (!inherits(pdf, 'skyscapeR.pdf')) { stop('Please provide a valid skyscapeR.pdf object.') }
 
   aux <- pdf$data
   x <- lapply(aux, "[[", 'x')
@@ -316,7 +317,7 @@ randomTest_unc <- function(pdf, .res=0.1, nsims=1000, conf=.95, tails=2, normali
       empirical <- spd(pdf, xrange=xrange, normalise = normalise, .res=.res)
     } else {
       az <- pdf
-      if (!is(hor,"skyscapeR.horizon")) { stop('Please include a valid skyscapeR.horizon object.') }
+      if (!inherits(hor,"skyscapeR.horizon")) { stop('Please include a valid skyscapeR.horizon object.') }
       if (verbose) { cat('Single horizon profile found. Using it for all measurements.\n') }
       if (missing(refraction)) { refraction <- skyscapeR.env$refraction }
       if (missing(atm)) { atm <- skyscapeR.env$atm }
@@ -517,11 +518,11 @@ randomTest <- compiler::cmpfun(randomTest_unc, options=list(enableJIT = 3))
 
 
 #' @noRd
-modelTest_unc <- function(pdf, model, nsims=1000, conf=.95, tails=2, normalise=F, ncores=parallel::detectCores()-1, save.sim=F, verbose=T) {
+modelTest_unc <- function(pdf, model, nsims=1000, conf=.95, tails=2, normalise=F, ncores=parallel::detectCores()-1, save.sim=F, verbose=T, .res=0.1) {
   if (missing(model)) { stop('model is necessary to run this test.') }
-  if (class(model) != 'data.frame' & class(model) != 'list') { stop('model must be given as a data.frame or list of data.frames.') }
-  if (class(model) == 'list' & NROW(model) != NROW(pdf$data)) { stop('model must be a list of data.frames with equal number to the empirical observations.') }
-  if (class(model) == 'data.frame') {
+  if (inherits(model) != 'data.frame' & inherits(model) != 'list') { stop('model must be given as a data.frame or list of data.frames.') }
+  if (inherits(model) == 'list' & NROW(model) != NROW(pdf$data)) { stop('model must be a list of data.frames with equal number to the empirical observations.') }
+  if (inherits(model) == 'data.frame') {
     model <- list(model)
     model <- rep(model, NROW(pdf$data))
   }
@@ -684,6 +685,7 @@ modelTest_unc <- function(pdf, model, nsims=1000, conf=.95, tails=2, normalise=F
 #' Default is 2.
 #' @param normalise (Optional) Boolean to control whether to normalize SPDs. Default is FALSE
 #' @param ncores (Optional) Number of CPU cores to use. Default is the number of available cores minus 1.
+#' @param save.sim (Optional) Logical. If `TRUE`, saves simulated values for further analysis. Cannot be used with `ncores > 1`. Default is `FALSE`.
 #' @param verbose (Optional) Boolean to control whether or not to display text. Default is TRUE.
 #' @param .res (Optional) Resolution with which to output probability distribution(s). Default is 0.1 degrees.
 #' @import snow doSNOW foreach
