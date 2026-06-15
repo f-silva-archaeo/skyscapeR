@@ -10,7 +10,7 @@ az.pdf(
   unc,
   name,
   verbose = T,
-  .cutoff = 1e-04,
+  .cutoff = 1e-05,
   .res = 0.01
 )
 }
@@ -27,7 +27,7 @@ value to be applied to all measurements}
 
 \item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 
-\item{.cutoff}{(Optional) Value of probability distribution(s) at which point it will be cutoff to save on memory. Default is 1e-4}
+\item{.cutoff}{(Optional) Value of probability distribution(s) at which point it will be cutoff to save on memory. Default is 1e-5}
 
 \item{.res}{(Optional) Azimuth resolution with which to output probability distribution(s). Default is 0.01 degrees.}
 }

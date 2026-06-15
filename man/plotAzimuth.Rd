@@ -4,7 +4,7 @@
 \alias{plotAzimuth}
 \title{Polar plot of orientations (azimuths)}
 \usage{
-plotAzimuth(az, col = "blue", lwd = 1.5, lty = 1, obj, show.obj.labels = T)
+plotAzimuth(az, col = "blue", lwd = 1.5, lty = 1, obj, show.obj.labels = TRUE)
 }
 \arguments{
 \item{az}{(Optional) Array of azimuths. Can be omitted is \emph{obj} is given.}

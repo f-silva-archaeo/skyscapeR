@@ -8,7 +8,7 @@
   x,
   index,
   hdr = 0.954,
-  show.az = T,
+  show.az = TRUE,
   xlim,
   col = MESS::col.alpha("blue", 0.5),
   ...

@@ -4,7 +4,7 @@
 \alias{plot.skyscapeR.spd}
 \title{Plot orientation summed probability density}
 \usage{
-\method{plot}{skyscapeR.spd}(x, xlim, ylim, title = NULL, col = "blue", shading = T, ...)
+\method{plot}{skyscapeR.spd}(x, xlim, ylim, title = NULL, col = "blue", shading = TRUE, ...)
 }
 \arguments{
 \item{x}{A \emph{skyscapeR.spd} object created with \code{\link{spd}}}

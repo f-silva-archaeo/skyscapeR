@@ -4,7 +4,17 @@
 \alias{coordtrans}
 \title{Coordinate-transform azimuth prob distributions into declination prob distributions}
 \usage{
-coordtrans(pdf, hor, xrange, refraction, atm, temp, verbose = T, .res = 0.1)
+coordtrans(
+  pdf,
+  hor,
+  xrange,
+  refraction,
+  atm,
+  temp,
+  verbose = T,
+  .res = 0.1,
+  .prec = 0.1
+)
 }
 \arguments{
 \item{pdf}{A \emph{skyscapeR.pdf} object created with \code{\link{az.pdf}} or a \emph{skyscapeR.spd} object created with \code{\link{spd}}}
@@ -25,6 +35,8 @@ If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 \item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 
 \item{.res}{(Optional) Declination resolution with which to output probability distribution(s). Default is 0.1 degrees.}
+
+\item{.prec}{(Optional) Precision setting for coordinate transformations. Default is 0.1.}
 }
 \description{
 Coordinate-transform azimuth prob distributions into declination prob distributions

@@ -13,6 +13,7 @@ Data reduction, visualization and statistical analysis of measurements of orient
 
 Other contributors:
 \itemize{
+  \item Finnimore Billy \email{billy.finnimore@hotmail.co.uk} [contributor]
   \item Reijs Victor [contributor]
   \item Gautschy Rita [contributor]
 }

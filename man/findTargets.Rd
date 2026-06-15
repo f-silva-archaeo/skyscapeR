@@ -9,6 +9,7 @@ findTargets(
   timerange,
   max.mag = 2.5,
   loc = FALSE,
+  dates = FALSE,
   calendar = skyscapeR.env$calendar
 )
 }
@@ -22,6 +23,9 @@ findTargets(
 \item{loc}{Location, either a \emph{skyscapeR.object} or a vector
 containing the latitude, longitude and elevation of location, in this order. Defaults
 to FALSE, thus checking only geocentric declination.}
+
+\item{dates}{(Optional) Whether to display time period when identified celestial targets
+occur within declination range. Default is FALSE.}
 
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}

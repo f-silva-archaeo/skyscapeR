@@ -6,11 +6,11 @@
 \usage{
 \method{plot}{skyscapeR.horizon}(
   x,
-  show.az = F,
+  show.az = FALSE,
   xlim,
   ylim,
   obj,
-  refraction = F,
+  refraction = FALSE,
   col.ground = "darkgreen",
   col.sky,
   ...

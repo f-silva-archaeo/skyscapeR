@@ -17,7 +17,7 @@ riseset(
   refraction,
   atm,
   temp,
-  verbose = T
+  verbose = TRUE
 )
 }
 \arguments{

@@ -13,7 +13,8 @@ modelTest(
   normalise = F,
   ncores = parallel::detectCores() - 1,
   save.sim = F,
-  verbose = T
+  verbose = T,
+  .res = 0.1
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ Default is 2.}
 \item{normalise}{(Optional) Boolean to control whether to normalize SPDs. Default is FALSE}
 
 \item{ncores}{(Optional) Number of CPU cores to use. Default is the number of available cores minus 1.}
+
+\item{save.sim}{(Optional) Logical. If `TRUE`, saves simulated values for further analysis. Cannot be used with `ncores > 1`. Default is `FALSE`.}
 
 \item{verbose}{(Optional) Boolean to control whether or not to display text. Default is TRUE.}
 

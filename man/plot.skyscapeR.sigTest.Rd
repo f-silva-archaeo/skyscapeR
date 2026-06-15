@@ -9,8 +9,8 @@
   xlim,
   title = NULL,
   col = "blue",
-  show.pval = T,
-  show.local = F,
+  show.pval = TRUE,
+  show.local = FALSE,
   pal = brewer.pal(5, "PRGn")[c(1, 5)],
   ...
 )

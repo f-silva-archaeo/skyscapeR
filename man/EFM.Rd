@@ -56,8 +56,8 @@ Moon (AFM), for a given year and location.
 # Spring Full Moon from a location in Portugal in the year 2018
 EFM(year=2018, loc=c(35,-8,100))
 
-# Autumn Full Moons in the last three years
+# Autumn Full Moons over a 3 year period
 \dontrun{
-EFM(season='autumn', year=c(2019,2021), loc=c(35,-8,100))
+EFM(season='autumn', year=c(2018,2020), loc=c(35,-8,100))
 }
 }

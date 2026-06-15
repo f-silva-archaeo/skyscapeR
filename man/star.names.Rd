@@ -3,7 +3,7 @@
 \docType{data}
 \name{star.names}
 \alias{star.names}
-\title{Celetial Object Names}
+\title{Celestial Object Names}
 \format{
 A data frame with 300 rows and 2 variables:
  \describe{

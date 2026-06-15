@@ -6,16 +6,19 @@
 \usage{
 sky.sketch(
   time,
+  loc,
+  sun = TRUE,
+  moon = TRUE,
+  planets = FALSE,
+  const,
+  xrange = c(30, 150),
+  yrange = c(-15, 75),
   timezone,
   calendar,
-  xrange = c(30, 150),
-  yrange = c(-45, 45),
-  sun = T,
-  moon = T,
-  planets = F,
-  exagerate = T,
+  exagerate = TRUE,
   max.mag = 6,
-  loc,
+  show.az = FALSE,
+  col.ground = "darkgreen",
   atm,
   temp
 )
@@ -23,6 +26,21 @@ sky.sketch(
 \arguments{
 \item{time}{Either a string containing the date and time in the format "YYYY-MM-DD HH:MM:SS"
 (see \code{\link{timestring}}), or a numeric containing the julian date (see \code{\link{time2jd}}).}
+
+\item{loc}{Location, either a \emph{skyscapeR.object} or a vector
+containing the latitude and longitude of location, in this order.}
+
+\item{sun}{(Optional) Boolean on whether the sun should be displayed. Defaults to \emph{TRUE}.}
+
+\item{moon}{(Optional) Boolean on whether the moon should be displayed. Defaults to \emph{TRUE}.}
+
+\item{planets}{(Optional) Boolean on whether the visible planets should be displayed. Defaults to \emph{FALSE}.}
+
+\item{const}{(Optional) A string or vector of strings specifying constellations to display (e.g., "Ori", "modern").}
+
+\item{xrange}{Range of azimuths to display, preferably no larger than 120 degrees.}
+
+\item{yrange}{Range of altitudes to display, preferably no larger than 120 degrees.}
 
 \item{timezone}{(Optional) Timezone of input either as a known acronym (e.g. "GMT", "CET") or
 a string with continent followed by country capital (e.g. "Europe/London"). See
@@ -32,23 +50,14 @@ by \code{\link{skyscapeR.vars}} will be used instead.}
 \item{calendar}{(Optional) Calendar used in parameter \emph{time}. G for gregorian and J for julian.
 Only needed if \emph{time} is a string. If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 
-\item{xrange}{Range of azimuths to display, preferably no larger than 120 degrees.}
-
-\item{yrange}{Range of altitudes to display, preferably no larger than 120 degrees.}
-
-\item{sun}{(Optional) Boolean on whether the sun should be displayed. Defaults to \emph{TRUE}.}
-
-\item{moon}{(Optional) Boolean on whether the moon should be displayed. Defaults to \emph{TRUE}.}
-
-\item{planets}{(Optional) Boolean on whether the visible planets should be displayed. Defaults to \emph{FALSE}.}
-
 \item{exagerate}{(Optional) Boolean on whether the size of the sun, moon and planets should be exaggerated,
 which can be useful when attempting wider viewing angles. Defaults to \emph{TRUE}.}
 
 \item{max.mag}{(Optional) Maximum magnitude of stars to consider. Default is 6.}
 
-\item{loc}{Location, either a \emph{skyscapeR.object} or a vector
-containing the latitude and longitude of location, in this order.}
+\item{show.az}{Logical. Whether to display azimuth labels (default: FALSE).}
+
+\item{col.ground}{Character. The colour of the ground in the sketch (default: "darkgreen").}
 
 \item{atm}{(Optional) Atmospheric pressure for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
@@ -56,9 +65,23 @@ If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.
 \item{temp}{(Optional) Atmospheric temperature for refraction calculation.
 If not given the value set by \code{\link{skyscapeR.vars}} will be used instead.}
 }
+\value{
+A plot displaying the sky at a given time and location.
+}
 \description{
 Create a simplistic sketch of the sky at a given moment in time
 }
 \examples{
 sky.sketch(time='2019/01/10 18:51', loc=c(35,-8,100))
+
+# showing one constellation
+sky.sketch(time='2019/01/10 18:51', loc=c(35,-8,100), const='Ori')
+
+# using a skyscapeR.horizon and three constellations
+az <- c(0,90,180,270,360); alt <- c(0,5,5,0,0)
+hor <- createHor(az, alt, 0.1, c(40.1,-8), 'Test')
+sky.sketch(time='2019/01/10 18:51', loc=hor, const=c('Ori','Tau','Gem'))
+
+# showing all modern constellations
+sky.sketch(time='2019/01/10 18:51', loc=hor, const='modern')
 }
