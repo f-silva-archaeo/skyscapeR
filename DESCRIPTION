@@ -1,13 +1,15 @@
 Package: skyscapeR
 Type: Package
 Title: Data Analysis and Visualization for Skyscape Archaeology
-Version: 1.1-240925
-Date: 2024-09-25
-Authors@R: c(person("Silva", "Fabio", email = "fsilva@bournemouth.ac.uk", role = c("aut", "cre")), person("Reijs", "Victor", role = "ctb"), person("Gautschy", "Rita", role = "ctb"))
+Version: 1.1.0
+Date: 2025-03-02
+Authors@R: c(person("Silva", "Fabio", email = "fsilva@bournemouth.ac.uk", role = c("aut", "cre")), person("Finnimore", "Billy", email = "billy.finnimore@hotmail.co.uk", role = c("ctb")), person("Reijs", "Victor", role = "ctb"), person("Gautschy", "Rita", role = "ctb"))
+Maintainer: Billy Finnimore <billy.finnimore@hotmail.co.uk>
 Description: Data reduction, visualization and statistical analysis of measurements of orientation of archaeological structures, following Silva (2020) <doi:10.1016/j.jas.2020.105138>.
 Depends: R (>= 4.1), swephR
 Imports: 
     methods,
+    doParallel,
     oce,
     utils,
     stats,
@@ -16,18 +18,21 @@ Imports:
     MESS,
     RColorBrewer,
     snow,
+    stringr,
     foreach,
     doSNOW,
     rootSolve,
     httr,
     plotrix,
     pointr,
-    zoo
+    zoo,
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
-Suggests: testthat,
+RoxygenNote: 7.3.3
+Suggests: 
+    testthat (>= 3.0.0),
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Config/testthat/edition: 3
