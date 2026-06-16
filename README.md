@@ -11,7 +11,7 @@ For an introduction to _skyscapeR_ check [the official vignette](https://github.
 Just do:
 ```r
 if(!requireNamespace("remotes", quietly = TRUE)) { install.packages("remotes") }
-remotes::install_github('f-silva-archaeo/skyscapeR', dependencies = TRUE)
+remotes::install_github('stonexsky/skyscapeR', dependencies = TRUE)
 ```
 
 ## Release Notes
