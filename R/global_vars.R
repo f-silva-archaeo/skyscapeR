@@ -67,8 +67,8 @@ swapStars <- function(source='skyscapeR') {
   if (!identical(readLines(swephR_file, n=1), readLines(source_file, n=1))) {
       file.copy(source_file, swephR_file, overwrite = TRUE)
       file.copy(source_file, swephRdata_file, overwrite = TRUE)
-      packageStartupMessage('Replaced swephR stellar ephemeris file.')
-  }
+      cat('Replaced swephR stellar ephemeris file.')
+  } else { cat('Stellar ephemeris file already up to date.')}
 }
 
 globalVariables('star.names')
