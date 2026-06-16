@@ -10,12 +10,15 @@ For an introduction to _skyscapeR_ check [the official vignette](https://github.
 ## Installation
 Just do:
 ```r
-if(!requireNamespace("devtools", quietly = TRUE)) { install.packages("devtools") }
-devtools::install_github('f-silva-archaeo/skyscapeR')
+if(!requireNamespace("remotes", quietly = TRUE)) { install.packages("remotes") }
+remotes::install_github('f-silva-archaeo/skyscapeR', dependencies = TRUE)
 ```
 
 ## Release Notes
-### v1.1 (Current experimental build)
+### v1.2 (Current experimental build)
+Several developments being worked on.
+
+### v1.1 
 Several changes currently being tested and/or finalised. Thoroughly tested on Mac OS X, but also installed on Windows and Linux.
 
 ### v1.0.0

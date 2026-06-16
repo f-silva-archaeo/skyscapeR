@@ -1,4 +1,4 @@
-skyscapeR v1.1 (Release date: 2024-09-25)
+skyscapeR v1.2 (Release date: TBD)
 ==============
 
 Changes:
