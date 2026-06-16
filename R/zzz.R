@@ -1,6 +1,7 @@
-.onLoad <- function(libname, pkgname){
-  # swapStars()
-}
+# .onLoad <- function(libname, pkgname){
+#   swapStars()
+# }
+
 .onAttach <- function(...) {
   s1 <- " ____  _                                   ____     \n"
   s2 <- "/ ___|| | ___   _ ___  ___ __ _ _ __   ___|  _  \\    \n"
