@@ -51,22 +51,23 @@ skyscapeR.vars = function(timezone, calendar, refraction, atm, temp, dec) {
 #' either \emph{swephR} or \emph{skyscapeR}. Defaults to the latter.
 #' @export
 swapStars <- function(source='skyscapeR') {
+
   swephR_file <- system.file('ephemeris', 'sefstars.txt', package='swephR')
   swephRdata_file <- system.file('ephemeris', 'sefstars.txt', package='swephRdata')
 
-  swephR_bkp  <- system.file('ephemeris', 'swephR-sefstars.txt', package='skyscapeR')
-  skyscapeR_file <- system.file('ephemeris', 'skyscapeR-sefstars.txt', package='skyscapeR')
-
   if (source == 'skyscapeR') {
-    file.copy(skyscapeR_file, swephR_file, overwrite = TRUE)
-    file.copy(skyscapeR_file, swephRdata_file, overwrite = TRUE)
-    packageStartupMessage('Replaced swephR stellar ephemeris file with skyscapeR version.')
+    source_file <- system.file('ephemeris', 'skyscapeR-sefstars.txt', package='skyscapeR')
   } else if (source == 'swephR') {
-    file.copy(swephR_bkp, swephR_file, overwrite = TRUE)
-    file.copy(swephR_bkp, swephRdata_file, overwrite = TRUE)
-    packageStartupMessage('Restored original swephR stellar ephemeris file.')
+    source_file <- system.file('ephemeris', 'swephR-sefstars.txt', package='skyscapeR')
   } else {
     stop('Source not recognised.')
+  }
+
+  # check if change is needed
+  if (!identical(readLines(swephR_file, n=1), readLines(source_file, n=1))) {
+      file.copy(source_file, swephR_file, overwrite = TRUE)
+      file.copy(source_file, swephRdata_file, overwrite = TRUE)
+      packageStartupMessage('Replaced swephR stellar ephemeris file.')
   }
 }
 
