@@ -9,7 +9,12 @@
 Data reduction, visualization and statistical analysis of measurements of orientation of archaeological structures, following Silva (2020) \doi{10.1016/j.jas.2020.105138}.
 }
 \author{
-\strong{Maintainer}: Silva Fabio \email{fsilva@bournemouth.ac.uk}
+\strong{Maintainer}: Silva Fabio \email{fsilva@stonexsky.com}
+
+Authors:
+\itemize{
+  \item Silva Fabio \email{fsilva@stonexsky.com}
+}
 
 Other contributors:
 \itemize{

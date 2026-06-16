@@ -8,11 +8,11 @@
 A data frame with 32 rows and 6 variables:
  \describe{
    \item{Name}{Structure name}
-   \item{Latitude}{}
-   \item{Longitue}{}
-   \item{Az L} {Leftmost azimuth of entrance}
-   \item{Az R} {Rightmost azimuth of entrance}
-   \item{Phase} {Chronolgoical phase of structure}
+   \item{Latitude}{Latitude of structure}
+   \item{Longitude}{Longitude of strutuce}
+   \item{Az L}{Leftmost azimuth of entrance}
+   \item{Az R}{Rightmost azimuth of entrance}
+   \item{Phase}{Chronological phase of structure}
    }
 }
 \usage{
