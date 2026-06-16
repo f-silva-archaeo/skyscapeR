@@ -3,7 +3,7 @@ Type: Package
 Title: Data Analysis and Visualization for Skyscape Archaeology
 Version: 1.2.0
 Date: 2026-06-16
-Authors@R: c(person("Silva", "Fabio", email = "fsilva@stonexsky.com", role = c("aut", "cre")), person("Finnimore", "Billy", email = "billy.finnimore@hotmail.co.uk", role = c("ctb")), person("Reijs", "Victor", role = "ctb"), person("Gautschy", "Rita", role = "ctb"))
+Authors@R: c(person("Fabio", "Silva", email = "fsilva@stonexsky.com", role = c("aut", "cre")), person("Billy", "Finnimore", email = "billy.finnimore@hotmail.co.uk", role = c("ctb")), person("Victor", "Reijs", role = "ctb"), person("Rita", "Gautschy", role = "ctb"))
 Maintainer: Fabio Silva <fsilva@stonexsky.com>
 Description: Data reduction, visualization and statistical analysis of measurements of orientation of archaeological structures, following Silva (2020) <doi:10.1016/j.jas.2020.105138>.
 Depends: R (>= 4.1), swephR, swephRdata
